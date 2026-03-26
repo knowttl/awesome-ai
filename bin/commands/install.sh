@@ -58,9 +58,9 @@ EOF
   esac
 done
 
-# --- Profile install (delegates to Task 13) ---
+# --- Profile install ---
 if [[ -n "$PROFILE" ]]; then
-  source "$CMD_DIR/../lib/profile.sh" 2>/dev/null || die "Profile support not yet implemented"
+  source "$CMD_DIR/../lib/profile.sh"
   install_profile "$PROFILE" "$TARGET_DIR" "$GLOBAL_INSTALL" "$USE_SYMLINK" "${AGENTS[*]}"
   exit $?
 fi

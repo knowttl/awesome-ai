@@ -78,8 +78,13 @@ if (-not $Positional -and -not $Profile) {
     exit 0
 }
 
-# Profile install (Task 13)
-if ($Profile) { Write-Die "Profile install not yet implemented" }
+# Profile install
+if ($Profile) {
+    . (Join-Path $CmdDir "../lib/profile.ps1")
+    Install-Profile -ProfileName $Profile -TargetDir $TargetDir `
+        -GlobalInstall $GlobalInstall -UseSymlink $UseSymlink -AgentsOverride $AgentArgs
+    exit 0
+}
 
 # Resolve source
 $ItemName = ""; $ItemDir = ""; $SourceType = "local"
