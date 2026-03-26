@@ -57,7 +57,6 @@
 | File | Responsibility |
 |---|---|
 | `tests/run-tests.sh` | Bash test runner |
-| `tests/run-tests.ps1` | PowerShell test runner |
 | `tests/test-common.sh` | Tests for `lib/common.sh` |
 | `tests/test-agents.sh` | Tests for `lib/agents.sh` |
 | `tests/test-lock.sh` | Tests for `lib/lock.sh` |
@@ -74,7 +73,7 @@
 |---|---|---|
 | 1 | Shared lib: `common.sh` + `common.ps1` | None |
 | 2 | Shared lib: `agents.sh` + `agents.ps1` | Task 1 |
-| 3 | Shared lib: `git.sh` + `git.ps1` | Task 1 |
+| 3 | Shared lib: `git.sh` + `git.ps1` (+ synthetic manifest) | Task 1 |
 | 4 | Shared lib: `lock.sh` + `lock.ps1` | Task 1 |
 | 5 | Dispatchers: `skill` + `skill.ps1` | Task 1 |
 | 6 | Command: `sync` (registry generation) | Tasks 1, 5 |
@@ -82,7 +81,7 @@
 | 8 | Command: `search` | Tasks 1, 5, 6 |
 | 9 | Command: `info` | Tasks 1, 5, 6 |
 | 10 | Command: `install` (local source) | Tasks 1-6 |
-| 11 | Command: `install` (remote source) | Tasks 3, 10 |
+| 11 | Verify: synthetic manifests + remote install | Task 3, 10 |
 | 12 | Command: `install` (lock file restore) | Tasks 4, 10, 11 |
 | 13 | Command: `install --profile` | Tasks 10, 11, 12 |
 | 14 | Command: `uninstall` | Tasks 1, 2, 4, 5 |
@@ -749,6 +748,42 @@ cleanup_temp() {
   fi
 }
 
+# For repos without manifest.yaml, generate a synthetic manifest from SKILL.md frontmatter.
+# This enables compatibility with npx-skills-style repos.
+generate_synthetic_manifest() {
+  local item_dir="$1"
+  local skill_md="$item_dir/SKILL.md"
+
+  if [[ ! -f "$skill_md" ]]; then return 1; fi
+  if [[ -f "$item_dir/manifest.yaml" ]]; then return 0; fi  # already has manifest
+
+  # Read frontmatter from SKILL.md
+  local name description
+  local frontmatter
+  frontmatter="$(sed -n '/^---$/,/^---$/p' "$skill_md" | sed '1d;$d')"
+
+  name="$(echo "$frontmatter" | yaml_read_field name)"
+  description="$(echo "$frontmatter" | yaml_read_field description)"
+
+  # Fallback to directory name if no name in frontmatter
+  [[ -z "$name" ]] && name="$(basename "$item_dir")"
+  [[ -z "$description" ]] && description="Skill imported from external repository"
+
+  # Write synthetic manifest
+  cat > "$item_dir/manifest.yaml" <<EOF
+name: $name
+type: skill
+description: $description
+tags: []
+targets:
+  - claude-code
+  - github-copilot
+files:
+  - SKILL.md
+version: "0.0.0"
+EOF
+}
+
 # Scan a cloned repo for skills/agents/instructions.
 # Looks for manifest.yaml files in known locations.
 # Outputs: newline-separated list of paths to directories containing manifest.yaml
@@ -764,6 +799,7 @@ scan_repo_for_items() {
           found+=("$item_dir")
         elif [[ -f "${item_dir}SKILL.md" ]]; then
           # Support repos that don't use manifest.yaml (npx skills style)
+          generate_synthetic_manifest "${item_dir%/}"
           found+=("$item_dir")
         fi
       done
@@ -774,6 +810,7 @@ scan_repo_for_items() {
   if [[ -f "$repo_dir/manifest.yaml" ]]; then
     found+=("$repo_dir/")
   elif [[ -f "$repo_dir/SKILL.md" ]]; then
+    generate_synthetic_manifest "$repo_dir"
     found+=("$repo_dir/")
   fi
 
@@ -849,6 +886,7 @@ function Find-RepoItems {
                 if (Test-Path (Join-Path $itemDir.FullName "manifest.yaml")) {
                     $found += $itemDir.FullName
                 } elseif (Test-Path (Join-Path $itemDir.FullName "SKILL.md")) {
+                    New-SyntheticManifest -ItemDir $itemDir.FullName | Out-Null
                     $found += $itemDir.FullName
                 }
             }
@@ -857,9 +895,43 @@ function Find-RepoItems {
     if (Test-Path (Join-Path $RepoDir "manifest.yaml")) {
         $found += $RepoDir
     } elseif (Test-Path (Join-Path $RepoDir "SKILL.md")) {
+        New-SyntheticManifest -ItemDir $RepoDir | Out-Null
         $found += $RepoDir
     }
     return $found
+}
+
+function New-SyntheticManifest {
+    param([string]$ItemDir)
+    $skillMd = Join-Path $ItemDir "SKILL.md"
+    $manifestPath = Join-Path $ItemDir "manifest.yaml"
+
+    if (-not (Test-Path $skillMd)) { return $false }
+    if (Test-Path $manifestPath) { return $true }
+
+    $content = Get-Content $skillMd -Raw
+    # Extract frontmatter
+    if ($content -match '(?s)^---\r?\n(.+?)\r?\n---') {
+        $fm = $Matches[1]
+        $name = Read-YamlField -Content $fm -Key "name"
+        $description = Read-YamlField -Content $fm -Key "description"
+    }
+    if (-not $name) { $name = Split-Path $ItemDir -Leaf }
+    if (-not $description) { $description = "Skill imported from external repository" }
+
+    @"
+name: $name
+type: skill
+description: $description
+tags: []
+targets:
+  - claude-code
+  - github-copilot
+files:
+  - SKILL.md
+version: "0.0.0"
+"@ | Set-Content -Path $manifestPath -Encoding UTF8
+    return $true
 }
 ```
 
@@ -924,9 +996,7 @@ assert_eq "lock file has installed" "0" "$(echo "$CONTENT" | grep -c '"installed
 lock_add_entry "$LOCK_FILE" \
   "test-skill" "skill" "1.0.0" \
   "local" "" "" \
-  "claude-code,github-copilot" \
-  ".claude/skills/test-skill/SKILL.md,.github/copilot/skills/test-skill/SKILL.md" \
-  ""
+  "claude-code,github-copilot" ""
 
 CONTENT="$(cat "$LOCK_FILE")"
 assert_eq "entry added" "0" "$(echo "$CONTENT" | grep -c '"test-skill"')"
@@ -989,12 +1059,12 @@ lock_has_entry() {
 }
 
 # Add or update an entry.
-# Args: lock_file name type version source sourceUrl sourceCommit agents_csv files_csv profile
+# Args: lock_file name type version source sourceUrl sourceCommit agents_csv profile
 lock_add_entry() {
   local lock_file="$1"
   local name="$2" type="$3" version="$4"
   local source="$5" source_url="$6" source_commit="$7"
-  local agents_csv="$8" files_csv="$9" profile="${10:-}"
+  local agents_csv="$8" profile="${9:-}"
   local timestamp
   timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ)"
 
@@ -2172,6 +2242,7 @@ USE_SYMLINK=false
 AGENTS=()
 SKILLS=()
 PROFILE=""
+REF=""
 POSITIONAL=""
 
 while [[ $# -gt 0 ]]; do
@@ -2182,6 +2253,7 @@ while [[ $# -gt 0 ]]; do
     --agent|-a) AGENTS+=("$2"); shift 2 ;;
     --skill|-s) SKILLS+=("$2"); shift 2 ;;
     --profile)  PROFILE="$2"; shift 2 ;;
+    --ref)      REF="$2"; shift 2 ;;
     --yes|-y)   export SKILL_YES=1; shift ;;
     --help|-h)
       cat <<EOF
@@ -2199,6 +2271,7 @@ Options:
   --agent, -a <name>  Target agent(s), repeatable
   --skill, -s <name>  Select specific item(s) from a repo
   --profile <name>    Install a named profile
+  --ref <commit>      Pin to a specific git commit/tag/branch
   --symlink           Symlink instead of copy
   --yes, -y           Skip prompts
 EOF
@@ -2242,7 +2315,7 @@ if is_url "$POSITIONAL" || is_shorthand "$POSITIONAL"; then
   SOURCE_TYPE="remote"
   SOURCE_URL="$(normalize_repo_url "$POSITIONAL")"
   echo "Cloning $(echo "$SOURCE_URL" | sed 's/\.git$//')..."
-  TEMP_CLONE="$(clone_shallow "$SOURCE_URL")"
+  TEMP_CLONE="$(clone_shallow "$SOURCE_URL" "$REF")"
   SOURCE_COMMIT="$(resolve_commit "$TEMP_CLONE")"
 
   # Scan for items
@@ -2332,12 +2405,10 @@ if [[ "$GLOBAL_INSTALL" == "true" ]]; then
   LOCK_FILE="$HOME/.skills-lock.json"
 fi
 
-INSTALLED_FILES=""
-
 while IFS= read -r agent; do
   [[ -z "$agent" ]] && continue
 
-  local base_path
+  base_path=""
   if [[ "$GLOBAL_INSTALL" == "true" ]]; then
     base_path="$(get_global_path "$agent")"
   else
@@ -2349,13 +2420,13 @@ while IFS= read -r agent; do
     continue
   fi
 
-  local dest_dir="$base_path/$ITEM_NAME"
+  dest_dir="$base_path/$ITEM_NAME"
   mkdir -p "$dest_dir"
 
   while IFS= read -r file; do
     [[ -z "$file" ]] && continue
-    local src="$ITEM_DIR/$file"
-    local dst="$dest_dir/$file"
+    src="$ITEM_DIR/$file"
+    dst="$dest_dir/$file"
 
     if [[ ! -f "$src" ]]; then
       warn "File not found: $src — skipping"
@@ -2380,14 +2451,6 @@ while IFS= read -r agent; do
     else
       cp "$src" "$dst"
     fi
-
-    # Track installed file path (relative for project, absolute for global)
-    if [[ "$GLOBAL_INSTALL" == "true" ]]; then
-      INSTALLED_FILES+="$dst,"
-    else
-      local rel_path="${dst#$TARGET_DIR/}"
-      INSTALLED_FILES+="$rel_path,"
-    fi
   done <<< "$ITEM_FILES"
 
   # Print per-agent result
@@ -2403,7 +2466,7 @@ AGENTS_CSV="$(echo "$SELECTED" | tr '\n' ',' | sed 's/,$//')"
 lock_add_entry "$LOCK_FILE" \
   "$ITEM_NAME" "$ITEM_TYPE" "$ITEM_VERSION" \
   "$SOURCE_TYPE" "$SOURCE_URL" "$SOURCE_COMMIT" \
-  "$AGENTS_CSV" "$INSTALLED_FILES" ""
+  "$AGENTS_CSV" ""
 
 info "Installed $ITEM_NAME ($ITEM_TYPE v$ITEM_VERSION)"
 echo "  Lock file updated: $(basename "$LOCK_FILE")"
@@ -2443,6 +2506,7 @@ $UseSymlink = $false
 $AgentArgs = @()
 $SkillArgs = @()
 $Profile = ""
+$Ref = ""
 $Positional = ""
 
 $i = 0
@@ -2454,6 +2518,7 @@ while ($i -lt $args.Count) {
         { $_ -in @("--agent","-a") }  { $AgentArgs += $args[++$i] }
         { $_ -in @("--skill","-s") }  { $SkillArgs += $args[++$i] }
         "--profile"  { $Profile = $args[++$i] }
+        "--ref"      { $Ref = $args[++$i] }
         { $_ -in @("--yes","-y") }    { $env:SKILL_YES = "1" }
         { $_ -in @("--help","-h") }   {
             Write-Host "Usage: skill install [<name|url>] [options]"; exit 0
@@ -2487,7 +2552,7 @@ if ((Test-IsUrl $Positional) -or (Test-IsShorthand $Positional)) {
     $SourceType = "remote"
     $SourceUrl = Resolve-RepoUrl $Positional
     Write-Host "Cloning $SourceUrl..."
-    $TempClone = Invoke-ShallowClone -Url $SourceUrl
+    $TempClone = Invoke-ShallowClone -Url $SourceUrl -Commit $Ref
     $SourceCommit = Get-RepoCommit -RepoDir $TempClone
 
     $foundItems = Find-RepoItems -RepoDir $TempClone
@@ -2599,115 +2664,60 @@ git commit -m "feat: add install command — local and remote sources"
 
 ---
 
-### Task 11: Command — `install` (remote source enhancements)
+### Task 11: Verify — synthetic manifests + remote install
 
-This task adds the remote-specific discovery logic for repos that use SKILL.md without manifest.yaml (compatible with `npx skills` repos).
+> **Note:** The `generate_synthetic_manifest` / `New-SyntheticManifest` functions were integrated into Task 3 (git.sh / git.ps1). This task is a verification checkpoint.
 
-**Files:**
-- Modify: `bin/lib/git.sh` — enhance `scan_repo_for_items` to generate synthetic manifests from SKILL.md frontmatter
-- Modify: `bin/lib/git.ps1` — same
+**Files:** None (verification only)
 
-- [ ] **Step 1: Enhance `scan_repo_for_items` in `bin/lib/git.sh`**
-
-Add this function after `scan_repo_for_items` in `bin/lib/git.sh`:
+- [ ] **Step 1: Create a test repo without manifest.yaml**
 
 ```bash
-# For repos without manifest.yaml, generate a synthetic manifest from SKILL.md frontmatter.
-# This enables compatibility with npx-skills-style repos.
-generate_synthetic_manifest() {
-  local item_dir="$1"
-  local skill_md="$item_dir/SKILL.md"
+TMP_REPO="$(mktemp -d)"
+mkdir -p "$TMP_REPO/skills/no-manifest-skill"
+cat > "$TMP_REPO/skills/no-manifest-skill/SKILL.md" <<'EOF'
+---
+name: no-manifest-skill
+description: Test skill without a manifest.yaml
+---
 
-  if [[ ! -f "$skill_md" ]]; then return 1; fi
-  if [[ -f "$item_dir/manifest.yaml" ]]; then return 0; fi  # already has manifest
+# No Manifest Skill
 
-  # Read frontmatter from SKILL.md
-  local name description
-  local frontmatter
-  frontmatter="$(sed -n '/^---$/,/^---$/p' "$skill_md" | sed '1d;$d')"
-
-  name="$(echo "$frontmatter" | yaml_read_field name)"
-  description="$(echo "$frontmatter" | yaml_read_field description)"
-
-  # Fallback to directory name if no name in frontmatter
-  [[ -z "$name" ]] && name="$(basename "$item_dir")"
-  [[ -z "$description" ]] && description="Skill imported from external repository"
-
-  # Write synthetic manifest
-  cat > "$item_dir/manifest.yaml" <<EOF
-name: $name
-type: skill
-description: $description
-tags: []
-targets:
-  - claude-code
-  - github-copilot
-files:
-  - SKILL.md
-version: "0.0.0"
+This skill has no manifest.yaml — the CLI should generate one.
 EOF
-}
+git -C "$TMP_REPO" init --quiet
+git -C "$TMP_REPO" add -A
+git -C "$TMP_REPO" commit -m "init" --quiet
 ```
 
-- [ ] **Step 2: Add the same function to `bin/lib/git.ps1`**
-
-Append to `bin/lib/git.ps1`:
-
-```powershell
-function New-SyntheticManifest {
-    param([string]$ItemDir)
-    $skillMd = Join-Path $ItemDir "SKILL.md"
-    $manifestPath = Join-Path $ItemDir "manifest.yaml"
-
-    if (-not (Test-Path $skillMd)) { return $false }
-    if (Test-Path $manifestPath) { return $true }
-
-    $content = Get-Content $skillMd -Raw
-    # Extract frontmatter
-    if ($content -match '(?s)^---\r?\n(.+?)\r?\n---') {
-        $fm = $Matches[1]
-        $name = Read-YamlField -Content $fm -Key "name"
-        $description = Read-YamlField -Content $fm -Key "description"
-    }
-    if (-not $name) { $name = Split-Path $ItemDir -Leaf }
-    if (-not $description) { $description = "Skill imported from external repository" }
-
-    @"
-name: $name
-type: skill
-description: $description
-tags: []
-targets:
-  - claude-code
-  - github-copilot
-files:
-  - SKILL.md
-version: "0.0.0"
-"@ | Set-Content -Path $manifestPath -Encoding UTF8
-    return $true
-}
-```
-
-- [ ] **Step 3: Update `scan_repo_for_items` to call `generate_synthetic_manifest`**
-
-In `bin/lib/git.sh`, after the line `found+=("$item_dir")` for SKILL.md-only directories, add:
+- [ ] **Step 2: Verify `scan_repo_for_items` generates a synthetic manifest**
 
 ```bash
-          generate_synthetic_manifest "$item_dir"
+source bin/lib/common.sh
+source bin/lib/git.sh
+
+ITEMS="$(scan_repo_for_items "$TMP_REPO")"
+echo "Found items: $ITEMS"
+
+# Verify manifest was generated
+MANIFEST="$TMP_REPO/skills/no-manifest-skill/manifest.yaml"
+[[ -f "$MANIFEST" ]] && echo "PASS: synthetic manifest created" || echo "FAIL: no manifest"
+cat "$MANIFEST"
+
+rm -rf "$TMP_REPO"
 ```
 
-And in `bin/lib/git.ps1`, in `Find-RepoItems`, after adding a SKILL.md-only directory, add:
+Expected: Synthetic manifest exists with name, type, description, targets, files populated.
 
-```powershell
-                    New-SyntheticManifest -ItemDir $itemDir.FullName | Out-Null
-```
+- [ ] **Step 3: Verify remote install works end-to-end (manual)**
 
-- [ ] **Step 4: Commit**
+If a public test repo is available, run:
 
 ```bash
-git add bin/lib/git.sh bin/lib/git.ps1
-git commit -m "feat: add synthetic manifest generation for npx-skills-compatible repos"
+bin/skill install <owner/repo-without-manifests> --skill <name> --target /tmp/test-project -a claude-code -y
 ```
+
+Confirm that the skill is installed and the lock file is created.
 
 ---
 
@@ -2752,7 +2762,7 @@ if [[ -z "$POSITIONAL" ]] && [[ -z "$PROFILE" ]]; then
       # Remote: re-install from URL at pinned commit
       REGISTRY_ROOT="$REGISTRY_ROOT" bash "$CMD_DIR/install.sh" \
         "$local_url" --target "$TARGET_DIR" --skill "$entry_name" \
-        $AGENT_FLAGS --yes
+        --ref "$local_commit" $AGENT_FLAGS --yes
     else
       # Local: re-install from registry
       REGISTRY_ROOT="$REGISTRY_ROOT" bash "$CMD_DIR/install.sh" \
@@ -2785,6 +2795,7 @@ if (-not $Positional -and -not $Profile) {
     foreach ($entryName in $entries) {
         $source = Get-LockEntryField -Path $lockPath -Name $entryName -Field "source"
         $url = Get-LockEntryField -Path $lockPath -Name $entryName -Field "sourceUrl"
+        $commit = Get-LockEntryField -Path $lockPath -Name $entryName -Field "sourceCommit"
 
         $restoreArgs = @("--target", $TargetDir, "--yes")
         $agents = Get-LockEntryField -Path $lockPath -Name $entryName -Field "agents"
@@ -2794,7 +2805,9 @@ if (-not $Positional -and -not $Profile) {
         }
 
         if ($source -eq "remote" -and $url) {
-            & (Join-Path $CmdDir "install.ps1") $url @restoreArgs --skill $entryName
+            $refArgs = @()
+            if ($commit) { $refArgs = @("--ref", $commit) }
+            & (Join-Path $CmdDir "install.ps1") $url @restoreArgs @refArgs --skill $entryName
         } else {
             & (Join-Path $CmdDir "install.ps1") $entryName @restoreArgs
         }
@@ -2859,19 +2872,19 @@ install_profile() {
   local items
   items="$(awk '
     /^items:/ { in_items=1; next }
-    in_items && /^[^ ]/ { exit }
+    in_items && /^[^ ]/ {
+      if (name != "") print name "|" source "|" ref
+      exit
+    }
     in_items && /^  - name:/ {
-      gsub(/^  - name: */, ""); name=$0
+      if (name != "") print name "|" source "|" ref
+      gsub(/^  - name: */, ""); name=$0; source=""; ref=""
     }
     in_items && /^    source:/ {
       gsub(/^    source: */, ""); source=$0
     }
     in_items && /^    ref:/ {
       gsub(/^    ref: */, ""); ref=$0
-    }
-    in_items && /^  - name:/ || (in_items && /^[^ ]/) {
-      if (name != "") print name "|" source "|" ref
-      name=""; source=""; ref=""
     }
     END {
       if (name != "") print name "|" source "|" ref
@@ -3073,7 +3086,7 @@ lock_init "$LOCK_FILE"
 lock_add_entry "$LOCK_FILE" \
   "sample-skill" "skill" "1.0.0" \
   "local" "" "" \
-  "claude-code,github-copilot" "" ""
+  "claude-code,github-copilot" ""
 
 assert_eq "setup: lock entry exists" "0" "$(lock_has_entry "$LOCK_FILE" "sample-skill" && echo 0 || echo 1)"
 assert_eq "setup: files exist" "0" "$([[ -f "$TARGET_DIR/.claude/skills/sample-skill/SKILL.md" ]] && echo 0 || echo 1)"
