@@ -1,0 +1,28 @@
+{
+  "rules": [
+    {
+      "title": "Project Overview",
+      "description": "This is a skills-registry: CLI tool + content monorepo for managing reusable AI coding skills, agents, and instructions. Installs content into project-local directories for 8 AI coding assistants (Claude Code, GitHub Copilot, Cursor, Cline, OpenCode, Codex, Windsurf, Roo Code)."
+    },
+    {
+      "title": "Architecture",
+      "description": "Zero dependencies — pure Bash (.sh) + PowerShell (.ps1), no Node/Python/package managers. Dual implementation: every script has both .sh and .ps1 versions. Dispatcher pattern: bin/skill routes to bin/commands/<cmd>.sh, shared functions in bin/lib/."
+    },
+    {
+      "title": "Key Directories",
+      "description": "bin/skill + bin/skill.ps1 = CLI dispatchers. bin/commands/*.sh/*.ps1 = command implementations (list, search, info, install, uninstall, sync). bin/lib/*.sh/*.ps1 = shared libraries (common, agents, git, lock, profile). skills/<name>/ = skill definitions with manifest.yaml + SKILL.md. instructions/<name>/ = instruction definitions. profiles/<name>.yaml = named bundles. tests/ = Bash test suites. registry.json = generated index."
+    },
+    {
+      "title": "Coding Conventions",
+      "description": "YAML parsed via awk/sed (yaml_read_field, yaml_read_list in common.sh) — no yq. JSON built via awk/sed templates in Bash (no jq), ConvertTo-Json in PowerShell. Color output uses $'\\033[...]' ANSI codes, disabled when not a TTY. Error handling: set -euo pipefail (Bash), $ErrorActionPreference=Stop (PS). Bash naming: snake_case. PowerShell naming: Verb-Noun."
+    },
+    {
+      "title": "Editing Rules",
+      "description": "Always maintain both .sh and .ps1 versions of any script you change. After modifying skills/, instructions/, or profiles/, run bin/skill sync. Run bash tests/run-tests.sh to verify (51 tests, 6 suites). Keep scripts zero-dependency."
+    },
+    {
+      "title": "Content Format",
+      "description": "Each skill/instruction has manifest.yaml with fields: name, type (skill|agent|instruction), description, tags (array), targets (array of agent names), files (array), version. Content files are typically SKILL.md."
+    }
+  ]
+}

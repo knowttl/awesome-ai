@@ -6,6 +6,9 @@ Thumbs.db
 *.tmp
 *.bak
 
+# Docs
+docs/
+
 # Editor
 .vscode/
 .idea/
