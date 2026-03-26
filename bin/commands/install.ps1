@@ -47,8 +47,35 @@ if (-not $Positional -and -not $Profile) {
     if (-not (Test-Path $lockPath)) {
         Write-Die "No item specified and no .skills-lock.json found in $TargetDir"
     }
-    # Delegate to lock restore (Task 12)
-    Write-Die "Lock restore not yet implemented"
+
+    Write-Host "Restoring from .skills-lock.json..."
+    $entries = Get-LockEntries -Path $lockPath
+    $count = 0
+
+    foreach ($entryName in $entries) {
+        $source = Get-LockEntryField -Path $lockPath -Name $entryName -Field "source"
+        $url = Get-LockEntryField -Path $lockPath -Name $entryName -Field "sourceUrl"
+        $commit = Get-LockEntryField -Path $lockPath -Name $entryName -Field "sourceCommit"
+
+        $restoreArgs = @("--target", $TargetDir, "--yes")
+        $agents = Get-LockEntryField -Path $lockPath -Name $entryName -Field "agents"
+        # Parse agents from the stored value
+        if ($agents -is [array]) {
+            foreach ($a in $agents) { $restoreArgs += @("--agent", $a) }
+        }
+
+        if ($source -eq "remote" -and $url) {
+            $refArgs = @()
+            if ($commit) { $refArgs = @("--ref", $commit) }
+            & (Join-Path $CmdDir "install.ps1") $url @restoreArgs @refArgs --skill $entryName
+        } else {
+            & (Join-Path $CmdDir "install.ps1") $entryName @restoreArgs
+        }
+        $count++
+    }
+
+    Write-Info "Restored $count items from lock file"
+    exit 0
 }
 
 # Profile install (Task 13)

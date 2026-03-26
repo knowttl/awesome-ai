@@ -66,15 +66,45 @@ if [[ -n "$PROFILE" ]]; then
 fi
 
 # --- Lock-file restore (no args) ---
-if [[ -z "$POSITIONAL" ]]; then
+if [[ -z "$POSITIONAL" ]] && [[ -z "$PROFILE" ]]; then
   LOCK_FILE="$TARGET_DIR/.skills-lock.json"
   if [[ ! -f "$LOCK_FILE" ]]; then
     die "No item specified and no .skills-lock.json found in $TARGET_DIR"
   fi
-  # Delegate to lock restore logic (Task 12)
-  source "$CMD_DIR/../lib/lock-restore.sh" 2>/dev/null || die "Lock restore not yet implemented"
-  restore_from_lock "$LOCK_FILE" "$TARGET_DIR" "$USE_SYMLINK"
-  exit $?
+
+  echo "Restoring from $(basename "$LOCK_FILE")..."
+  ENTRIES="$(lock_list_entries "$LOCK_FILE")"
+  ENTRY_COUNT=0
+
+  while IFS= read -r entry_name; do
+    [[ -z "$entry_name" ]] && continue
+    local_source="$(lock_get_field "$LOCK_FILE" "$entry_name" "source")"
+    local_url="$(lock_get_field "$LOCK_FILE" "$entry_name" "sourceUrl")"
+    local_commit="$(lock_get_field "$LOCK_FILE" "$entry_name" "sourceCommit")"
+    local_agents="$(lock_get_field "$LOCK_FILE" "$entry_name" "agents")"
+
+    # Build agent flags
+    AGENT_FLAGS=""
+    for a in $(echo "$local_agents" | tr -d '[]"' | tr ',' ' '); do
+      AGENT_FLAGS+="--agent $a "
+    done
+
+    if [[ "$local_source" == "remote" ]] && [[ -n "$local_url" ]]; then
+      # Remote: re-install from URL at pinned commit
+      REGISTRY_ROOT="$REGISTRY_ROOT" bash "$CMD_DIR/install.sh" \
+        "$local_url" --target "$TARGET_DIR" --skill "$entry_name" \
+        --ref "$local_commit" $AGENT_FLAGS --yes
+    else
+      # Local: re-install from registry
+      REGISTRY_ROOT="$REGISTRY_ROOT" bash "$CMD_DIR/install.sh" \
+        "$entry_name" --target "$TARGET_DIR" $AGENT_FLAGS --yes
+    fi
+
+    ENTRY_COUNT=$((ENTRY_COUNT + 1))
+  done <<< "$ENTRIES"
+
+  info "Restored $ENTRY_COUNT items from lock file"
+  exit 0
 fi
 
 # --- Resolve source ---
