@@ -37,7 +37,6 @@ scan_manifests() {
       files_json="[$(echo "$mc" | yaml_read_list files | sed 's/.*/"&"/' | tr '\n' ',' | sed 's/,$//')]"
       deps_json="[$(echo "$mc" | yaml_read_list dependencies | sed 's/.*/"&"/' | tr '\n' ',' | sed 's/,$//')]"
 
-      [[ $count -gt 0 ]] && items+=(",")
       items+=("    {
       \"name\": \"$name\",
       \"type\": \"$type\",
@@ -58,7 +57,14 @@ scan_manifests() {
     echo "  \"version\": 1,"
     echo "  \"generatedAt\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\","
     echo "  \"items\": ["
-    printf '%s\n' "${items[@]}"
+    local i
+    for ((i=0; i<${#items[@]}; i++)); do
+      if [[ $i -lt $((${#items[@]} - 1)) ]]; then
+        echo "${items[$i]},"
+      else
+        echo "${items[$i]}"
+      fi
+    done
     echo "  ]"
     echo "}"
   } > "$OUTPUT_FILE"

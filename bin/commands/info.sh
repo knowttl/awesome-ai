@@ -29,7 +29,7 @@ BEGIN { found=0; in_item=0; name=""; type=""; desc=""; version=""; path="" }
 }
 
 found && /"type":/     { gsub(/[",]/, ""); sub(/.*: /, ""); type=$0 }
-found && /"description":/ { gsub(/"/, ""); sub(/.*: /, ""); desc=$0 }
+found && /"description":/ { gsub(/"/, ""); sub(/.*: /, ""); gsub(/,$/, ""); desc=$0 }
 found && /"version":/  { gsub(/[",]/, ""); sub(/.*: /, ""); version=$0 }
 
 found && /"tags":/    { tags_line=$0 }
@@ -45,16 +45,16 @@ found && /"path":/ {
   printf "  Path:         %s\n", path
 
   # Extract arrays (simplified)
-  gsub(/[\[\]"]/, "", tags_line); sub(/.*: /, "", tags_line)
+  gsub(/[\[\]"]/, "", tags_line); sub(/.*: /, "", tags_line); gsub(/,$/, "", tags_line)
   printf "  Tags:         %s\n", tags_line
 
-  gsub(/[\[\]"]/, "", targets_line); sub(/.*: /, "", targets_line)
+  gsub(/[\[\]"]/, "", targets_line); sub(/.*: /, "", targets_line); gsub(/,$/, "", targets_line)
   printf "  Targets:      %s\n", targets_line
 
-  gsub(/[\[\]"]/, "", files_line); sub(/.*: /, "", files_line)
+  gsub(/[\[\]"]/, "", files_line); sub(/.*: /, "", files_line); gsub(/,$/, "", files_line)
   printf "  Files:        %s\n", files_line
 
-  gsub(/[\[\]"]/, "", deps_line); sub(/.*: /, "", deps_line)
+  gsub(/[\[\]"]/, "", deps_line); sub(/.*: /, "", deps_line); gsub(/,$/, "", deps_line)
   if (deps_line != "") printf "  Dependencies: %s\n", deps_line
 
   printf "\n"
