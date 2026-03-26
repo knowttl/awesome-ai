@@ -1,0 +1,7 @@
+name: example
+description: Example profile demonstrating the profile format with mixed sources.
+items:
+  - name: example-skill
+    source: local
+  - name: example-instruction
+    source: local

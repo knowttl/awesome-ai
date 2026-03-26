@@ -1,0 +1,12 @@
+name: example-skill
+type: skill
+description: An example skill demonstrating the manifest format and skill structure.
+tags:
+  - example
+  - getting-started
+targets:
+  - claude-code
+  - github-copilot
+files:
+  - SKILL.md
+version: "1.0.0"

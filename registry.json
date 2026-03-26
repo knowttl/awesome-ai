@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "generatedAt": "2026-03-26T18:27:40Z",
+  "items": [
+    {
+      "name": "example-skill",
+      "type": "skill",
+      "description": "An example skill demonstrating the manifest format and skill structure.",
+      "tags": ["example","getting-started"],
+      "targets": ["claude-code","github-copilot"],
+      "files": ["SKILL.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/example-skill"
+    }
+,
+    {
+      "name": "example-instruction",
+      "type": "instruction",
+      "description": "An example instruction demonstrating the instruction format.",
+      "tags": ["example"],
+      "targets": ["claude-code","github-copilot"],
+      "files": ["example-instruction.instructions.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "instructions/example-instruction"
+    }
+  ]
+}
