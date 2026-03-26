@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+COMMANDS_DIR="$SCRIPT_DIR/commands"
+source "$SCRIPT_DIR/lib/common.sh"
+
+VERSION="0.1.0"
+
+usage() {
+  cat <<EOF
+${BOLD}skill${RESET} — AI skills registry CLI (v${VERSION})
+
+${BOLD}Usage:${RESET}
+  skill <command> [options]
+
+${BOLD}Commands:${RESET}
+  list          List all items in the registry
+  search        Search items by keyword
+  info          Show details for a single item
+  install       Install items into a project
+  uninstall     Remove installed items
+  sync          Regenerate the registry index
+
+${BOLD}Options:${RESET}
+  --help, -h    Show this help message
+  --version     Show version
+
+Run ${CYAN}skill <command> --help${RESET} for command-specific help.
+EOF
+}
+
+if [[ $# -eq 0 ]]; then
+  usage
+  exit 0
+fi
+
+CMD="$1"; shift
+
+case "$CMD" in
+  list|search|info|install|uninstall|sync)
+    CMD_SCRIPT="$COMMANDS_DIR/${CMD}.sh"
+    [[ -f "$CMD_SCRIPT" ]] || die "Command script not found: $CMD_SCRIPT"
+    source "$CMD_SCRIPT" "$@"
+    ;;
+  --help|-h) usage; exit 0 ;;
+  --version) echo "skill v${VERSION}"; exit 0 ;;
+  *) die "Unknown command: $CMD\nRun 'skill --help' for usage." ;;
+esac
