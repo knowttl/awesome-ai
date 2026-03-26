@@ -1,0 +1,15 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+*.tmp
+*.bak
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Generated (optionally track registry.json — it's regenerable)
+# registry.json
