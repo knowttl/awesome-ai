@@ -1,0 +1,10 @@
+name: sample-instruction
+type: instruction
+description: A sample instruction for testing.
+tags:
+  - testing
+targets:
+  - claude-code
+files:
+  - sample-instruction.instructions.md
+version: "0.1.0"
