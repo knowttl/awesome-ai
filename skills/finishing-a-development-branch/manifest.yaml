@@ -1,0 +1,14 @@
+name: finishing-a-development-branch
+type: skill
+description: Use when implementation is complete, all tests pass, and you need to decide how to integrate the work - guides completion of development work by presenting structured options for merge, PR, or cleanup
+tags:
+  - superpowers
+  - obra
+  - git
+  - workflow
+targets:
+  - claude-code
+  - github-copilot
+files:
+  - SKILL.md
+version: "1.0.0"

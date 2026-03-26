@@ -1,0 +1,14 @@
+name: dispatching-parallel-agents
+type: skill
+description: Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies
+tags:
+  - superpowers
+  - obra
+  - workflow
+  - parallel
+targets:
+  - claude-code
+  - github-copilot
+files:
+  - SKILL.md
+version: "1.0.0"

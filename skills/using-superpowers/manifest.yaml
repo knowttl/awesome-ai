@@ -1,0 +1,15 @@
+name: using-superpowers
+type: skill
+description: Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions
+tags:
+  - superpowers
+  - obra
+  - workflow
+targets:
+  - claude-code
+  - github-copilot
+files:
+  - SKILL.md
+  - references/codex-tools.md
+  - references/gemini-tools.md
+version: "1.0.0"

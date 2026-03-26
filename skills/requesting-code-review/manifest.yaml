@@ -1,0 +1,14 @@
+name: requesting-code-review
+type: skill
+description: Use when completing tasks, implementing major features, or before merging to verify work meets requirements
+tags:
+  - superpowers
+  - obra
+  - code-review
+targets:
+  - claude-code
+  - github-copilot
+files:
+  - SKILL.md
+  - code-reviewer.md
+version: "1.0.0"
