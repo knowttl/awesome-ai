@@ -11,6 +11,7 @@ A personal monorepo of reusable **skills**, **agents**, and **instructions** for
 - [Quick Start](#quick-start)
 - [What's Inside](#whats-inside)
 - [CLI Reference](#cli-reference)
+- [Updating Skills From Upstream](#updating-skills-from-upstream)
 - [Installing Skills Into a Project](#installing-skills-into-a-project)
 - [Adding Your Own Content](#adding-your-own-content)
 - [Profiles](#profiles)
@@ -38,7 +39,10 @@ bin/skill install owner/repo --skill skill-name
 # 4. Install a bundle of skills at once
 bin/skill install --profile example
 
-# 5. Restore everything from a lock file (for teammates)
+# 5. Pull latest skills from upstream (defaults to obra/superpowers)
+bin/skill update
+
+# 6. Restore everything from a lock file (for teammates)
 bin/skill install
 ```
 
@@ -53,7 +57,7 @@ On **Windows PowerShell**, replace `bin/skill` with `bin/skill.ps1`:
 
 ## What's Inside
 
-The registry ships with **15 skills** and **1 instruction**, including the full [obra/superpowers](https://github.com/obra/superpowers) skill set:
+The registry ships with **16 skills** and **1 instruction**, including the full [obra/superpowers](https://github.com/obra/superpowers) skill set:
 
 | Skill | When to Use |
 |-------|-------------|
@@ -71,6 +75,7 @@ The registry ships with **15 skills** and **1 instruction**, including the full 
 | `verification-before-completion` | Before claiming work is complete — evidence before assertions |
 | `writing-plans` | When you have a spec and need a multi-step implementation plan |
 | `writing-skills` | When creating or editing skills for the registry |
+| `context-sync` | When you need to update project context files (CLAUDE.md, copilot-instructions.md, etc.) to reflect the current codebase |
 | `example-skill` | Reference template showing the manifest format |
 
 ---
@@ -164,6 +169,39 @@ bin/skill uninstall brainstorming
 bin/skill uninstall brainstorming --agent claude-code  # remove from one agent only
 ```
 
+### `skill update`
+
+Pull the latest skills from an upstream repository and update local copies. Defaults to [obra/superpowers](https://github.com/obra/superpowers).
+
+```bash
+# Update all skills from the default upstream (obra/superpowers)
+bin/skill update
+
+# Update from a specific repo
+bin/skill update owner/repo
+
+# Update a single skill only
+bin/skill update --item brainstorming
+
+# Preview what would change without modifying files
+bin/skill update --dry-run
+
+# Auto-accept all updates
+bin/skill update --force
+```
+
+**Options:**
+
+| Flag | Description |
+|------|-------------|
+| `--item`, `-i <name>` | Update only the named item(s) — repeatable |
+| `--ref <commit>` | Fetch a specific commit, tag, or branch |
+| `--dry-run` | Show what would change without modifying files |
+| `--force`, `-f` | Overwrite without prompting |
+| `--yes`, `-y` | Skip confirmation prompts |
+
+After updating, run `bin/skill sync` to regenerate the registry index.
+
 ### `skill sync`
 
 Regenerate `registry.json` by scanning all `skills/`, `agents/`, and `instructions/` directories. Run this after adding or modifying content.
@@ -171,6 +209,34 @@ Regenerate `registry.json` by scanning all `skills/`, `agents/`, and `instructio
 ```bash
 bin/skill sync
 ```
+
+---
+
+## Updating Skills From Upstream
+
+Keep your local skills in sync with [obra/superpowers](https://github.com/obra/superpowers) (or any other upstream repo):
+
+```bash
+# See what's changed upstream (without modifying anything)
+bin/skill update --dry-run
+
+# Pull all updates (prompts before each change)
+bin/skill update
+
+# Pull updates and auto-accept all changes
+bin/skill update --yes
+
+# Update a single skill
+bin/skill update --item brainstorming
+
+# Update from a different upstream
+bin/skill update some-org/some-repo
+
+# Regenerate the registry index after updating
+bin/skill sync
+```
+
+The update command compares each upstream item against your local copy file-by-file. It shows which files changed, prompts before overwriting, and lists any new skills available upstream that you haven't added yet.
 
 ---
 
@@ -338,7 +404,8 @@ skills-registry/
 │   │   ├── list.sh / .ps1
 │   │   ├── search.sh / .ps1
 │   │   ├── sync.sh / .ps1
-│   │   └── uninstall.sh / .ps1
+│   │   ├── uninstall.sh / .ps1
+│   │   └── update.sh / .ps1
 │   └── lib/                # Shared libraries (.sh + .ps1)
 │       ├── agents.sh / .ps1     # Agent path registry & detection
 │       ├── common.sh / .ps1     # Colors, YAML parsing, utilities
