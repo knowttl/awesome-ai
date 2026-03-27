@@ -14,7 +14,7 @@ function Show-Usage {
     Write-Host "Usage:  skill <command> [options]"
     Write-Host ""
     Write-Host "Commands:"
-    Write-Host "  list, search, info, install, uninstall, sync"
+    Write-Host "  list, search, info, install, uninstall, update, sync"
     Write-Host ""
     Write-Host "Run 'skill <command> --help' for command-specific help."
 }
@@ -26,7 +26,7 @@ $Rest = @()
 if ($CmdArgs.Count -gt 1) { $Rest = $CmdArgs[1..($CmdArgs.Count - 1)] }
 
 switch ($Cmd) {
-    { $_ -in @("list","search","info","install","uninstall","sync") } {
+    { $_ -in @("list","search","info","install","uninstall","update","sync") } {
         $script = Join-Path $CommandsDir "$Cmd.ps1"
         if (-not (Test-Path $script)) { Write-Die "Command script not found: $script" }
         & $script @Rest

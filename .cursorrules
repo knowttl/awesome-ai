@@ -10,7 +10,7 @@
     },
     {
       "title": "Key Directories",
-      "description": "bin/skill + bin/skill.ps1 = CLI dispatchers. bin/commands/*.sh/*.ps1 = command implementations (list, search, info, install, uninstall, sync). bin/lib/*.sh/*.ps1 = shared libraries (common, agents, git, lock, profile). skills/<name>/ = skill definitions with manifest.yaml + SKILL.md. instructions/<name>/ = instruction definitions. profiles/<name>.yaml = named bundles. tests/ = Bash test suites. registry.json = generated index."
+      "description": "bin/skill + bin/skill.ps1 = CLI dispatchers. bin/commands/*.sh/*.ps1 = command implementations (list, search, info, install, uninstall, update, sync). bin/lib/*.sh/*.ps1 = shared libraries (common, agents, git, lock, profile). skills/<name>/ = skill definitions with manifest.yaml + SKILL.md. instructions/<name>/ = instruction definitions. profiles/<name>.yaml = named bundles. tests/ = Bash test suites. registry.json = generated index."
     },
     {
       "title": "Coding Conventions",

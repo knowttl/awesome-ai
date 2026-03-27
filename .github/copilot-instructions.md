@@ -15,7 +15,7 @@ This is a **skills-registry**: a CLI tool + content monorepo for managing reusab
 | Path | Purpose |
 |------|---------|
 | `bin/skill`, `bin/skill.ps1` | CLI entry points (dispatchers) |
-| `bin/commands/*.sh` / `*.ps1` | Command implementations: `list`, `search`, `info`, `install`, `uninstall`, `sync` |
+| `bin/commands/*.sh` / `*.ps1` | Command implementations: `list`, `search`, `info`, `install`, `uninstall`, `update`, `sync` |
 | `bin/lib/*.sh` / `*.ps1` | Shared libraries: `common` (YAML parsing, colors), `agents` (path registry), `git` (clone/scan), `lock` (JSON CRUD), `profile` (bundle install) |
 | `skills/<name>/` | Skill definitions — each has `manifest.yaml` + `SKILL.md` + optional files |
 | `instructions/<name>/` | Instruction definitions — same structure |

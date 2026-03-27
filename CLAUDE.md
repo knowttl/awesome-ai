@@ -14,7 +14,7 @@ A **skills-registry**: CLI tool + content monorepo for managing reusable AI codi
 
 ```
 bin/skill, bin/skill.ps1          # CLI entry points (dispatchers)
-bin/commands/*.sh / *.ps1          # Commands: list, search, info, install, uninstall, sync
+bin/commands/*.sh / *.ps1          # Commands: list, search, info, install, uninstall, update, sync
 bin/lib/*.sh / *.ps1               # Libraries: common, agents, git, lock, profile
 skills/<name>/manifest.yaml        # Skill definitions + SKILL.md content files
 instructions/<name>/manifest.yaml  # Instruction definitions + content files
@@ -39,6 +39,8 @@ bin/skill list                   # List all registry items
 bin/skill sync                   # Regenerate registry.json from manifests
 bin/skill install <name>         # Install a skill/instruction
 bin/skill uninstall <name>       # Remove an installed skill/instruction
+bin/skill update                 # Pull latest skills from obra/superpowers
+bin/skill update <url>           # Pull latest from a custom upstream
 ```
 
 ## Rules When Editing

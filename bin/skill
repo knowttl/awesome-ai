@@ -20,6 +20,7 @@ ${BOLD}Commands:${RESET}
   info          Show details for a single item
   install       Install items into a project
   uninstall     Remove installed items
+  update        Pull latest from an upstream repo
   sync          Regenerate the registry index
 
 ${BOLD}Options:${RESET}
@@ -38,7 +39,7 @@ fi
 CMD="$1"; shift
 
 case "$CMD" in
-  list|search|info|install|uninstall|sync)
+  list|search|info|install|uninstall|update|sync)
     CMD_SCRIPT="$COMMANDS_DIR/${CMD}.sh"
     [[ -f "$CMD_SCRIPT" ]] || die "Command script not found: $CMD_SCRIPT"
     source "$CMD_SCRIPT" "$@"
