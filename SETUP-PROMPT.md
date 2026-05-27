@@ -12,6 +12,8 @@ The **skills-registry** (https://github.com/a-btsai/awesome-ai) is a CLI tool + 
 
 You will clone this registry, read it to understand how it works, discover available skills dynamically, and guide me through installation.
 
+**Prerequisite:** You must have the ability to run shell commands and read files to follow this prompt. If you cannot execute commands or access the filesystem, stop and tell me.
+
 ---
 
 ## Step 1: Environment Check
@@ -39,7 +41,7 @@ Once `REGISTRY_PATH` is available (either from an existing clone or after clonin
 
 1. **Read the README** at `<REGISTRY_PATH>/README.md` to understand how the CLI works, what commands are available, and the project structure.
 
-2. **Read the agent path registry** at `<REGISTRY_PATH>/bin/lib/agents.sh`. This file contains the `AGENT_TABLE` array that maps agent names to their `--agent` flag values and project install paths. Parse this to build the supported assistants table dynamically. The format is: `name|project_path|global_path|detection_dirs|detection_bins`.
+2. **Read the agent path registry** at `<REGISTRY_PATH>/bin/lib/agents.sh`. This file contains the `AGENT_TABLE` array that maps agent names to their `--agent` flag values and project install paths. Parse this to build the supported assistants table dynamically. The format is: `name|project_path|global_suffix|detection_dirs|detection_bins`. The `name` field is what you pass to `--agent`.
 
 3. **Read `registry.json`** at `<REGISTRY_PATH>/registry.json`. This is the generated index of all available skills and instructions. If it doesn't exist, run:
 
@@ -55,11 +57,15 @@ Once `REGISTRY_PATH` is available (either from an existing clone or after clonin
 
 5. **Filter for compatibility.** Cross-reference each item's `targets` array against my selected assistant(s) from Step 1. An item is installable only if my assistant appears in its `targets` list.
 
+   **Important name mapping:** The `targets` values in `registry.json` do NOT always exactly match the `name` field in `AGENT_TABLE`. Known difference: targets use `roo-code` but the `--agent` flag value is `roo`. When filtering compatibility, treat `roo-code` in targets as matching the `roo` agent. For all other agents, the names match exactly between targets and AGENT_TABLE.
+
 6. **Optionally read individual SKILL.md files** at `<REGISTRY_PATH>/<item.path>/SKILL.md` if I ask for more detail about a specific skill. These contain the full instructions that get installed.
 
 ---
 
 ## Step 3: Skill Selection
+
+**CRITICAL: Only present skills that actually exist in `registry.json`. Do NOT invent, fabricate, or hallucinate skill names. Every skill name you show must be an exact `name` value from the parsed JSON.**
 
 Present the discovered skills to me in a clear, organized format. Group them logically (by tags or by name prefix like `obra.superpowers.*`, `mattpocock.skills.*`, `local.*`). For each skill show:
 - Name
@@ -69,10 +75,12 @@ Present the discovered skills to me in a clear, organized format. Group them log
 Only show skills compatible with at least one of my selected assistants. If a skill is compatible with some but not all of my assistants, note which ones.
 
 Tell me I can select by:
-- Individual names (e.g., "brainstorming, tdd")
+- Individual names or keywords (e.g., "brainstorming, tdd") — you will match these to the full skill names from registry.json
 - Group prefix (e.g., "all obra.superpowers skills")
 - "all" for everything compatible
 - "recommend" if I want your suggestion
+
+When I select by shorthand or keyword, map my input to the exact full `name` values from `registry.json`. The install command requires the exact full name (e.g., `obra.superpowers.brainstorming`, not just `brainstorming`).
 
 **If I say "recommend":** Based on what you read in the SKILL.md files, suggest a balanced starter set covering design/planning, testing, debugging, and quality verification. Prefer skills with broader assistant compatibility when possible. Explain briefly why you chose each one.
 
@@ -86,7 +94,7 @@ Based on my selections, generate and execute the install commands.
 
     cd "<REGISTRY_PATH>" && bin/skill sync
 
-**Determine the correct `--agent` flag values.** Look up each of my selected assistants in the `AGENT_TABLE` from `agents.sh`. The first field (`name`) is what gets passed to `--agent`. Build the flags as `--agent <name>` repeated for each assistant.
+**Determine the correct `--agent` flag values.** Look up each of my selected assistants in the `AGENT_TABLE` from `agents.sh`. The first field (`name`) is what gets passed to `--agent`. Build the flags as `--agent <name>` repeated for each assistant. Remember: if the user said "Roo Code", the `--agent` value is `roo` (not `roo-code`).
 
 **Install each selected skill individually.** This is safest because different skills may support different subsets of assistants:
 
@@ -119,15 +127,15 @@ Ask me:
 
 Before creating or merging instructions, review the current project context. At minimum, inspect existing instruction files, the README, package/build/test configuration files, and any architecture docs. Use that context to avoid generic or contradictory guidance.
 
-**If I say NO:** Skip to Step 6.
+**If I say NO to question 1 (don't want AGENTS.md):** Skip to Step 6.
 
-**If I say YES:**
+**If I say YES to question 1:**
 
-First, read the baseline AGENTS.md from the registry:
+First, read the baseline AGENTS.md file from the registry at this path:
 
-    <REGISTRY_PATH>/instructions/local.baseline-agents/AGENTS.md
+`<REGISTRY_PATH>/instructions/local.baseline-agents/AGENTS.md`
 
-This is the source of truth for the baseline guidelines. Read it in full.
+This is the source of truth for the baseline guidelines. Read it in full before proceeding.
 
 **If the project has NO existing AGENTS.md:**
 
@@ -167,7 +175,11 @@ After completing all steps, provide a clear summary:
 
 **AGENTS.md:** State whether it was created, merged, or skipped.
 
-**Lock file:** Explain that `.skills-lock.json` was created in `<PROJECT_PATH>` and can be committed to version control so teammates can restore the same skills by running the install command with no arguments.
+**Lock file:** Explain that `.skills-lock.json` was created in `<PROJECT_PATH>` and can be committed to version control so teammates can restore the same skills with:
+
+    "<REGISTRY_PATH>/bin/skill" install --target "<PROJECT_PATH>"
+
+This reads the lock file and reinstalls everything listed in it.
 
 **Ongoing maintenance tips:**
 - View installed skills: `cat "<PROJECT_PATH>/.skills-lock.json"`
