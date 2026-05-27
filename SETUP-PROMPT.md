@@ -2,6 +2,19 @@
 
 > **Copy and paste everything below the line into any AI coding assistant to get guided through installing skills and setting up AGENTS.md for your project.**
 
+## What This Does
+
+This prompt guides you through an interactive setup process with your AI coding assistant:
+
+1. **Environment check** — identifies your AI assistant(s) and project path
+2. **Registry discovery** — clones and reads the skills-registry to find available skills
+3. **Skill selection** — presents compatible skills grouped by source, lets you pick
+4. **Installation** — runs the CLI commands to install selected skills into your project
+5. **AGENTS.md setup** — optionally creates or merges behavioral guidelines for your AI assistant
+6. **Summary** — confirms what was installed and provides maintenance commands
+
+No manual CLI knowledge required — the AI handles everything based on your choices.
+
 ---
 
 You are helping me set up AI coding skills and behavioral guidelines for my project. Guide me through this interactively, one step at a time. Do NOT proceed to the next step until I respond. Present each step clearly and wait for my input.
