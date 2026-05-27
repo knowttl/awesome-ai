@@ -1,7 +1,7 @@
 name: example
 description: Example profile demonstrating the profile format with mixed sources.
 items:
-  - name: example-skill
+  - name: local.example-skill
     source: local
-  - name: example-instruction
+  - name: local.baseline-agents
     source: local

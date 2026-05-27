@@ -71,7 +71,11 @@ This works with any AI assistant that has terminal and file access (Claude Code,
 
 ## What's Inside
 
-The registry ships with **16 skills** and **1 instruction**, including the full [obra/superpowers](https://github.com/obra/superpowers) skill set:
+The registry ships with **25 skills** and **1 instruction** from multiple sources:
+
+### obra/superpowers
+
+The full [obra/superpowers](https://github.com/obra/superpowers) skill set for structured AI-assisted development:
 
 | Skill | When to Use |
 |-------|-------------|
@@ -89,6 +93,27 @@ The registry ships with **16 skills** and **1 instruction**, including the full 
 | `verification-before-completion` | Before claiming work is complete — evidence before assertions |
 | `writing-plans` | When you have a spec and need a multi-step implementation plan |
 | `writing-skills` | When creating or editing skills for the registry |
+
+### mattpocock/skills
+
+Skills from [mattpocock/skills](https://github.com/mattpocock/skills) for product development workflows:
+
+| Skill | When to Use |
+|-------|-------------|
+| `diagnose` | Disciplined diagnosis loop for hard bugs and performance regressions |
+| `grill-with-docs` | Challenge your plan against the domain model, sharpen terminology, update docs |
+| `improve-codebase-architecture` | Find deepening opportunities informed by domain language and ADRs |
+| `prototype` | Build a throwaway prototype for state/logic questions or UI variations |
+| `tdd` | Test-driven development with red-green-refactor loop, one vertical slice at a time |
+| `to-issues` | Break any plan or PRD into independently-grabbable issues using vertical slices |
+| `to-prd` | Synthesize current conversation context into a PRD for the issue tracker |
+| `triage` | Triage issues through a state machine from intake to ready-for-agent |
+| `zoom-out` | Get broader context or a higher-level perspective on unfamiliar code |
+
+### Local
+
+| Skill | When to Use |
+|-------|-------------|
 | `context-sync` | When you need to update project context files (CLAUDE.md, copilot-instructions.md, etc.) to reflect the current codebase |
 | `example-skill` | Reference template showing the manifest format |
 
@@ -269,12 +294,12 @@ When you run `bin/skill install`, the CLI:
 | Agent | Project Path | Global Path |
 |-------|-------------|-------------|
 | Claude Code | `.claude/skills/<name>/` | `~/.claude/skills/<name>/` |
-| GitHub Copilot | `.github/copilot/skills/<name>/` | (varies by OS) |
-| Cursor | `.cursor/skills/<name>/` | `~/.cursor/skills/<name>/` |
-| Cline | `.cline/skills/<name>/` | `~/.cline/skills/<name>/` |
-| OpenCode | `.opencode/skills/<name>/` | `~/.opencode/skills/<name>/` |
-| Codex | `.codex/skills/<name>/` | `~/.codex/skills/<name>/` |
-| Windsurf | `.windsurf/skills/<name>/` | `~/.windsurf/skills/<name>/` |
+| GitHub Copilot | `.github/copilot/skills/<name>/` | `~/.copilot/skills/<name>/` |
+| Cursor | `.agents/skills/<name>/` | `~/.cursor/skills/<name>/` |
+| Cline | `.agents/skills/<name>/` | `~/.agents/skills/<name>/` |
+| OpenCode | `.agents/skills/<name>/` | `~/.config/opencode/skills/<name>/` |
+| Codex | `.agents/skills/<name>/` | `~/.codex/skills/<name>/` |
+| Windsurf | `.windsurf/skills/<name>/` | `~/.codeium/windsurf/skills/<name>/` |
 | Roo Code | `.roo/skills/<name>/` | `~/.roo/skills/<name>/` |
 
 ---
