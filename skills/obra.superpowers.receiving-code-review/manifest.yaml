@@ -1,0 +1,14 @@
+name: obra.superpowers.receiving-code-review
+type: skill
+description: Use when receiving code review feedback, before implementing suggestions, especially if feedback seems unclear or technically questionable - requires technical rigor and verification, not performative agreement or blind implementation
+tags:
+  - superpowers
+  - obra
+  - code-review
+targets:
+  - claude-code
+  - github-copilot
+files:
+  - SKILL.md
+version: "1.0.0"
+source: https://github.com/obra/superpowers

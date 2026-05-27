@@ -1,0 +1,26 @@
+name: mattpocock.skills.tdd
+type: skill
+description: "Test-driven development with a red-green-refactor loop. Builds features or fixes bugs one vertical slice at a time."
+tags:
+  - mattpocock
+  - testing
+  - tdd
+  - engineering
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - SKILL.md
+  - tests.md
+  - mocking.md
+  - deep-modules.md
+  - interface-design.md
+  - refactoring.md
+version: "1.0.0"
+source: https://github.com/mattpocock/skills

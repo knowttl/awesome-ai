@@ -1,0 +1,18 @@
+name: obra.superpowers.subagent-driven-development
+type: skill
+description: Use when executing implementation plans with independent tasks in the current session
+tags:
+  - superpowers
+  - obra
+  - workflow
+  - parallel
+targets:
+  - claude-code
+  - github-copilot
+files:
+  - SKILL.md
+  - code-quality-reviewer-prompt.md
+  - implementer-prompt.md
+  - spec-reviewer-prompt.md
+version: "1.0.0"
+source: https://github.com/obra/superpowers

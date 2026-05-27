@@ -1,386 +1,292 @@
 {
   "version": 1,
-  "generatedAt": "2026-03-27T13:12:50Z",
+  "generatedAt": "2026-05-27T03:24:37Z",
   "items": [
     {
-      "name": "brainstorming",
-      "type": "skill",
-      "description": "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation.",
-      "tags": [
-        "superpowers",
-        "obra",
-        "design",
-        "workflow"
-      ],
-      "targets": [
-        "claude-code",
-        "github-copilot"
-      ],
-      "files": [
-        "SKILL.md",
-        "spec-document-reviewer-prompt.md",
-        "visual-companion.md",
-        "scripts/frame-template.html",
-        "scripts/helper.js",
-        "scripts/server.cjs",
-        "scripts/start-server.sh",
-        "scripts/stop-server.sh"
-      ],
-      "dependencies": [],
-      "version": "1.0.0",
-      "path": "skills/brainstorming"
-    },
-    {
-      "name": "context-sync",
+      "name": "local.context-sync",
       "type": "skill",
       "description": "Use when you need to update project context files to reflect the current state of the codebase, or after making significant changes to the project structure, conventions, or architecture.",
-      "tags": [
-        "workflow",
-        "context",
-        "maintenance"
-      ],
-      "targets": [
-        "claude-code",
-        "github-copilot",
-        "cursor",
-        "cline",
-        "opencode",
-        "codex",
-        "windsurf",
-        "roo-code"
-      ],
-      "files": [
-        "SKILL.md"
-      ],
+      "tags": ["workflow","context","maintenance"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md"],
       "dependencies": [],
       "version": "1.0.0",
-      "path": "skills/context-sync"
+      "path": "skills/local.context-sync"
     },
     {
-      "name": "dispatching-parallel-agents",
-      "type": "skill",
-      "description": "Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies",
-      "tags": [
-        "superpowers",
-        "obra",
-        "workflow",
-        "parallel"
-      ],
-      "targets": [
-        "claude-code",
-        "github-copilot"
-      ],
-      "files": [
-        "SKILL.md"
-      ],
-      "dependencies": [],
-      "version": "1.0.0",
-      "path": "skills/dispatching-parallel-agents"
-    },
-    {
-      "name": "example-skill",
+      "name": "local.example-skill",
       "type": "skill",
       "description": "An example skill demonstrating the manifest format and skill structure.",
-      "tags": [
-        "example",
-        "getting-started"
-      ],
-      "targets": [
-        "claude-code",
-        "github-copilot"
-      ],
-      "files": [
-        "SKILL.md"
-      ],
+      "tags": ["example","getting-started"],
+      "targets": ["claude-code","github-copilot"],
+      "files": ["SKILL.md"],
       "dependencies": [],
       "version": "1.0.0",
-      "path": "skills/example-skill"
+      "path": "skills/local.example-skill"
     },
     {
-      "name": "executing-plans",
+      "name": "mattpocock.skills.diagnose",
+      "type": "skill",
+      "description": "Disciplined diagnosis loop for hard bugs and performance regressions: reproduce, minimise, hypothesise, instrument, fix, regression-test.",
+      "tags": ["mattpocock","debugging","engineering"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md","hitl-loop.template.sh"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/mattpocock.skills.diagnose"
+    },
+    {
+      "name": "mattpocock.skills.grill-with-docs",
+      "type": "skill",
+      "description": "Grilling session that challenges your plan against the existing domain model, sharpens terminology, and updates CONTEXT.md and ADRs inline.",
+      "tags": ["mattpocock","design","documentation","engineering"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md","CONTEXT-FORMAT.md","ADR-FORMAT.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/mattpocock.skills.grill-with-docs"
+    },
+    {
+      "name": "mattpocock.skills.improve-codebase-architecture",
+      "type": "skill",
+      "description": "Find deepening opportunities in a codebase, informed by the domain language in CONTEXT.md and the decisions in docs/adr/.",
+      "tags": ["mattpocock","architecture","refactoring","engineering"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md","LANGUAGE.md","HTML-REPORT.md","INTERFACE-DESIGN.md","DEEPENING.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/mattpocock.skills.improve-codebase-architecture"
+    },
+    {
+      "name": "mattpocock.skills.prototype",
+      "type": "skill",
+      "description": "Build a throwaway prototype to flesh out a design — either a runnable terminal app for state/business-logic questions, or several radically different UI variations.",
+      "tags": ["mattpocock","prototyping","design","engineering"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md","LOGIC.md","UI.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/mattpocock.skills.prototype"
+    },
+    {
+      "name": "mattpocock.skills.tdd",
+      "type": "skill",
+      "description": "Test-driven development with a red-green-refactor loop. Builds features or fixes bugs one vertical slice at a time.",
+      "tags": ["mattpocock","testing","tdd","engineering"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md","tests.md","mocking.md","deep-modules.md","interface-design.md","refactoring.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/mattpocock.skills.tdd"
+    },
+    {
+      "name": "mattpocock.skills.to-issues",
+      "type": "skill",
+      "description": "Break any plan, spec, or PRD into independently-grabbable issues using tracer-bullet vertical slices.",
+      "tags": ["mattpocock","planning","issues","engineering"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/mattpocock.skills.to-issues"
+    },
+    {
+      "name": "mattpocock.skills.to-prd",
+      "type": "skill",
+      "description": "",
+      "tags": ["mattpocock","planning","documentation","engineering"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/mattpocock.skills.to-prd"
+    },
+    {
+      "name": "mattpocock.skills.triage",
+      "type": "skill",
+      "description": "Triage issues through a state machine of triage roles. Manages issue workflow from intake to ready-for-agent.",
+      "tags": ["mattpocock","workflow","issues","engineering"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md","AGENT-BRIEF.md","OUT-OF-SCOPE.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/mattpocock.skills.triage"
+    },
+    {
+      "name": "mattpocock.skills.zoom-out",
+      "type": "skill",
+      "description": "Tell the agent to zoom out and give broader context or a higher-level perspective on an unfamiliar section of code.",
+      "tags": ["mattpocock","exploration","engineering"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/mattpocock.skills.zoom-out"
+    },
+    {
+      "name": "obra.superpowers.brainstorming",
+      "type": "skill",
+      "description": "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation.",
+      "tags": ["superpowers","obra","design","workflow"],
+      "targets": ["claude-code","github-copilot"],
+      "files": ["SKILL.md","spec-document-reviewer-prompt.md","visual-companion.md","scripts/frame-template.html","scripts/helper.js","scripts/server.cjs","scripts/start-server.sh","scripts/stop-server.sh"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/obra.superpowers.brainstorming"
+    },
+    {
+      "name": "obra.superpowers.dispatching-parallel-agents",
+      "type": "skill",
+      "description": "Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies",
+      "tags": ["superpowers","obra","workflow","parallel"],
+      "targets": ["claude-code","github-copilot"],
+      "files": ["SKILL.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/obra.superpowers.dispatching-parallel-agents"
+    },
+    {
+      "name": "obra.superpowers.executing-plans",
       "type": "skill",
       "description": "Use when you have a written implementation plan to execute in a separate session with review checkpoints",
-      "tags": [
-        "superpowers",
-        "obra",
-        "planning",
-        "workflow"
-      ],
-      "targets": [
-        "claude-code",
-        "github-copilot"
-      ],
-      "files": [
-        "SKILL.md"
-      ],
+      "tags": ["superpowers","obra","planning","workflow"],
+      "targets": ["claude-code","github-copilot"],
+      "files": ["SKILL.md"],
       "dependencies": [],
       "version": "1.0.0",
-      "path": "skills/executing-plans"
+      "path": "skills/obra.superpowers.executing-plans"
     },
     {
-      "name": "finishing-a-development-branch",
+      "name": "obra.superpowers.finishing-a-development-branch",
       "type": "skill",
       "description": "Use when implementation is complete, all tests pass, and you need to decide how to integrate the work - guides completion of development work by presenting structured options for merge, PR, or cleanup",
-      "tags": [
-        "superpowers",
-        "obra",
-        "git",
-        "workflow"
-      ],
-      "targets": [
-        "claude-code",
-        "github-copilot"
-      ],
-      "files": [
-        "SKILL.md"
-      ],
+      "tags": ["superpowers","obra","git","workflow"],
+      "targets": ["claude-code","github-copilot"],
+      "files": ["SKILL.md"],
       "dependencies": [],
       "version": "1.0.0",
-      "path": "skills/finishing-a-development-branch"
+      "path": "skills/obra.superpowers.finishing-a-development-branch"
     },
     {
-      "name": "receiving-code-review",
+      "name": "obra.superpowers.receiving-code-review",
       "type": "skill",
       "description": "Use when receiving code review feedback, before implementing suggestions, especially if feedback seems unclear or technically questionable - requires technical rigor and verification, not performative agreement or blind implementation",
-      "tags": [
-        "superpowers",
-        "obra",
-        "code-review"
-      ],
-      "targets": [
-        "claude-code",
-        "github-copilot"
-      ],
-      "files": [
-        "SKILL.md"
-      ],
+      "tags": ["superpowers","obra","code-review"],
+      "targets": ["claude-code","github-copilot"],
+      "files": ["SKILL.md"],
       "dependencies": [],
       "version": "1.0.0",
-      "path": "skills/receiving-code-review"
+      "path": "skills/obra.superpowers.receiving-code-review"
     },
     {
-      "name": "requesting-code-review",
+      "name": "obra.superpowers.requesting-code-review",
       "type": "skill",
       "description": "Use when completing tasks, implementing major features, or before merging to verify work meets requirements",
-      "tags": [
-        "superpowers",
-        "obra",
-        "code-review"
-      ],
-      "targets": [
-        "claude-code",
-        "github-copilot"
-      ],
-      "files": [
-        "SKILL.md",
-        "code-reviewer.md"
-      ],
+      "tags": ["superpowers","obra","code-review"],
+      "targets": ["claude-code","github-copilot"],
+      "files": ["SKILL.md","code-reviewer.md"],
       "dependencies": [],
       "version": "1.0.0",
-      "path": "skills/requesting-code-review"
+      "path": "skills/obra.superpowers.requesting-code-review"
     },
     {
-      "name": "subagent-driven-development",
+      "name": "obra.superpowers.subagent-driven-development",
       "type": "skill",
       "description": "Use when executing implementation plans with independent tasks in the current session",
-      "tags": [
-        "superpowers",
-        "obra",
-        "workflow",
-        "parallel"
-      ],
-      "targets": [
-        "claude-code",
-        "github-copilot"
-      ],
-      "files": [
-        "SKILL.md",
-        "code-quality-reviewer-prompt.md",
-        "implementer-prompt.md",
-        "spec-reviewer-prompt.md"
-      ],
+      "tags": ["superpowers","obra","workflow","parallel"],
+      "targets": ["claude-code","github-copilot"],
+      "files": ["SKILL.md","code-quality-reviewer-prompt.md","implementer-prompt.md","spec-reviewer-prompt.md"],
       "dependencies": [],
       "version": "1.0.0",
-      "path": "skills/subagent-driven-development"
+      "path": "skills/obra.superpowers.subagent-driven-development"
     },
     {
-      "name": "systematic-debugging",
+      "name": "obra.superpowers.systematic-debugging",
       "type": "skill",
       "description": "Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes",
-      "tags": [
-        "superpowers",
-        "obra",
-        "debugging"
-      ],
-      "targets": [
-        "claude-code",
-        "github-copilot"
-      ],
-      "files": [
-        "SKILL.md",
-        "condition-based-waiting-example.ts",
-        "condition-based-waiting.md",
-        "CREATION-LOG.md",
-        "defense-in-depth.md",
-        "find-polluter.sh",
-        "root-cause-tracing.md",
-        "test-academic.md",
-        "test-pressure-1.md",
-        "test-pressure-2.md",
-        "test-pressure-3.md"
-      ],
+      "tags": ["superpowers","obra","debugging"],
+      "targets": ["claude-code","github-copilot"],
+      "files": ["SKILL.md","condition-based-waiting-example.ts","condition-based-waiting.md","CREATION-LOG.md","defense-in-depth.md","find-polluter.sh","root-cause-tracing.md","test-academic.md","test-pressure-1.md","test-pressure-2.md","test-pressure-3.md"],
       "dependencies": [],
       "version": "1.0.0",
-      "path": "skills/systematic-debugging"
+      "path": "skills/obra.superpowers.systematic-debugging"
     },
     {
-      "name": "test-driven-development",
+      "name": "obra.superpowers.test-driven-development",
       "type": "skill",
       "description": "Use when implementing any feature or bugfix, before writing implementation code",
-      "tags": [
-        "superpowers",
-        "obra",
-        "testing"
-      ],
-      "targets": [
-        "claude-code",
-        "github-copilot"
-      ],
-      "files": [
-        "SKILL.md",
-        "testing-anti-patterns.md"
-      ],
+      "tags": ["superpowers","obra","testing"],
+      "targets": ["claude-code","github-copilot"],
+      "files": ["SKILL.md","testing-anti-patterns.md"],
       "dependencies": [],
       "version": "1.0.0",
-      "path": "skills/test-driven-development"
+      "path": "skills/obra.superpowers.test-driven-development"
     },
     {
-      "name": "using-git-worktrees",
+      "name": "obra.superpowers.using-git-worktrees",
       "type": "skill",
       "description": "Use when starting feature work that needs isolation from current workspace or before executing implementation plans - creates isolated git worktrees with smart directory selection and safety verification",
-      "tags": [
-        "superpowers",
-        "obra",
-        "git"
-      ],
-      "targets": [
-        "claude-code",
-        "github-copilot"
-      ],
-      "files": [
-        "SKILL.md"
-      ],
+      "tags": ["superpowers","obra","git"],
+      "targets": ["claude-code","github-copilot"],
+      "files": ["SKILL.md"],
       "dependencies": [],
       "version": "1.0.0",
-      "path": "skills/using-git-worktrees"
+      "path": "skills/obra.superpowers.using-git-worktrees"
     },
     {
-      "name": "using-superpowers",
+      "name": "obra.superpowers.using-superpowers",
       "type": "skill",
       "description": "Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions",
-      "tags": [
-        "superpowers",
-        "obra",
-        "workflow"
-      ],
-      "targets": [
-        "claude-code",
-        "github-copilot"
-      ],
-      "files": [
-        "SKILL.md",
-        "references/codex-tools.md",
-        "references/gemini-tools.md"
-      ],
+      "tags": ["superpowers","obra","workflow"],
+      "targets": ["claude-code","github-copilot"],
+      "files": ["SKILL.md","references/codex-tools.md","references/gemini-tools.md"],
       "dependencies": [],
       "version": "1.0.0",
-      "path": "skills/using-superpowers"
+      "path": "skills/obra.superpowers.using-superpowers"
     },
     {
-      "name": "verification-before-completion",
+      "name": "obra.superpowers.verification-before-completion",
       "type": "skill",
       "description": "Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions always",
-      "tags": [
-        "superpowers",
-        "obra",
-        "workflow",
-        "quality"
-      ],
-      "targets": [
-        "claude-code",
-        "github-copilot"
-      ],
-      "files": [
-        "SKILL.md"
-      ],
+      "tags": ["superpowers","obra","workflow","quality"],
+      "targets": ["claude-code","github-copilot"],
+      "files": ["SKILL.md"],
       "dependencies": [],
       "version": "1.0.0",
-      "path": "skills/verification-before-completion"
+      "path": "skills/obra.superpowers.verification-before-completion"
     },
     {
-      "name": "writing-plans",
+      "name": "obra.superpowers.writing-plans",
       "type": "skill",
       "description": "Use when you have a spec or requirements for a multi-step task, before touching code",
-      "tags": [
-        "superpowers",
-        "obra",
-        "planning"
-      ],
-      "targets": [
-        "claude-code",
-        "github-copilot"
-      ],
-      "files": [
-        "SKILL.md",
-        "plan-document-reviewer-prompt.md"
-      ],
+      "tags": ["superpowers","obra","planning"],
+      "targets": ["claude-code","github-copilot"],
+      "files": ["SKILL.md","plan-document-reviewer-prompt.md"],
       "dependencies": [],
       "version": "1.0.0",
-      "path": "skills/writing-plans"
+      "path": "skills/obra.superpowers.writing-plans"
     },
     {
-      "name": "writing-skills",
+      "name": "obra.superpowers.writing-skills",
       "type": "skill",
       "description": "Use when creating new skills, editing existing skills, or verifying skills work before deployment",
-      "tags": [
-        "superpowers",
-        "obra",
-        "documentation"
-      ],
-      "targets": [
-        "claude-code",
-        "github-copilot"
-      ],
-      "files": [
-        "SKILL.md",
-        "anthropic-best-practices.md",
-        "examples/CLAUDE_MD_TESTING.md",
-        "graphviz-conventions.dot",
-        "persuasion-principles.md",
-        "render-graphs.js",
-        "testing-skills-with-subagents.md"
-      ],
+      "tags": ["superpowers","obra","documentation"],
+      "targets": ["claude-code","github-copilot"],
+      "files": ["SKILL.md","anthropic-best-practices.md","examples/CLAUDE_MD_TESTING.md","graphviz-conventions.dot","persuasion-principles.md","render-graphs.js","testing-skills-with-subagents.md"],
       "dependencies": [],
       "version": "1.0.0",
-      "path": "skills/writing-skills"
+      "path": "skills/obra.superpowers.writing-skills"
     },
     {
-      "name": "example-instruction",
+      "name": "local.baseline-agents",
       "type": "instruction",
-      "description": "An example instruction demonstrating the instruction format.",
-      "tags": [
-        "example"
-      ],
-      "targets": [
-        "claude-code",
-        "github-copilot"
-      ],
-      "files": [
-        "example-instruction.instructions.md"
-      ],
+      "description": "Behavioral guidelines to reduce common LLM coding mistakes. A baseline AGENTS.md for any project.",
+      "tags": ["baseline","guidelines","agents"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["AGENTS.md"],
       "dependencies": [],
       "version": "1.0.0",
-      "path": "instructions/example-instruction"
+      "path": "instructions/local.baseline-agents"
     }
   ]
 }

@@ -1,0 +1,25 @@
+name: mattpocock.skills.improve-codebase-architecture
+type: skill
+description: "Find deepening opportunities in a codebase, informed by the domain language in CONTEXT.md and the decisions in docs/adr/."
+tags:
+  - mattpocock
+  - architecture
+  - refactoring
+  - engineering
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - SKILL.md
+  - LANGUAGE.md
+  - HTML-REPORT.md
+  - INTERFACE-DESIGN.md
+  - DEEPENING.md
+version: "1.0.0"
+source: https://github.com/mattpocock/skills

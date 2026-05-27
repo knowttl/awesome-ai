@@ -1,0 +1,23 @@
+name: mattpocock.skills.grill-with-docs
+type: skill
+description: "Grilling session that challenges your plan against the existing domain model, sharpens terminology, and updates CONTEXT.md and ADRs inline."
+tags:
+  - mattpocock
+  - design
+  - documentation
+  - engineering
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - SKILL.md
+  - CONTEXT-FORMAT.md
+  - ADR-FORMAT.md
+version: "1.0.0"
+source: https://github.com/mattpocock/skills

@@ -1,0 +1,23 @@
+name: mattpocock.skills.triage
+type: skill
+description: "Triage issues through a state machine of triage roles. Manages issue workflow from intake to ready-for-agent."
+tags:
+  - mattpocock
+  - workflow
+  - issues
+  - engineering
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - SKILL.md
+  - AGENT-BRIEF.md
+  - OUT-OF-SCOPE.md
+version: "1.0.0"
+source: https://github.com/mattpocock/skills

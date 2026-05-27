@@ -1,0 +1,19 @@
+name: local.baseline-agents
+type: instruction
+description: Behavioral guidelines to reduce common LLM coding mistakes. A baseline AGENTS.md for any project.
+tags:
+  - baseline
+  - guidelines
+  - agents
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - AGENTS.md
+version: "1.0.0"

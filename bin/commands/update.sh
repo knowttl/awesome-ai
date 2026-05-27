@@ -13,6 +13,7 @@ REF=""
 DRY_RUN=false
 FORCE=false
 ITEMS=()
+PREFIX=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -20,6 +21,7 @@ while [[ $# -gt 0 ]]; do
     --dry-run)  DRY_RUN=true; shift ;;
     --force|-f) FORCE=true; shift ;;
     --item|-i)  ITEMS+=("$2"); shift 2 ;;
+    --prefix)   PREFIX="$2"; shift 2 ;;
     --yes|-y)   export SKILL_YES=1; shift ;;
     --help|-h)
       cat <<EOF
@@ -34,6 +36,7 @@ Pull the latest skills from an upstream repository and update local copies.
 
 Options:
   --item, -i <name>   Update only the named item(s), repeatable
+  --prefix <prefix>   Namespace prefix for local names (e.g. obra.superpowers)
   --ref <commit>      Fetch a specific commit/tag/branch
   --dry-run           Show what would change without modifying files
   --force, -f         Overwrite without prompting
@@ -48,6 +51,11 @@ EOF
 done
 
 [[ -z "$UPSTREAM" ]] && UPSTREAM="$DEFAULT_UPSTREAM"
+
+# --- Auto-detect prefix from repo shorthand (owner/repo → owner.repo) ---
+if [[ -z "$PREFIX" ]] && is_shorthand "$UPSTREAM"; then
+  PREFIX="${UPSTREAM/\//.}"
+fi
 
 # --- Clone upstream ---
 SOURCE_URL="$(normalize_repo_url "$UPSTREAM")"
@@ -92,6 +100,7 @@ while IFS= read -r remote_dir; do
     match=false
     for want in "${ITEMS[@]}"; do
       [[ "$want" == "$remote_name" ]] && match=true
+      [[ -n "$PREFIX" && "$want" == "${PREFIX}.${remote_name}" ]] && match=true
     done
     [[ "$match" == "false" ]] && continue
   fi
@@ -103,7 +112,13 @@ while IFS= read -r remote_dir; do
     *) local_type_dir="skills" ;;
   esac
 
-  local_dir="$REGISTRY_ROOT/$local_type_dir/$remote_name"
+  # Derive local name with prefix (e.g. obra.superpowers.brainstorming)
+  local_name="$remote_name"
+  if [[ -n "$PREFIX" ]]; then
+    local_name="${PREFIX}.${remote_name}"
+  fi
+
+  local_dir="$REGISTRY_ROOT/$local_type_dir/$local_name"
 
   if [[ ! -d "$local_dir" ]]; then
     NEW_ITEMS+=("$remote_name ($remote_type)")
@@ -113,8 +128,19 @@ while IFS= read -r remote_dir; do
   # Compare files — check if any differ
   changed_files=()
   remote_files="$(cat "$remote_dir/manifest.yaml" | yaml_read_list files)"
-  # Always include manifest.yaml in the comparison
-  all_files="manifest.yaml"$'\n'"$remote_files"
+
+  # Only include manifest.yaml if the upstream repo has a real one
+  # (not one synthesized from SKILL.md frontmatter by scan_repo_for_items)
+  has_real_manifest=false
+  if git -C "$TEMP_CLONE" ls-tree --name-only HEAD -- "$(realpath --relative-to="$TEMP_CLONE" "$remote_dir")/manifest.yaml" 2>/dev/null | grep -q manifest.yaml; then
+    has_real_manifest=true
+  fi
+
+  if [[ "$has_real_manifest" == "true" ]]; then
+    all_files="manifest.yaml"$'\n'"$remote_files"
+  else
+    all_files="$remote_files"
+  fi
 
   while IFS= read -r file; do
     [[ -z "$file" ]] && continue
@@ -127,6 +153,13 @@ while IFS= read -r remote_dir; do
 
     if [[ ! -f "$local_file" ]]; then
       changed_files+=("$file (new)")
+    elif [[ "$file" == "manifest.yaml" ]]; then
+      # For manifest.yaml, compare all fields except name (which we prefix locally)
+      remote_content="$(sed '/^name:/d' "$remote_file")"
+      local_content="$(sed '/^name:/d' "$local_file")"
+      if [[ "$remote_content" != "$local_content" ]]; then
+        changed_files+=("$file")
+      fi
     elif ! diff -q "$remote_file" "$local_file" >/dev/null 2>&1; then
       changed_files+=("$file")
     fi
@@ -168,6 +201,11 @@ while IFS= read -r remote_dir; do
 
     mkdir -p "$(dirname "$local_file")"
     cp "$remote_file" "$local_file"
+
+    # Preserve the prefixed local name in manifest.yaml
+    if [[ "$file" == "manifest.yaml" && -n "$PREFIX" ]]; then
+      sed -i "s/^name: .*/name: $local_name/" "$local_file"
+    fi
   done <<< "$all_files"
 
   UPDATED=$((UPDATED + 1))

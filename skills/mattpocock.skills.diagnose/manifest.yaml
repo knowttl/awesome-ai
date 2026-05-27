@@ -1,0 +1,21 @@
+name: mattpocock.skills.diagnose
+type: skill
+description: "Disciplined diagnosis loop for hard bugs and performance regressions: reproduce, minimise, hypothesise, instrument, fix, regression-test."
+tags:
+  - mattpocock
+  - debugging
+  - engineering
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - SKILL.md
+  - hitl-loop.template.sh
+version: "1.0.0"
+source: https://github.com/mattpocock/skills

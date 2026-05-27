@@ -33,19 +33,45 @@ This is a **skills-registry**: a CLI tool + content monorepo for managing reusab
 - **Testing**: TDD with `assert_eq` pattern in `tests/test-*.sh`. Run all with `bash tests/run-tests.sh`.
 - **Naming**: Bash uses `snake_case` for functions. PowerShell uses `Verb-Noun` cmdlet style.
 
+## Skill Naming Convention
+
+Skill and instruction directories use dot-separated namespacing to indicate their source:
+
+| Prefix | Source | Example |
+|--------|--------|---------|
+| `obra.superpowers.*` | [obra/superpowers](https://github.com/obra/superpowers) | `obra.superpowers.brainstorming` |
+| `mattpocock.skills.*` | [mattpocock/skills](https://github.com/mattpocock/skills) | `mattpocock.skills.diagnose` |
+| `local.*` | Custom/project-specific skills | `local.context-sync` |
+
+Format: `<owner>.<repo>.<skill-name>`. The `name` field in `manifest.yaml` must match the directory name.
+
+When adding skills from a new upstream repo, follow this pattern: `<github-owner>.<repo-name>.<skill-name>`.
+
 ## Content Format
 
 Each skill/instruction has a `manifest.yaml`:
 
 ```yaml
-name: my-skill
+name: obra.superpowers.my-skill
 type: skill          # skill | agent | instruction
 description: Brief description.
 tags: [tag1, tag2]
 targets: [claude-code, github-copilot]
 files: [SKILL.md]
 version: "1.0.0"
+source: https://github.com/obra/superpowers
 ```
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | Must match the directory name (dot-separated namespace) |
+| `type` | Yes | `skill`, `agent`, or `instruction` |
+| `description` | Yes | One-line summary |
+| `tags` | No | Searchable tags (include source identifier, e.g. `obra`, `mattpocock`) |
+| `targets` | Yes | Which AI agents this item supports |
+| `files` | Yes | List of files to install (relative to item dir) |
+| `version` | No | Semver string (defaults to `0.0.0`) |
+| `source` | No | GitHub URL of the upstream repo (omit for `local.*` items) |
 
 ## When Editing
 
@@ -53,3 +79,4 @@ version: "1.0.0"
 - After modifying content under `skills/`, `instructions/`, or `profiles/`, run `bin/skill sync`.
 - Run `bash tests/run-tests.sh` to verify changes don't break existing functionality.
 - Keep scripts zero-dependency — do not add `jq`, `yq`, `node`, or other external tools.
+- **When making structural changes** (new naming conventions, new manifest fields, new commands, changed directory layouts), always update `CLAUDE.md` and `.github/copilot-instructions.md` to reflect the change.
