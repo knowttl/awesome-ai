@@ -8,7 +8,7 @@ You are helping me set up AI coding skills and behavioral guidelines for my proj
 
 ## Context You Need
 
-The **skills-registry** (https://github.com/a-btsai/awesome-ai) is a CLI tool + content monorepo for managing reusable AI coding skills. It has a zero-dependency CLI (pure Bash + PowerShell) that installs skill files into project-local directories for multiple AI coding assistants.
+The **skills-registry** (https://github.com/knowttl/awesome-ai) is a CLI tool + content monorepo for managing reusable AI coding skills. It has a zero-dependency CLI (pure Bash + PowerShell) that installs skill files into project-local directories for multiple AI coding assistants.
 
 You will clone this registry, read it to understand how it works, discover available skills dynamically, and guide me through installation.
 
@@ -25,7 +25,7 @@ Ask me these questions (present them as a numbered list and wait for my answers)
 3. Do I already have the skills-registry cloned locally?
    - If YES: ask for the path to the clone.
    - If NO: present these two options and ask which I prefer:
-     - **Option A** — Clone it locally for full CLI access (recommended): `git clone https://github.com/a-btsai/awesome-ai.git ~/skills-registry`
+     - **Option A** — Clone it locally for full CLI access (recommended): `git clone https://github.com/knowttl/awesome-ai.git ~/skills-registry`
      - **Option B** — Temporary clone just for this setup (clone to `/tmp/skills-registry`, keep it through AGENTS.md setup, then ask before deleting it)
 
 Store my answers as variables for later steps:
