@@ -9,6 +9,7 @@ A personal monorepo of reusable **skills**, **agents**, and **instructions** for
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [Guided Setup (AI-Assisted)](#guided-setup-ai-assisted)
 - [What's Inside](#whats-inside)
 - [CLI Reference](#cli-reference)
 - [Updating Skills From Upstream](#updating-skills-from-upstream)
@@ -52,6 +53,19 @@ On **Windows PowerShell**, replace `bin/skill` with `bin/skill.ps1`:
 .\bin\skill.ps1 list
 .\bin\skill.ps1 install brainstorming
 ```
+
+---
+
+## Guided Setup (AI-Assisted)
+
+If you'd prefer a guided, interactive experience, copy the contents of [`SETUP-PROMPT.md`](SETUP-PROMPT.md) into any AI coding assistant. It will walk you through:
+
+1. Cloning the registry
+2. Discovering available skills compatible with your assistant
+3. Selecting and installing skills
+4. Optionally setting up an `AGENTS.md` with behavioral guidelines
+
+This works with any AI assistant that has terminal and file access (Claude Code, GitHub Copilot, Cursor, Cline, etc.).
 
 ---
 
