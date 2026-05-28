@@ -1,7 +1,7 @@
 # Agent Memory System — Design Spec
 
 **Date:** 2026-05-27  
-**Status:** Draft  
+**Status:** Approved for implementation
 **Approach:** Thin Instruction + Fat Skill (Approach 1)
 
 ## Summary
@@ -9,21 +9,23 @@
 A lightweight, file-based memory system and self-reflection loop for AI coding agents. Prevents agents from repeating mistakes across long-running or complex projects by capturing "lessons learned" and forcing retrieval before new work.
 
 Implemented as two registry items:
-- **Instruction** (`local.agent-memory`): Always-loaded "brain stem" — procedural commands forcing memory check before tasks and entry proposal after tasks.
+- **Instruction** (`local.agent-memory`): Short "brain stem" content intended to be loaded by the target agent — procedural commands forcing memory check before tasks and entry proposal after tasks.
 - **Skill** (`local.agent-memory-workflow`): On-demand detailed reference for writing, searching, linting, and maintaining the memory vault.
+
+The current installer copies both items into agent-specific install directories (for example, `.claude/skills/<name>/`). It does not rewrite `CLAUDE.md`, `.github/copilot-instructions.md`, or other root context files. Agents or setup flows that require explicit root-file merging must enable the installed instruction content separately.
 
 ## Design Decisions
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Form | Instruction + Skill | Progressive disclosure — tiny always-loaded trigger, detailed reference on-demand |
+| Form | Instruction + Skill | Progressive disclosure — tiny brain stem trigger, detailed reference on-demand |
 | Scope | Per-project `.ai/memory/` | Project-specific lessons, git-committed, no cross-project complexity |
 | Write trigger | Agent proposes at task end, user approves | Balanced quality vs. friction; no mid-task interruptions |
 | File format | Multiple templates by category | Expressive for different memory types |
 | Retrieval | Index file + grep | Reliable discovery without infrastructure |
 | Target agents | Claude Code, GitHub Copilot, Cursor, Cline, OpenCode, Codex | All CLI-capable agents |
 | Lint operation | Yes, user-invocable | Keeps vault healthy as it grows |
-| Vault structure | Flat (no subdirectories) | Simple grep, categories via frontmatter/tags |
+| Vault structure | Flat (no subdirectories) | Simple grep, categories via visible metadata lines/tags |
 
 ## Architecture
 
@@ -31,7 +33,7 @@ Implemented as two registry items:
 Two-Tier Progressive Disclosure:
 
 ┌─────────────────────────────────────────────────────┐
-│  Tier 1: Brain Stem (always loaded)                 │
+│  Tier 1: Brain Stem (instruction package)           │
 │  instructions/local.agent-memory/AGENTS.md          │
 │  ~25 lines — procedural commands only               │
 │  "Check memory before task. Propose entry after."   │
@@ -60,7 +62,7 @@ Two-Tier Progressive Disclosure:
 [User gives task]
        │
        ▼
-1. Agent reads brain stem (always loaded)
+1. Agent has loaded the brain stem instruction package
        │
        ▼
 2. Agent reads .ai/memory/index.md
@@ -224,7 +226,7 @@ If `.ai/memory/` does not exist:
 7. **Git add** both files: `git add .ai/memory/<filename>.md .ai/memory/index.md` (stage only — do not commit; the user will commit with their broader task changes)
 
 **Naming conventions:**
-- Filenames: kebab-case, no date prefix (date is in the file's frontmatter)
+- Filenames: kebab-case, no date prefix (date is in the file's metadata block)
 - Max ~50 characters for the filename
 - Descriptive enough to be meaningful in the index
 
@@ -381,16 +383,18 @@ All target agents can:
 - Write files (to create entries)
 - Run `git add` (to stage changes)
 
-| Agent | Brain Stem File | Skill Invocation |
-|-------|----------------|-----------------|
-| Claude Code | CLAUDE.md | Native skill support |
-| GitHub Copilot | .github/copilot-instructions.md | Skill via instructions |
-| Cursor | .cursorrules | Skill via instructions |
-| Cline | .clinerules | Skill via instructions |
-| OpenCode | .opencode/instructions.md | Skill via instructions |
-| Codex | codex.md | Skill via instructions |
+The skills-registry installer copies content to the paths defined in `bin/lib/agents.sh` and `bin/lib/agents.ps1`:
 
-The instruction content (`AGENTS.md`) gets installed into the appropriate agent-specific file by the skills-registry `install` command.
+| Agent | Installed Instruction Path | Installed Skill Path |
+|-------|----------------------------|----------------------|
+| Claude Code | `.claude/skills/local.agent-memory/AGENTS.md` | `.claude/skills/local.agent-memory-workflow/` |
+| GitHub Copilot | `.github/copilot/skills/local.agent-memory/AGENTS.md` | `.github/copilot/skills/local.agent-memory-workflow/` |
+| Cursor | `.agents/skills/local.agent-memory/AGENTS.md` | `.agents/skills/local.agent-memory-workflow/` |
+| Cline | `.agents/skills/local.agent-memory/AGENTS.md` | `.agents/skills/local.agent-memory-workflow/` |
+| OpenCode | `.agents/skills/local.agent-memory/AGENTS.md` | `.agents/skills/local.agent-memory-workflow/` |
+| Codex | `.agents/skills/local.agent-memory/AGENTS.md` | `.agents/skills/local.agent-memory-workflow/` |
+
+This implementation does not change installer semantics. If a target agent does not automatically load installed instruction packages, the setup flow or user must merge/enable `AGENTS.md` in that agent's always-loaded context file.
 
 ## Out of Scope
 
@@ -400,10 +404,11 @@ The instruction content (`AGENTS.md`) gets installed into the appropriate agent-
 - Web UI or dashboard
 - MCP server integration
 - Subdirectory organization within the vault
+- Changing installer semantics to merge instruction content into root context files
 
 ## Success Criteria
 
-1. Agent checks `.ai/memory/index.md` before starting a task (when vault exists)
+1. Instruction package installs to the expected agent-specific path and contains the pre-task memory check
 2. Agent proposes memory entries only at task completion, only for non-obvious learnings
 3. Memory files follow the correct template for their category
 4. Index stays in sync with actual files
