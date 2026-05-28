@@ -75,11 +75,37 @@ Once `REGISTRY_PATH` is available (either from an existing clone or after clonin
 
 6. **Optionally read individual SKILL.md files** at `<REGISTRY_PATH>/<item.path>/SKILL.md` if I ask for more detail about a specific skill. These contain the full instructions that get installed.
 
+7. **Detect existing installations.** Check what is already installed in `<PROJECT_PATH>`:
+
+   a. **Check for a lock file** at `<PROJECT_PATH>/.skills-lock.json`. If it exists, read it — it contains a list of previously installed items with their names and versions.
+
+   b. **Scan the agent skill directories** for each of my selected assistants. Look up the `project_path` from `AGENT_TABLE` (e.g., `.claude/skills`, `.github/copilot/skills`, `.agents/skills`) and list existing subdirectories under `<PROJECT_PATH>/<project_path>/`. Each subdirectory name corresponds to an installed item.
+
+   c. **Build an `ALREADY_INSTALLED` list** — the union of items found in the lock file and items detected on disk. For each, note whether it matches an item in `registry.json` (known) or is unrecognized (possibly manually installed or from an older version).
+
+   d. **Check for existing AGENTS.md** (or equivalent instruction files: `.github/copilot-instructions.md`, `CLAUDE.md`, `.cursorrules`, etc.) at the project root.
+
+   e. **Check for existing `.ai/memory/`** directory (agent memory vault).
+
+   Store the results for use in subsequent steps. If everything from the registry is already installed, tell me: "All compatible skills are already installed. You can still update them with `bin/skill update` or add new ones as they become available."
+
 ---
 
 ## Step 3: Skill Selection
 
 **CRITICAL: Only present skills that actually exist in `registry.json`. Do NOT invent, fabricate, or hallucinate skill names. Every skill name you show must be an exact `name` value from the parsed JSON.**
+
+**If existing installations were detected in Step 2**, present the results first:
+
+> **Already installed:** List the items found, grouped by source (obra.superpowers, mattpocock.skills, local). Mark each as ✓ installed.
+>
+> **Not yet installed:** List compatible items that are NOT in `ALREADY_INSTALLED`. These are what you can add.
+
+Then ask: "Would you like to install any of the items that aren't installed yet, or are you happy with your current setup?"
+
+If I say I'm happy, skip to Step 5 (AGENTS.md setup) — but still check Steps 5 and 6 for anything not yet configured.
+
+**If nothing is installed yet (fresh project)**, present all compatible skills as before:
 
 Present the discovered skills to me in a clear, organized format. Group them logically (by tags or by name prefix like `obra.superpowers.*`, `mattpocock.skills.*`, `local.*`). For each skill show:
 - Name
@@ -102,7 +128,7 @@ When I select by shorthand or keyword, map my input to the exact full `name` val
 
 ## Step 4: Install Skills
 
-Based on my selections, generate and execute the install commands.
+Based on my selections, generate and execute the install commands. **Skip any items that are already in `ALREADY_INSTALLED`** — only install new selections.
 
 **Pre-flight (if the registry was just cloned or hasn't been synced):**
 
@@ -134,7 +160,9 @@ Save to `<REGISTRY_PATH>/profiles/<name>.yaml` and install with:
 
 ## Step 5: AGENTS.md Setup
 
-Ask me:
+**If an existing AGENTS.md (or equivalent) was detected in Step 2**, tell me what was found and ask whether I want to review it against the baseline for any missing guidelines. If I say no, skip to Step 6.
+
+**If no instruction file was detected**, ask me:
 
 1. Would you like to set up an `AGENTS.md` file for your project? This provides behavioral guidelines that make AI coding assistants produce better code.
 2. Does your project already have an `AGENTS.md` (or `.github/copilot-instructions.md`, `CLAUDE.md`, or similar instruction file)?
@@ -183,7 +211,12 @@ Present two options:
 
 ## Step 6: Agent Memory (Optional)
 
-Ask me:
+**If `local.agent-memory` and `local.agent-memory-workflow` are already in `ALREADY_INSTALLED`**, tell me:
+> "Agent Memory is already installed for this project."
+
+Then check if `.ai/memory/` exists. If it does, skip to Step 7. If it doesn't, note that the vault will be created automatically on first use and skip to Step 7.
+
+**If Agent Memory is NOT installed**, ask me:
 
 > Would you like to enable **Agent Memory** for this project? This is a lightweight, file-based system that helps AI agents learn from past mistakes and avoid repeating them. It works by:
 > - Checking a `.ai/memory/` vault at the start of each task for relevant lessons
