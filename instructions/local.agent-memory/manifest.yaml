@@ -1,0 +1,17 @@
+name: local.agent-memory
+type: instruction
+description: "Procedural commands forcing the agent to search .ai/memory/ before tasks and propose entries after tasks."
+tags:
+  - memory
+  - self-reflection
+  - workflow
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+files:
+  - AGENTS.md
+version: "1.0.0"
