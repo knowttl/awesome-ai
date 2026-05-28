@@ -6,19 +6,21 @@
 
 This prompt guides you through an interactive setup process with your AI coding assistant:
 
-1. **Environment check** — identifies your AI assistant(s) and project path
-2. **Registry discovery** — clones and reads the skills-registry to find available skills
+1. **Environment detection** — auto-detects your AI assistant, project path, registry location, and existing installations, then confirms with you
+2. **Registry discovery** — reads the skills-registry to find available skills
 3. **Skill selection** — presents compatible skills grouped by source, lets you pick
 4. **Installation** — runs the CLI commands to install selected skills into your project
 5. **AGENTS.md setup** — optionally creates or merges behavioral guidelines for your AI assistant
 6. **Agent memory** — optionally installs a persistent memory system so your AI learns from past mistakes
 7. **Summary** — confirms what was installed and provides maintenance commands
 
-No manual CLI knowledge required — the AI handles everything based on your choices.
+No manual CLI knowledge required — the AI detects your environment and handles everything based on your choices.
 
 ---
 
 You are helping me set up AI coding skills and behavioral guidelines for my project. Guide me through this interactively, one step at a time. Do NOT proceed to the next step until I respond. Present each step clearly and wait for my input.
+
+**Principle: Detect first, confirm second.** For every piece of information you need, attempt to auto-detect it from the filesystem before asking me. Present your findings and ask me to confirm or correct — do not make me manually provide information you can discover yourself.
 
 ## Context You Need
 
@@ -30,19 +32,86 @@ You will clone this registry, read it to understand how it works, discover avail
 
 ---
 
-## Step 1: Environment Check
+## Step 1: Environment Detection
 
-Ask me these questions (present them as a numbered list and wait for my answers):
+**Detect first, then confirm.** Do NOT ask me questions you can answer yourself. Run detection commands, present your findings, and ask me to confirm or correct.
 
-1. Which AI coding assistant(s) am I using? (Common options: Claude Code, GitHub Copilot, Cursor, Cline, OpenCode, Codex, Windsurf, Roo Code)
-2. What is the absolute path to my project's root directory?
-3. Do I already have the skills-registry cloned locally?
-   - If YES: ask for the path to the clone.
-   - If NO: present these two options and ask which I prefer:
-     - **Option A** — Clone it locally for full CLI access (recommended): `git clone https://github.com/knowttl/awesome-ai.git ~/skills-registry`
-     - **Option B** — Temporary clone just for this setup (clone to `/tmp/skills-registry`, keep it through AGENTS.md setup, then ask before deleting it)
+### 1a: Detect the AI assistant
 
-Store my answers as variables for later steps:
+You already know which AI assistant you are. State it:
+> "I've detected that I'm running as **[assistant name]**."
+
+If you support multiple assistant modes or the user might use others alongside you, ask: "Are there other AI assistants you also use for this project?"
+
+### 1b: Detect the project directory
+
+Run `pwd` (or equivalent) to determine the current working directory. Then verify it looks like a project root by checking for common indicators: `.git/`, `package.json`, `Cargo.toml`, `go.mod`, `pyproject.toml`, `Makefile`, `README.md`, or `src/`.
+
+Present your finding:
+> "Your current directory is `<path>`. This appears to be a project root (found `.git/`, `package.json`, etc.)."
+
+Ask: "Is this the project you want to set up skills for, or is it a different path?"
+
+### 1c: Detect the skills-registry
+
+Search for an existing skills-registry clone by checking these locations in order:
+
+```bash
+# Check common clone locations
+for dir in ~/skills-registry ~/awesome-ai /tmp/skills-registry ./; do
+  if [[ -f "$dir/bin/skill" ]] && [[ -f "$dir/registry.json" ]]; then
+    echo "Found: $dir"
+    break
+  fi
+done
+```
+
+Also check if the current directory IS the skills-registry (if `bin/skill` exists in `pwd`).
+
+**If found**, confirm:
+> "I found the skills-registry at `<path>`."
+
+**If NOT found**, tell me and offer to clone it:
+> "I couldn't find the skills-registry locally. I can clone it for you:"
+> - **Option A** (recommended): `git clone https://github.com/knowttl/awesome-ai.git ~/skills-registry` — permanent local copy
+> - **Option B**: `git clone https://github.com/knowttl/awesome-ai.git /tmp/skills-registry` — temporary for this session
+
+### 1d: Detect existing installations
+
+If `PROJECT_PATH` has been confirmed, immediately scan for existing skill installations:
+
+```bash
+# Check for lock file
+[[ -f "<PROJECT_PATH>/.skills-lock.json" ]] && echo "Lock file found"
+
+# Check for common agent skill directories
+for dir in .claude/skills .github/copilot/skills .agents/skills .windsurf/skills .roo/skills; do
+  [[ -d "<PROJECT_PATH>/$dir" ]] && ls "<PROJECT_PATH>/$dir"
+done
+
+# Check for AGENTS.md or equivalents
+for f in AGENTS.md .github/copilot-instructions.md CLAUDE.md .cursorrules .windsurfrules .clinerules; do
+  [[ -f "<PROJECT_PATH>/$f" ]] && echo "Found: $f"
+done
+
+# Check for agent memory
+[[ -d "<PROJECT_PATH>/.ai/memory" ]] && echo "Agent memory vault found"
+```
+
+Present a summary of findings:
+> **Environment detected:**
+> - Assistant: GitHub Copilot
+> - Project: `/home/user/my-project` (Node.js project)
+> - Registry: `~/skills-registry`
+> - Installed skills: 5 items (from `.skills-lock.json`)
+> - AGENTS.md: found
+> - Agent Memory: not installed
+>
+> "Does this look right? Anything to correct?"
+
+Wait for my confirmation before proceeding.
+
+Store confirmed values:
 - `AGENT_NAMES` = one or more agent identifiers
 - `PROJECT_PATH` = my project root
 - `REGISTRY_PATH` = path to the skills-registry clone
@@ -75,19 +144,7 @@ Once `REGISTRY_PATH` is available (either from an existing clone or after clonin
 
 6. **Optionally read individual SKILL.md files** at `<REGISTRY_PATH>/<item.path>/SKILL.md` if I ask for more detail about a specific skill. These contain the full instructions that get installed.
 
-7. **Detect existing installations.** Check what is already installed in `<PROJECT_PATH>`:
-
-   a. **Check for a lock file** at `<PROJECT_PATH>/.skills-lock.json`. If it exists, read it — it contains a list of previously installed items with their names and versions.
-
-   b. **Scan the agent skill directories** for each of my selected assistants. Look up the `project_path` from `AGENT_TABLE` (e.g., `.claude/skills`, `.github/copilot/skills`, `.agents/skills`) and list existing subdirectories under `<PROJECT_PATH>/<project_path>/`. Each subdirectory name corresponds to an installed item.
-
-   c. **Build an `ALREADY_INSTALLED` list** — the union of items found in the lock file and items detected on disk. For each, note whether it matches an item in `registry.json` (known) or is unrecognized (possibly manually installed or from an older version).
-
-   d. **Check for existing AGENTS.md** (or equivalent instruction files: `.github/copilot-instructions.md`, `CLAUDE.md`, `.cursorrules`, etc.) at the project root.
-
-   e. **Check for existing `.ai/memory/`** directory (agent memory vault).
-
-   Store the results for use in subsequent steps. If everything from the registry is already installed, tell me: "All compatible skills are already installed. You can still update them with `bin/skill update` or add new ones as they become available."
+7. **Build `ALREADY_INSTALLED` list.** Using the installation data detected in Step 1d (lock file + agent directories), cross-reference against `registry.json` to classify each installed item as known (in registry) or unrecognized (manually installed / old version). If everything compatible is already installed, tell me: "All compatible skills are already installed. You can still update them with `bin/skill update` or add new ones as they become available."
 
 ---
 
