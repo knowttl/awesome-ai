@@ -61,8 +61,6 @@ files:
 version: "1.0.0"
 ```
 
-Create at: `instructions/local.agent-memory/manifest.yaml`
-
 - [ ] **Step 2: Create AGENTS.md**
 
 ```markdown
@@ -91,9 +89,11 @@ Then propose a memory entry to the user:
 
 Only propose at task completion. Do not interrupt mid-task.
 If the user approves, invoke the `agent-memory-workflow` skill for the detailed write procedure.
-```
 
-Create at: `instructions/local.agent-memory/AGENTS.md`
+## Vault Health
+
+If `.ai/memory/index.md` exceeds ~30 entries, suggest the user run a lint/audit to prune stale entries.
+```
 
 - [ ] **Step 3: Commit**
 
@@ -136,8 +136,6 @@ files:
   - templates/decision.md
 version: "1.0.0"
 ```
-
-Create at: `skills/local.agent-memory-workflow/manifest.yaml`
 
 - [ ] **Step 2: Create SKILL.md**
 
@@ -232,41 +230,15 @@ Stage only — do not commit. The user will commit with their broader task chang
 
 ---
 
-## Operation 3: Search Memory (Detailed)
+## Operation 3: Search Memory
 
-Used when the brain stem instruction triggers a memory check at task start.
-
-### Step 1: Read the Index
-
-```bash
-cat .ai/memory/index.md
-```
-
-### Step 2: Scan for Relevance
-
-Extract 2-3 keywords from the current task context:
-- Technology names (docker, postgres, typescript)
-- Error message fragments
-- Tool names (webpack, eslint, terraform)
-- Concept names (permissions, ports, migrations, auth)
-
-Match keywords against file names, tags, and summaries in the index table.
-
-### Step 3: Deep Search (if needed)
-
-If the index scan is insufficient or the vault is large:
+The brain stem instruction handles the common search path (read index → match keywords → read files). This operation documents the fallback for large vaults only:
 
 ```bash
 grep -ril "<keyword>" .ai/memory/
 ```
 
-### Step 4: Read Matched Files
-
-Read matched files in full to understand the lessons.
-
-### Step 5: Apply
-
-Summarize applicable lessons internally before proceeding with the task. Do not output the summary to the user unless asked.
+Use when the index scan alone is insufficient. Extract 2-3 keywords from: technology names, error fragments, tool names, concepts. Read matched files in full, apply lessons silently.
 
 ---
 
@@ -306,17 +278,8 @@ For each approved change:
 
 ### Step 5: Report
 
-```
-Memory Vault Health:
-- Total entries: N
-- By category: error-fix (X), convention (Y), environment (Z), decision (W)
-- Issues found: N (M resolved)
-- Oldest entry: YYYY-MM-DD
-- Newest entry: YYYY-MM-DD
-```
+Report: total entries, counts by category, issues found/resolved, oldest/newest entry dates.
 ````
-
-Create at: `skills/local.agent-memory-workflow/SKILL.md`
 
 - [ ] **Step 3: Commit**
 
@@ -361,8 +324,6 @@ Why it happened.
 The correct solution. Commands, config changes, or code.
 ```
 
-Create at: `skills/local.agent-memory-workflow/templates/error-fix.md`
-
 - [ ] **Step 2: Create templates/convention.md**
 
 ```markdown
@@ -384,8 +345,6 @@ Why this convention exists.
 
 Correct and incorrect usage.
 ```
-
-Create at: `skills/local.agent-memory-workflow/templates/convention.md`
 
 - [ ] **Step 3: Create templates/environment.md**
 
@@ -409,8 +368,6 @@ The non-obvious behavior or requirement.
 How to handle it.
 ```
 
-Create at: `skills/local.agent-memory-workflow/templates/environment.md`
-
 - [ ] **Step 4: Create templates/decision.md**
 
 ```markdown
@@ -432,8 +389,6 @@ Other options and why they were rejected.
 
 What this decision implies for future work.
 ```
-
-Create at: `skills/local.agent-memory-workflow/templates/decision.md`
 
 - [ ] **Step 5: Commit**
 
@@ -577,13 +532,3 @@ Expected: All PASS.
 ```bash
 rm -rf "$TMP"
 ```
-
-- [ ] **Step 5: Final commit (if any fixes needed)**
-
-If any issues were found and fixed in earlier tasks, ensure everything is committed. Otherwise, this step is a no-op.
-
-```bash
-git log --oneline -5
-```
-
-Expected output shows the commits from Tasks 1-5.

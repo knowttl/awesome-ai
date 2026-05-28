@@ -91,276 +91,54 @@ Two-Tier Progressive Disclosure:
 
 ## Registry Items
 
-### Item 1: Instruction — `local.agent-memory`
+Two items. Both target: `claude-code`, `github-copilot`, `cursor`, `cline`, `opencode`, `codex`.
 
-**Directory:** `instructions/local.agent-memory/`
+| Item | Type | Files |
+|------|------|-------|
+| `local.agent-memory` | instruction | `AGENTS.md` |
+| `local.agent-memory-workflow` | skill | `SKILL.md`, `templates/{error-fix,convention,environment,decision}.md` |
 
-**Files:**
-```
-instructions/local.agent-memory/
-├── manifest.yaml
-└── AGENTS.md
-```
-
-**manifest.yaml:**
-```yaml
-name: local.agent-memory
-type: instruction
-description: "Procedural commands forcing the agent to search .ai/memory/ before tasks and propose entries after tasks."
-tags:
-  - memory
-  - self-reflection
-  - workflow
-targets:
-  - claude-code
-  - github-copilot
-  - cursor
-  - cline
-  - opencode
-  - codex
-files:
-  - AGENTS.md
-version: "1.0.0"
-```
-
-**AGENTS.md content:**
-
-```markdown
-# Agent Memory
-
-This project uses a persistent memory vault at `.ai/memory/`.
-
-## Before Starting Any Task
-
-1. Read `.ai/memory/index.md` to scan for entries relevant to your current task.
-2. If any entries look relevant based on title/tags, read those files in full.
-3. Apply any applicable lessons to avoid known pitfalls.
-
-If `.ai/memory/` does not exist yet, skip this step.
-
-## After Completing a Task
-
-If during this task you:
-- Hit an error that required non-obvious debugging
-- Discovered a project convention not documented elsewhere
-- Found an environment-specific quirk or workaround
-- Made an architectural decision with important rationale
-
-Then propose a memory entry to the user:
-> "I learned [summary]. Want me to save this to `.ai/memory/`?"
-
-Only propose at task completion. Do not interrupt mid-task.
-If the user approves, invoke the `agent-memory-workflow` skill for the detailed write procedure.
-```
-
-### Item 2: Skill — `local.agent-memory-workflow`
-
-**Directory:** `skills/local.agent-memory-workflow/`
-
-**Files:**
-```
-skills/local.agent-memory-workflow/
-├── manifest.yaml
-├── SKILL.md
-└── templates/
-    ├── error-fix.md
-    ├── convention.md
-    ├── environment.md
-    └── decision.md
-```
-
-**manifest.yaml:**
-```yaml
-name: local.agent-memory-workflow
-type: skill
-description: "Use when writing, searching, or maintaining entries in the project's .ai/memory/ vault."
-tags:
-  - memory
-  - self-reflection
-  - workflow
-  - templates
-targets:
-  - claude-code
-  - github-copilot
-  - cursor
-  - cline
-  - opencode
-  - codex
-files:
-  - SKILL.md
-  - templates/error-fix.md
-  - templates/convention.md
-  - templates/environment.md
-  - templates/decision.md
-version: "1.0.0"
-```
+Full manifest YAML, `AGENTS.md` body, and `SKILL.md` body are defined in the implementation plan. The spec defines the contract; the plan is the source of truth for content.
 
 ## Skill Operations
 
-### Operation 1: Bootstrap (First Use)
+The skill defines four operations. Detailed step-by-step procedures live in `SKILL.md` (authored in the plan's Task 2).
 
-If `.ai/memory/` does not exist:
+| Operation | Trigger | Purpose |
+|-----------|---------|---------|
+| Bootstrap | First write when `.ai/memory/` is missing | Create the vault directory and seed `index.md` with the header + table skeleton |
+| Write | User approves a proposed entry | Pick category, generate kebab-case filename, apply template, write entry, append to index, `git add` (no commit) |
+| Search | Brain stem pre-task hook | Read `index.md`, scan for keyword matches, optionally `grep -ril` for deep search, read matched files, apply lessons silently |
+| Lint | User-invocable | Find stale/duplicate/contradictory/orphan/ghost entries, propose changes (never auto-delete), rebuild index if drifted, report counts |
 
-1. Create directory `.ai/memory/`
-2. Create `.ai/memory/index.md` with:
+**Naming conventions for entries:**
+- Filenames: kebab-case, no date prefix, max ~50 chars
+- Date lives in the file's metadata block
 
-```markdown
-# Memory Index
-
-> Auto-maintained by the agent. Do not edit manually.
-
-| File | Category | Tags | Summary |
-|------|----------|------|---------|
-```
-
-3. Proceed to write the first entry (Operation 2).
-
-### Operation 2: Write a Memory Entry
-
-1. **Determine category** from: `error-fix`, `convention`, `environment`, `decision`
-2. **Generate filename** — kebab-case, descriptive, e.g., `docker-compose-port-conflict.md`
-3. **Apply template** — read the appropriate template from the skill's `templates/` directory
-4. **Fill template** — populate all sections with specific, actionable content
-5. **Write file** to `.ai/memory/<filename>.md`
-6. **Update index** — append a row to the table in `.ai/memory/index.md`
-7. **Git add** both files: `git add .ai/memory/<filename>.md .ai/memory/index.md` (stage only — do not commit; the user will commit with their broader task changes)
-
-**Naming conventions:**
-- Filenames: kebab-case, no date prefix (date is in the file's metadata block)
-- Max ~50 characters for the filename
-- Descriptive enough to be meaningful in the index
-
-### Operation 3: Search Memory (Detailed)
-
-When the brain stem instruction triggers a memory check:
-
-1. **Read index** — `cat .ai/memory/index.md`
-2. **Scan for relevance** — match task keywords against file names, tags, and summaries in the index
-3. **Deep search** (if index scan is insufficient) — `grep -ril "<keywords>" .ai/memory/`
-4. **Read matched files** in full
-5. **Summarize** applicable lessons internally before proceeding with the task
-
-The agent should extract 2-3 keywords from the current task context for searching. Consider:
-- Technology names (docker, postgres, typescript)
-- Error message fragments
-- Tool names
-- Concept names (permissions, ports, migrations)
-
-### Operation 4: Lint / Maintain
-
-User-invocable. Triggered by explicit request (e.g., "lint my memory vault" or "audit .ai/memory").
-
-1. **Read all entries** — read every `.md` file in `.ai/memory/` (excluding `index.md`)
-2. **Read index** — compare against actual files
-3. **Check for issues:**
-   - **Stale entries** — fixes for dependencies/tools no longer in the project
-   - **Duplicates** — multiple entries covering the same issue
-   - **Contradictions** — entries that give conflicting advice
-   - **Orphans** — files not listed in the index
-   - **Ghost entries** — index rows pointing to deleted files
-4. **Propose changes** to the user — never delete without approval:
-   - "Remove `<file>` — references removed dependency X?"
-   - "Merge `<file1>` and `<file2>` — both cover the same topic?"
-   - "Entry `<file>` contradicts `<other>` — which is correct?"
-5. **Rebuild index** if drifted — regenerate from actual files
-6. **Report summary:**
-   - Total entries, entries by category
-   - Issues found and resolved
-   - Last-modified dates of oldest entries
+**Search keyword sources:** technology names, error message fragments, tool names, concept names.
 
 ## Templates
 
-### Template: `error-fix.md`
+Four templates, one per category. Each file is plain Markdown beginning with a metadata block:
 
-```markdown
+```
 # <Title>
 
-**Category:** error-fix
+**Category:** <category>
 **Tags:** <comma-separated keywords>
 **Date:** <YYYY-MM-DD>
-
-## Symptom
-
-What went wrong. Error messages, observed behavior.
-
-## Failed Approaches
-
-What was tried that didn't work (so the agent doesn't retry them).
-
-## Root Cause
-
-Why it happened.
-
-## Fix
-
-The correct solution. Commands, config changes, or code.
 ```
 
-### Template: `convention.md`
+Body sections per category:
 
-```markdown
-# <Title>
+| Category | Body Sections |
+|----------|--------------|
+| `error-fix` | Symptom · Failed Approaches · Root Cause · Fix |
+| `convention` | Rule · Rationale · Examples |
+| `environment` | Context · Quirk · Workaround |
+| `decision` | Decision · Alternatives Considered · Consequences |
 
-**Category:** convention
-**Tags:** <comma-separated keywords>
-**Date:** <YYYY-MM-DD>
-
-## Rule
-
-The convention to follow.
-
-## Rationale
-
-Why this convention exists.
-
-## Examples
-
-Correct and incorrect usage.
-```
-
-### Template: `environment.md`
-
-```markdown
-# <Title>
-
-**Category:** environment
-**Tags:** <comma-separated keywords>
-**Date:** <YYYY-MM-DD>
-
-## Context
-
-What environment/setup this applies to.
-
-## Quirk
-
-The non-obvious behavior or requirement.
-
-## Workaround
-
-How to handle it.
-```
-
-### Template: `decision.md`
-
-```markdown
-# <Title>
-
-**Category:** decision
-**Tags:** <comma-separated keywords>
-**Date:** <YYYY-MM-DD>
-
-## Decision
-
-What was decided.
-
-## Alternatives Considered
-
-Other options and why they were rejected.
-
-## Consequences
-
-What this decision implies for future work.
-```
+Canonical template content is defined in the implementation plan (Task 3).
 
 ## Index Format Specification
 
@@ -383,16 +161,13 @@ All target agents can:
 - Write files (to create entries)
 - Run `git add` (to stage changes)
 
-The skills-registry installer copies content to the paths defined in `bin/lib/agents.sh` and `bin/lib/agents.ps1`:
+The skills-registry installer copies content to the paths defined in `bin/lib/agents.sh` and `bin/lib/agents.ps1`. The instruction installs to `<agent-skills-dir>/local.agent-memory/AGENTS.md`; the skill installs to `<agent-skills-dir>/local.agent-memory-workflow/`.
 
-| Agent | Installed Instruction Path | Installed Skill Path |
-|-------|----------------------------|----------------------|
-| Claude Code | `.claude/skills/local.agent-memory/AGENTS.md` | `.claude/skills/local.agent-memory-workflow/` |
-| GitHub Copilot | `.github/copilot/skills/local.agent-memory/AGENTS.md` | `.github/copilot/skills/local.agent-memory-workflow/` |
-| Cursor | `.agents/skills/local.agent-memory/AGENTS.md` | `.agents/skills/local.agent-memory-workflow/` |
-| Cline | `.agents/skills/local.agent-memory/AGENTS.md` | `.agents/skills/local.agent-memory-workflow/` |
-| OpenCode | `.agents/skills/local.agent-memory/AGENTS.md` | `.agents/skills/local.agent-memory-workflow/` |
-| Codex | `.agents/skills/local.agent-memory/AGENTS.md` | `.agents/skills/local.agent-memory-workflow/` |
+| Agent | `<agent-skills-dir>` |
+|-------|----------------------|
+| Claude Code | `.claude/skills` |
+| GitHub Copilot | `.github/copilot/skills` |
+| Cursor, Cline, OpenCode, Codex | `.agents/skills` |
 
 This implementation does not change installer semantics. If a target agent does not automatically load installed instruction packages, the setup flow or user must merge/enable `AGENTS.md` in that agent's always-loaded context file.
 
