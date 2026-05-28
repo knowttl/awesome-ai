@@ -1,0 +1,22 @@
+name: local.agent-memory-workflow
+type: skill
+description: "Use when writing, searching, or maintaining entries in the project's .ai/memory/ vault."
+tags:
+  - memory
+  - self-reflection
+  - workflow
+  - templates
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+files:
+  - SKILL.md
+  - templates/error-fix.md
+  - templates/convention.md
+  - templates/environment.md
+  - templates/decision.md
+version: "1.0.0"
