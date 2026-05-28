@@ -71,10 +71,15 @@ Also check if the current directory IS the skills-registry (if `bin/skill` exist
 **If found**, confirm:
 > "I found the skills-registry at `<path>`."
 
-**If NOT found**, tell me and offer to clone it:
-> "I couldn't find the skills-registry locally. I can clone it for you:"
-> - **Option A** (recommended): `git clone https://github.com/knowttl/awesome-ai.git ~/skills-registry` — permanent local copy
-> - **Option B**: `git clone https://github.com/knowttl/awesome-ai.git /tmp/skills-registry` — temporary for this session
+**If NOT found**, tell me and explicitly ask where to clone it. Do NOT pick a location yourself — present both options and wait for my choice:
+> "I couldn't find the skills-registry locally. Where would you like me to clone it? Please pick one:"
+> - **Option A — Persistent (recommended):** `~/skills-registry` — kept on disk, reusable across projects and sessions, easy to `bin/skill update` later.
+> - **Option B — Temporary:** `/tmp/skills-registry` — wiped on reboot, fine for a one-off trial install but you will have to re-clone next time.
+> - **Option C — Custom path:** tell me a path and I will clone there instead.
+>
+> "Which would you like (A, B, or a custom path)?"
+
+Wait for my explicit answer before running `git clone`. Do not assume the recommended option.
 
 ### 1d: Detect existing installations
 
@@ -160,7 +165,7 @@ Once `REGISTRY_PATH` is available (either from an existing clone or after clonin
 
 Then ask: "Would you like to install any of the items that aren't installed yet, or are you happy with your current setup?"
 
-If I say I'm happy, skip to Step 5 (AGENTS.md setup) — but still check Steps 5 and 6 for anything not yet configured. Specifically, even if all regular skills are installed, still evaluate Step 6 (Agent Memory) if `local.agent-memory` or `local.agent-memory-workflow` is NOT in `ALREADY_INSTALLED`.
+If I say I'm happy, skip to Step 5 (AGENTS.md setup) — but you MUST still proceed through Steps 5 and 6 for anything not yet configured. **Step 6 (Agent Memory) is required regardless of my answer here** unless both `local.agent-memory` AND `local.agent-memory-workflow` are already in `ALREADY_INSTALLED`. Do not silently skip the Agent Memory question.
 
 **If nothing is installed yet (fresh project)**, present all compatible skills as before:
 
@@ -268,12 +273,14 @@ Present two options:
 
 ## Step 6: Agent Memory (Optional)
 
+**This step is mandatory — you MUST reach it on every setup run.** Do not skip Step 6 just because I said "I'm happy" in Step 3 or declined AGENTS.md in Step 5. The only valid reason to skip the Agent Memory prompt is if both items below are already installed.
+
 **If `local.agent-memory` and `local.agent-memory-workflow` are already in `ALREADY_INSTALLED`**, tell me:
 > "Agent Memory is already installed for this project."
 
 Then check if `.ai/memory/` exists. If it does, skip to Step 7. If it doesn't, note that the vault will be created automatically on first use and skip to Step 7.
 
-**If Agent Memory is NOT installed**, ask me:
+**If Agent Memory is NOT installed, you MUST ask me explicitly** (do not assume my answer based on earlier responses):
 
 > Would you like to enable **Agent Memory** for this project? This is a lightweight, file-based system that helps AI agents learn from past mistakes and avoid repeating them. It works by:
 > - Checking a `.ai/memory/` vault at the start of each task for relevant lessons
