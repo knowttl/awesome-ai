@@ -103,7 +103,7 @@ Once `REGISTRY_PATH` is available (either from an existing clone or after clonin
 
 Then ask: "Would you like to install any of the items that aren't installed yet, or are you happy with your current setup?"
 
-If I say I'm happy, skip to Step 5 (AGENTS.md setup) — but still check Steps 5 and 6 for anything not yet configured.
+If I say I'm happy, skip to Step 5 (AGENTS.md setup) — but still check Steps 5 and 6 for anything not yet configured. Specifically, even if all regular skills are installed, still evaluate Step 6 (Agent Memory) if `local.agent-memory` or `local.agent-memory-workflow` is NOT in `ALREADY_INSTALLED`.
 
 **If nothing is installed yet (fresh project)**, present all compatible skills as before:
 
