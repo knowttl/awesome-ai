@@ -22,7 +22,7 @@ Then propose a memory entry to the user:
 > "I learned [summary]. Want me to save this to `.ai/memory/`?"
 
 Only propose at task completion. Do not interrupt mid-task.
-If the user approves, invoke the `agent-memory-workflow` skill for the detailed write procedure.
+If the user approves, read the `SKILL.md` in the `local.agent-memory-workflow` skill directory (installed alongside this instruction) and follow its write procedure.
 
 ## Vault Health
 

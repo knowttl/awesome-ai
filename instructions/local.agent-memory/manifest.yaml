@@ -12,6 +12,8 @@ targets:
   - cline
   - opencode
   - codex
+  - windsurf
+  - roo-code
 files:
   - AGENTS.md
 version: "1.0.0"

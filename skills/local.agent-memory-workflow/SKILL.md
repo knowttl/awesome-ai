@@ -7,6 +7,14 @@ description: "Use when writing, searching, or maintaining entries in the project
 
 Detailed procedures for writing, searching, and maintaining the project's `.ai/memory/` vault.
 
+## When to Use
+
+- User approved a proposed memory entry (from the brain stem instruction)
+- User asks to search or query memories explicitly
+- User asks to lint, audit, or clean up the memory vault
+
+Do NOT use this skill for the routine pre-task memory check — that is handled inline by the brain stem instruction (`local.agent-memory`).
+
 ## Operations
 
 1. **Bootstrap** — Create the vault on first use
@@ -60,7 +68,7 @@ Choose one:
 
 ### Step 3: Apply Template
 
-Read the appropriate template from this skill's `templates/` directory:
+Read the appropriate template from the `templates/` directory adjacent to this `SKILL.md` file:
 - `templates/error-fix.md`
 - `templates/convention.md`
 - `templates/environment.md`

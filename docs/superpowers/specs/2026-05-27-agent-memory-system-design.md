@@ -23,7 +23,7 @@ The current installer copies both items into agent-specific install directories 
 | Write trigger | Agent proposes at task end, user approves | Balanced quality vs. friction; no mid-task interruptions |
 | File format | Multiple templates by category | Expressive for different memory types |
 | Retrieval | Index file + grep | Reliable discovery without infrastructure |
-| Target agents | Claude Code, GitHub Copilot, Cursor, Cline, OpenCode, Codex | All CLI-capable agents |
+| Target agents | Claude Code, GitHub Copilot, Cursor, Cline, OpenCode, Codex, Windsurf, Roo Code | All CLI-capable agents |
 | Lint operation | Yes, user-invocable | Keeps vault healthy as it grows |
 | Vault structure | Flat (no subdirectories) | Simple grep, categories via visible metadata lines/tags |
 
@@ -91,7 +91,7 @@ Two-Tier Progressive Disclosure:
 
 ## Registry Items
 
-Two items. Both target: `claude-code`, `github-copilot`, `cursor`, `cline`, `opencode`, `codex`.
+Two items. Both target: `claude-code`, `github-copilot`, `cursor`, `cline`, `opencode`, `codex`, `windsurf`, `roo-code`.
 
 | Item | Type | Files |
 |------|------|-------|
@@ -168,6 +168,8 @@ The skills-registry installer copies content to the paths defined in `bin/lib/ag
 | Claude Code | `.claude/skills` |
 | GitHub Copilot | `.github/copilot/skills` |
 | Cursor, Cline, OpenCode, Codex | `.agents/skills` |
+| Windsurf | `.windsurf/skills` |
+| Roo Code | `.roo/skills` |
 
 This implementation does not change installer semantics. If a target agent does not automatically load installed instruction packages, the setup flow or user must merge/enable `AGENTS.md` in that agent's always-loaded context file.
 

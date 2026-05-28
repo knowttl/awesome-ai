@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-28T04:52:28Z",
+  "generatedAt": "2026-05-28T04:55:10Z",
   "items": [
     {
       "name": "local.agent-memory-workflow",
       "type": "skill",
       "description": "",
       "tags": ["memory","self-reflection","workflow","templates"],
-      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
       "files": ["SKILL.md","templates/error-fix.md","templates/convention.md","templates/environment.md","templates/decision.md"],
       "dependencies": [],
       "version": "1.0.0",
@@ -293,7 +293,7 @@
       "type": "instruction",
       "description": "Procedural commands forcing the agent to search .ai/memory/ before tasks and propose entries after tasks.",
       "tags": ["memory","self-reflection","workflow"],
-      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
       "files": ["AGENTS.md"],
       "dependencies": [],
       "version": "1.0.0",
