@@ -68,6 +68,8 @@ If you'd prefer a guided, interactive experience, copy the contents of [`SETUP-P
 
 This works with any AI assistant that has terminal and file access (Claude Code, GitHub Copilot, Cursor, Cline, etc.).
 
+To **uninstall** skills interactively, copy [`UNINSTALL-PROMPT.md`](UNINSTALL-PROMPT.md) into your AI assistant instead. It scans what's installed, lets you select items to remove, and confirms before deleting anything.
+
 ---
 
 ## What's Inside
