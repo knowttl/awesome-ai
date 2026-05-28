@@ -71,7 +71,7 @@ This works with any AI assistant that has terminal and file access (Claude Code,
 
 ## What's Inside
 
-The registry ships with **25 skills** and **1 instruction** from multiple sources:
+The registry ships with **26 skills** and **2 instructions** from multiple sources:
 
 ### obra/superpowers
 
@@ -112,10 +112,12 @@ Skills from [mattpocock/skills](https://github.com/mattpocock/skills) for produc
 
 ### Local
 
-| Skill | When to Use |
-|-------|-------------|
-| `context-sync` | When you need to update project context files (CLAUDE.md, copilot-instructions.md, etc.) to reflect the current codebase |
-| `example-skill` | Reference template showing the manifest format |
+| Item | Type | When to Use |
+|------|------|-------------|
+| `agent-memory` | instruction | Brain stem instructions that prompt agents to check `.ai/memory/` before tasks and propose memory entries after tasks |
+| `agent-memory-workflow` | skill | Detailed workflow for writing, searching, linting, and maintaining `.ai/memory/` entries |
+| `context-sync` | skill | When you need to update project context files (CLAUDE.md, copilot-instructions.md, etc.) to reflect the current codebase |
+| `example-skill` | skill | Reference template showing the manifest format |
 
 ---
 
