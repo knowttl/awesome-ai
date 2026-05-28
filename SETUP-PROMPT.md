@@ -90,7 +90,7 @@ If `PROJECT_PATH` has been confirmed, immediately scan for existing skill instal
 [[ -f "<PROJECT_PATH>/.skills-lock.json" ]] && echo "Lock file found"
 
 # Check for common agent skill directories
-for dir in .claude/skills .github/copilot/skills .agents/skills .windsurf/skills .roo/skills; do
+for dir in .claude/skills .github/skills .agents/skills .windsurf/skills .roo/skills; do
   [[ -d "<PROJECT_PATH>/$dir" ]] && ls "<PROJECT_PATH>/$dir"
 done
 

@@ -52,9 +52,9 @@ assert_eq "claude-code skill dir exists" "0" \
 assert_eq "claude-code SKILL.md copied" "0" \
   "$([[ -f "$TARGET_DIR/.claude/skills/sample-skill/SKILL.md" ]] && echo 0 || echo 1)"
 assert_eq "copilot skill dir exists" "0" \
-  "$([[ -d "$TARGET_DIR/.github/copilot/skills/sample-skill" ]] && echo 0 || echo 1)"
+  "$([[ -d "$TARGET_DIR/.github/skills/sample-skill" ]] && echo 0 || echo 1)"
 assert_eq "copilot SKILL.md copied" "0" \
-  "$([[ -f "$TARGET_DIR/.github/copilot/skills/sample-skill/SKILL.md" ]] && echo 0 || echo 1)"
+  "$([[ -f "$TARGET_DIR/.github/skills/sample-skill/SKILL.md" ]] && echo 0 || echo 1)"
 
 # Verify lock file
 LOCK_FILE="$TARGET_DIR/.skills-lock.json"

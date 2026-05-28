@@ -25,7 +25,7 @@ echo "=== test-agents.sh ==="
 
 # Test get_project_path
 assert_eq "claude-code project path" ".claude/skills" "$(get_project_path claude-code)"
-assert_eq "github-copilot project path" ".github/copilot/skills" "$(get_project_path github-copilot)"
+assert_eq "github-copilot project path" ".github/skills" "$(get_project_path github-copilot)"
 assert_eq "cursor project path" ".agents/skills" "$(get_project_path cursor)"
 assert_eq "unknown agent returns empty" "" "$(get_project_path unknown-agent)"
 

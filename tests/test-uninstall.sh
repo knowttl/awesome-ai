@@ -28,8 +28,8 @@ echo "=== test-uninstall.sh ==="
 TARGET_DIR="$(mktemp -d)"
 mkdir -p "$TARGET_DIR/.claude/skills/sample-skill"
 echo "# Test" > "$TARGET_DIR/.claude/skills/sample-skill/SKILL.md"
-mkdir -p "$TARGET_DIR/.github/copilot/skills/sample-skill"
-echo "# Test" > "$TARGET_DIR/.github/copilot/skills/sample-skill/SKILL.md"
+mkdir -p "$TARGET_DIR/.github/skills/sample-skill"
+echo "# Test" > "$TARGET_DIR/.github/skills/sample-skill/SKILL.md"
 
 # Create lock file
 LOCK_FILE="$TARGET_DIR/.skills-lock.json"
@@ -54,7 +54,7 @@ REGISTRY_ROOT="$REG_DIR" bash "$REG_DIR/bin/commands/uninstall.sh" \
 
 # Verify removal
 assert_eq "claude-code dir removed" "1" "$([[ -d "$TARGET_DIR/.claude/skills/sample-skill" ]] && echo 0 || echo 1)"
-assert_eq "copilot dir removed" "1" "$([[ -d "$TARGET_DIR/.github/copilot/skills/sample-skill" ]] && echo 0 || echo 1)"
+assert_eq "copilot dir removed" "1" "$([[ -d "$TARGET_DIR/.github/skills/sample-skill" ]] && echo 0 || echo 1)"
 assert_eq "lock entry removed" "1" "$(lock_has_entry "$LOCK_FILE" "sample-skill" && echo 0 || echo 1)"
 
 rm -rf "$TARGET_DIR" "$REG_DIR"

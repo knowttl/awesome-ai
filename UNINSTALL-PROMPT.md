@@ -54,7 +54,7 @@ Once you have my answers, scan what's currently installed:
 
    **Important name mapping:** If the user said "Roo Code", the `--agent` value is `roo` (not `roo-code`). For all other agents, user-facing names map directly to the `name` field.
 
-3. **Scan the agent skill directories** for each of my assistants. List existing subdirectories under `<PROJECT_PATH>/<project_path>/` (e.g., `.claude/skills/`, `.github/copilot/skills/`, `.agents/skills/`). Each subdirectory is an installed item.
+3. **Scan the agent skill directories** for each of my assistants. List existing subdirectories under `<PROJECT_PATH>/<project_path>/` (e.g., `.claude/skills/`, `.github/skills/`, `.agents/skills/`). Each subdirectory is an installed item.
 
 4. **Cross-reference** the lock file entries against the on-disk directories. Identify:
    - Items in both the lock file AND on disk (normal state)

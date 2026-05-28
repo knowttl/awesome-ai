@@ -299,7 +299,7 @@ When you run `bin/skill install`, the CLI:
 | Agent | Project Path | Global Path |
 |-------|-------------|-------------|
 | Claude Code | `.claude/skills/<name>/` | `~/.claude/skills/<name>/` |
-| GitHub Copilot | `.github/copilot/skills/<name>/` | `~/.copilot/skills/<name>/` |
+| GitHub Copilot | `.github/skills/<name>/` | `~/.copilot/skills/<name>/` |
 | Cursor | `.agents/skills/<name>/` | `~/.cursor/skills/<name>/` |
 | Cline | `.agents/skills/<name>/` | `~/.agents/skills/<name>/` |
 | OpenCode | `.agents/skills/<name>/` | `~/.config/opencode/skills/<name>/` |

@@ -2,7 +2,7 @@
 
 $script:AgentTable = @(
     @{ Name="claude-code";     ProjectPath=".claude/skills";            GlobalSuffix=".claude/skills";               DetectDirs=@(".claude");             DetectBins=@("claude") }
-    @{ Name="github-copilot";  ProjectPath=".github/copilot/skills";   GlobalSuffix=".copilot/skills";              DetectDirs=@(".copilot",".github");  DetectBins=@("copilot") }
+    @{ Name="github-copilot";  ProjectPath=".github/skills";          GlobalSuffix=".copilot/skills";              DetectDirs=@(".copilot",".github");  DetectBins=@("copilot") }
     @{ Name="cursor";          ProjectPath=".agents/skills";            GlobalSuffix=".cursor/skills";               DetectDirs=@(".cursor");             DetectBins=@("cursor") }
     @{ Name="cline";           ProjectPath=".agents/skills";            GlobalSuffix=".agents/skills";               DetectDirs=@(".cline");              DetectBins=@("cline") }
     @{ Name="opencode";        ProjectPath=".agents/skills";            GlobalSuffix=".config/opencode/skills";      DetectDirs=@(".config/opencode");    DetectBins=@("opencode") }

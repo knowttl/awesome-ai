@@ -5,7 +5,7 @@
 # global_suffix is appended to $HOME
 AGENT_TABLE=(
   "claude-code|.claude/skills|.claude/skills|.claude|claude"
-  "github-copilot|.github/copilot/skills|.copilot/skills|.copilot,.github|copilot"
+  "github-copilot|.github/skills|.copilot/skills|.copilot,.github|copilot"
   "cursor|.agents/skills|.cursor/skills|.cursor|cursor"
   "cline|.agents/skills|.agents/skills|.cline|cline"
   "opencode|.agents/skills|.config/opencode/skills|.config/opencode|opencode"
