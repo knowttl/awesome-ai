@@ -1,6 +1,6 @@
 name: local.agent-memory-workflow
 type: skill
-description: "Use when writing, searching, or maintaining entries in the project's .ai/memory/ vault."
+description: "Use when writing, searching, or maintaining entries in the .ai/memory/ vault."
 tags:
   - memory
   - self-reflection

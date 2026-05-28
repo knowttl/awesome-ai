@@ -1,6 +1,6 @@
 ---
 name: agent-memory-workflow
-description: "Use when writing, searching, or maintaining entries in the project's .ai/memory/ vault."
+description: "Use when writing, searching, or maintaining entries in the .ai/memory/ vault."
 ---
 
 # Agent Memory Workflow

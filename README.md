@@ -64,6 +64,7 @@ If you'd prefer a guided, interactive experience, copy the contents of [`SETUP-P
 2. Discovering available skills compatible with your assistant
 3. Selecting and installing skills
 4. Optionally setting up an `AGENTS.md` with behavioral guidelines
+5. Optionally enabling Agent Memory (a file-based system that helps AI agents learn from past mistakes)
 
 This works with any AI assistant that has terminal and file access (Claude Code, GitHub Copilot, Cursor, Cline, etc.).
 
