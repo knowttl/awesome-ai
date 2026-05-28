@@ -11,7 +11,8 @@ This prompt guides you through an interactive setup process with your AI coding 
 3. **Skill selection** — presents compatible skills grouped by source, lets you pick
 4. **Installation** — runs the CLI commands to install selected skills into your project
 5. **AGENTS.md setup** — optionally creates or merges behavioral guidelines for your AI assistant
-6. **Summary** — confirms what was installed and provides maintenance commands
+6. **Agent memory** — optionally installs a persistent memory system so your AI learns from past mistakes
+7. **Summary** — confirms what was installed and provides maintenance commands
 
 No manual CLI knowledge required — the AI handles everything based on your choices.
 
@@ -140,7 +141,7 @@ Ask me:
 
 Before creating or merging instructions, review the current project context. At minimum, inspect existing instruction files, the README, package/build/test configuration files, and any architecture docs. Use that context to avoid generic or contradictory guidance.
 
-**If I say NO to question 1 (don't want AGENTS.md):** Skip to Step 6.
+**If I say NO to question 1 (don't want AGENTS.md):** Skip to Step 6 (Agent Memory).
 
 **If I say YES to question 1:**
 
@@ -180,13 +181,44 @@ Present two options:
 
 ---
 
-## Step 6: Summary & Next Steps
+## Step 6: Agent Memory (Optional)
+
+Ask me:
+
+> Would you like to enable **Agent Memory** for this project? This is a lightweight, file-based system that helps AI agents learn from past mistakes and avoid repeating them. It works by:
+> - Checking a `.ai/memory/` vault at the start of each task for relevant lessons
+> - Proposing a new memory entry at task completion when you hit a non-obvious problem
+>
+> It requires installing two items: an instruction (brain stem, ~30 lines always loaded) and a skill (on-demand write/lint procedures). The vault lives at `<project>/.ai/memory/` and is git-committed with your project.
+
+**If I say NO:** Skip to Step 7.
+
+**If I say YES:**
+
+Install both items:
+
+```bash
+"<REGISTRY_PATH>/bin/skill" install local.agent-memory --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
+"<REGISTRY_PATH>/bin/skill" install local.agent-memory-workflow --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
+```
+
+After installing, explain:
+- The memory vault (`.ai/memory/`) will be created automatically the first time the agent writes a memory entry — no manual setup needed.
+- The agent will silently check for relevant memories before each task and only propose entries at task completion (never mid-task).
+- I can ask the agent to "lint my memory vault" at any time to prune stale or duplicate entries.
+- The vault is plain Markdown files committed to git, so it's shared with the team.
+
+---
+
+## Step 7: Summary & Next Steps
 
 After completing all steps, provide a clear summary:
 
 **Installed skills:** List each skill name and where it was installed (full path).
 
 **AGENTS.md:** State whether it was created, merged, or skipped.
+
+**Agent Memory:** State whether it was enabled or skipped. If enabled, note that `.ai/memory/` will be created on first use.
 
 **Lock file:** Explain that `.skills-lock.json` was created in `<PROJECT_PATH>` and can be committed to version control so teammates can restore the same skills with:
 
