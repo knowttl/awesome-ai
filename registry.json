@@ -1,7 +1,18 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-27T03:24:37Z",
+  "generatedAt": "2026-05-28T04:52:28Z",
   "items": [
+    {
+      "name": "local.agent-memory-workflow",
+      "type": "skill",
+      "description": "",
+      "tags": ["memory","self-reflection","workflow","templates"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex"],
+      "files": ["SKILL.md","templates/error-fix.md","templates/convention.md","templates/environment.md","templates/decision.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/local.agent-memory-workflow"
+    },
     {
       "name": "local.context-sync",
       "type": "skill",
@@ -276,6 +287,17 @@
       "dependencies": [],
       "version": "1.0.0",
       "path": "skills/obra.superpowers.writing-skills"
+    },
+    {
+      "name": "local.agent-memory",
+      "type": "instruction",
+      "description": "Procedural commands forcing the agent to search .ai/memory/ before tasks and propose entries after tasks.",
+      "tags": ["memory","self-reflection","workflow"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex"],
+      "files": ["AGENTS.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "instructions/local.agent-memory"
     },
     {
       "name": "local.baseline-agents",
