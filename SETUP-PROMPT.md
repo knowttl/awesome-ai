@@ -307,6 +307,21 @@ After installing, explain:
 - I can ask the agent to "lint my memory vault" at any time to prune stale or duplicate entries.
 - The vault is plain Markdown files committed to git, so it's shared with the team.
 
+**CRITICAL: Merge memory instructions into the project's instruction file.**
+
+The `local.agent-memory` install places an `AGENTS.md` in the agent's skills directory (e.g., `.claude/skills/local.agent-memory/AGENTS.md`). However, not all agents automatically load files from skills subdirectories as always-on instructions. To guarantee the memory behavior is active, you MUST also append the memory instructions to the project's root instruction file.
+
+1. Read the installed memory instructions file. Its content is at:
+   `<PROJECT_PATH>/<agent_skills_dir>/local.agent-memory/AGENTS.md`
+
+2. Determine the project's root instruction file (from Step 5, one of: `AGENTS.md`, `.github/copilot-instructions.md`, `CLAUDE.md`, or whichever was created/detected).
+
+3. Check whether the root instruction file already contains an "Agent Memory" section (it may if this is a re-run). If it does, skip.
+
+4. If it does NOT already contain the memory instructions, append the full content of the memory `AGENTS.md` to the end of the root instruction file. Show me what will be appended and ask for confirmation before writing.
+
+This ensures the AI assistant loads the memory check/propose behavior on every session regardless of how the agent discovers skill files.
+
 ---
 
 ## Step 7: Summary & Next Steps
