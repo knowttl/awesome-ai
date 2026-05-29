@@ -204,6 +204,8 @@ bin/skill install obra/superpowers --skill brainstorming --ref v1.2.0
 bin/skill install brainstorming --symlink
 ```
 
+When both `claude-code` and `github-copilot` are selected for the same item, the CLI installs it only under `.claude/skills/` because GitHub Copilot also reads skills from that directory. If `github-copilot` is selected by itself, the CLI installs to `.github/skills/` as usual.
+
 ### `skill uninstall <name>`
 
 Remove an installed item from all target agent directories and update the lock file.
@@ -306,6 +308,8 @@ When you run `bin/skill install`, the CLI:
 | Codex | `.agents/skills/<name>/` | `~/.codex/skills/<name>/` |
 | Windsurf | `.windsurf/skills/<name>/` | `~/.codeium/windsurf/skills/<name>/` |
 | Roo Code | `.roo/skills/<name>/` | `~/.roo/skills/<name>/` |
+
+Note: selecting both Claude Code and GitHub Copilot is deduplicated to the Claude Code project path, which serves both agents.
 
 ---
 

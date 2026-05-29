@@ -65,6 +65,26 @@ detect_agents() {
   done
 }
 
+# Deduplicate agents: github-copilot reads from .claude/skills, so if both
+# claude-code and github-copilot are selected, only install to claude-code.
+dedupe_agents() {
+  local agents_input="$1"
+  local has_claude=false
+  local has_copilot=false
+
+  while IFS= read -r agent; do
+    [[ -z "$agent" ]] && continue
+    [[ "$agent" == "claude-code" ]] && has_claude=true
+    [[ "$agent" == "github-copilot" ]] && has_copilot=true
+  done <<< "$agents_input"
+
+  if [[ "$has_claude" == "true" ]] && [[ "$has_copilot" == "true" ]]; then
+    echo "$agents_input" | grep -v '^github-copilot$'
+  else
+    echo "$agents_input"
+  fi
+}
+
 select_agents() {
   local compatible="$1"
   local detected

@@ -198,6 +198,8 @@ Based on my selections, generate and execute the install commands. **Skip any it
 
 **Determine the correct `--agent` flag values.** Look up each of my selected assistants in the `AGENT_TABLE` from `agents.sh`. The first field (`name`) is what gets passed to `--agent`. Build the flags as `--agent <name>` repeated for each assistant. Remember: if the user said "Roo Code", the `--agent` value is `roo` (not `roo-code`).
 
+**Deduplication note:** GitHub Copilot can read skills from both `.github/skills` and `.claude/skills`. The CLI automatically deduplicates: when both `claude-code` and `github-copilot` are selected, it only installs to `.claude/skills` (serving both agents) and skips `.github/skills` to avoid duplicated files. You should still pass both `--agent claude-code --agent github-copilot`; the CLI handles the dedup internally. If `github-copilot` is selected alone (without `claude-code`), it installs to `.github/skills` as normal.
+
 **Install each selected skill individually.** This is safest because different skills may support different subsets of assistants:
 
     "<REGISTRY_PATH>/bin/skill" install <SKILL_NAME> --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes

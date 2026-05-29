@@ -146,6 +146,9 @@ if ($AgentArgs.Count -eq 0) {
     $Selected = $AgentArgs
 }
 
+# Deduplicate: github-copilot reads .claude/skills, so skip it when claude-code is also selected
+$Selected = Remove-DuplicateAgents -Agents $Selected
+
 if ($Selected.Count -eq 0) {
     Write-Warn "No agents selected."
     if ($TempClone) { Remove-TempClone $TempClone }

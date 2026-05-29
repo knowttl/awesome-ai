@@ -42,6 +42,24 @@ assert_eq "known agents includes claude-code" "0" "$(echo "$KNOWN" | grep -q 'cl
 assert_eq "known agents includes github-copilot" "0" "$(echo "$KNOWN" | grep -q 'github-copilot' && echo 0 || echo 1)"
 assert_eq "known agents includes cursor" "0" "$(echo "$KNOWN" | grep -q 'cursor' && echo 0 || echo 1)"
 
+# Test dedupe_agents: github-copilot removed when claude-code is also present
+BOTH=$'claude-code\ngithub-copilot\ncursor'
+DEDUPED="$(dedupe_agents "$BOTH")"
+assert_eq "dedupe: claude-code preserved" "0" "$(echo "$DEDUPED" | grep -q '^claude-code$' && echo 0 || echo 1)"
+assert_eq "dedupe: github-copilot removed" "1" "$(echo "$DEDUPED" | grep -q '^github-copilot$' && echo 0 || echo 1)"
+assert_eq "dedupe: cursor preserved" "0" "$(echo "$DEDUPED" | grep -q '^cursor$' && echo 0 || echo 1)"
+
+# Test dedupe_agents: github-copilot kept when claude-code is not present
+COPILOT_ONLY=$'github-copilot\ncursor'
+DEDUPED2="$(dedupe_agents "$COPILOT_ONLY")"
+assert_eq "dedupe: copilot-only preserved" "0" "$(echo "$DEDUPED2" | grep -q '^github-copilot$' && echo 0 || echo 1)"
+assert_eq "dedupe: cursor still preserved" "0" "$(echo "$DEDUPED2" | grep -q '^cursor$' && echo 0 || echo 1)"
+
+# Test dedupe_agents: claude-code alone stays unchanged
+CLAUDE_ONLY=$'claude-code'
+DEDUPED3="$(dedupe_agents "$CLAUDE_ONLY")"
+assert_eq "dedupe: claude-only unchanged" "claude-code" "$(echo "$DEDUPED3" | tr -d '[:space:]')"
+
 echo ""
 echo "Results: $TESTS_PASSED / $TESTS_RUN passed"
 [[ "$TESTS_PASSED" -eq "$TESTS_RUN" ]]

@@ -46,23 +46,37 @@ export SKILL_YES=1
 REGISTRY_ROOT="$REG_DIR" bash "$REG_DIR/bin/commands/install.sh" \
   "sample-skill" --target "$TARGET_DIR" --agent claude-code --agent github-copilot
 
-# Verify files were copied
+# Verify files were copied; github-copilot is deduped when claude-code is also selected
+# because Copilot can read from .claude/skills
 assert_eq "claude-code skill dir exists" "0" \
   "$([[ -d "$TARGET_DIR/.claude/skills/sample-skill" ]] && echo 0 || echo 1)"
 assert_eq "claude-code SKILL.md copied" "0" \
   "$([[ -f "$TARGET_DIR/.claude/skills/sample-skill/SKILL.md" ]] && echo 0 || echo 1)"
-assert_eq "copilot skill dir exists" "0" \
+assert_eq "copilot skill dir NOT created (deduped)" "1" \
   "$([[ -d "$TARGET_DIR/.github/skills/sample-skill" ]] && echo 0 || echo 1)"
-assert_eq "copilot SKILL.md copied" "0" \
-  "$([[ -f "$TARGET_DIR/.github/skills/sample-skill/SKILL.md" ]] && echo 0 || echo 1)"
 
 # Verify lock file
 LOCK_FILE="$TARGET_DIR/.skills-lock.json"
 assert_eq "lock file created" "0" "$([[ -f "$LOCK_FILE" ]] && echo 0 || echo 1)"
 assert_eq "lock has entry" "0" "$(lock_has_entry "$LOCK_FILE" "sample-skill" && echo 0 || echo 1)"
+assert_eq "lock agents deduped" "claude-code" \
+  "$(lock_get_field "$LOCK_FILE" "sample-skill" "agents" | tr -d '[] ')"
+
+# Test: copilot-only install still works (no dedup when claude-code is not selected)
+TARGET_DIR2="$(mktemp -d)"
+REGISTRY_ROOT="$REG_DIR" bash "$REG_DIR/bin/commands/install.sh" \
+  "sample-skill" --target "$TARGET_DIR2" --agent github-copilot
+
+assert_eq "copilot-only: skill dir exists" "0" \
+  "$([[ -d "$TARGET_DIR2/.github/skills/sample-skill" ]] && echo 0 || echo 1)"
+assert_eq "copilot-only: SKILL.md copied" "0" \
+  "$([[ -f "$TARGET_DIR2/.github/skills/sample-skill/SKILL.md" ]] && echo 0 || echo 1)"
+LOCK_FILE2="$TARGET_DIR2/.skills-lock.json"
+assert_eq "copilot-only: lock agents preserved" "github-copilot" \
+  "$(lock_get_field "$LOCK_FILE2" "sample-skill" "agents" | tr -d '[] ')"
 
 # Clean up
-rm -rf "$REG_DIR" "$TARGET_DIR"
+rm -rf "$REG_DIR" "$TARGET_DIR" "$TARGET_DIR2"
 unset SKILL_YES
 
 echo ""

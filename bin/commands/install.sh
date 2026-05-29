@@ -198,6 +198,9 @@ else
   SELECTED="$(printf '%s\n' "${AGENTS[@]}")"
 fi
 
+# Deduplicate: github-copilot reads .claude/skills, so skip it when claude-code is also selected
+SELECTED="$(dedupe_agents "$SELECTED")"
+
 if [[ -z "$SELECTED" ]]; then
   warn "No agents selected. Nothing to install."
   [[ -n "$TEMP_CLONE" ]] && cleanup_temp "$TEMP_CLONE"
