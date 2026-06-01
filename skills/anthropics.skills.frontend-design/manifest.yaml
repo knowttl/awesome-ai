@@ -1,0 +1,23 @@
+name: anthropics.skills.frontend-design
+type: skill
+description: "Create distinctive, production-grade frontend interfaces with high design quality that avoid generic AI aesthetics. Use when building web components, pages, artifacts, posters, or applications."
+tags:
+  - anthropics
+  - frontend
+  - design
+  - ui
+  - css
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - SKILL.md
+  - LICENSE.txt
+version: "1.0.0"
+source: https://github.com/anthropics/skills
