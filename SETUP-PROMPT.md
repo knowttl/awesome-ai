@@ -273,54 +273,77 @@ Present two options:
 
 ---
 
-## Step 6: Agent Memory (Optional)
+## Step 6: Agent Memory (Required Checkpoint)
 
-**This step is mandatory — you MUST reach it on every setup run.** Do not skip Step 6 just because I said "I'm happy" in Step 3 or declined AGENTS.md in Step 5. The only valid reason to skip the Agent Memory prompt is if both items below are already installed.
+**This step is mandatory on every setup run.** You MUST always execute Step 6 logic, even if the user skipped installs in Step 3 or skipped AGENTS.md work in Step 5.
 
-**If `local.agent-memory` and `local.agent-memory-workflow` are already in `ALREADY_INSTALLED`**, tell me:
-> "Agent Memory is already installed for this project."
+Use this deterministic state model:
 
-Then check if `.ai/memory/` exists. If it does, skip to Step 7. If it doesn't, note that the vault will be created automatically on first use and skip to Step 7.
+- `MEMORY_ITEMS = ["local.agent-memory", "local.agent-memory-workflow"]`
+- `HAS_MEMORY_INSTRUCTION = "local.agent-memory" in ALREADY_INSTALLED`
+- `HAS_MEMORY_WORKFLOW = "local.agent-memory-workflow" in ALREADY_INSTALLED`
+- `MEMORY_FULLY_INSTALLED = HAS_MEMORY_INSTRUCTION && HAS_MEMORY_WORKFLOW`
 
-**If Agent Memory is NOT installed, you MUST ask me explicitly** (do not assume my answer based on earlier responses):
+### 6a) Decide enablement
 
-> Would you like to enable **Agent Memory** for this project? This is a lightweight, file-based system that helps AI agents learn from past mistakes and avoid repeating them. It works by:
-> - Checking a `.ai/memory/` vault at the start of each task for relevant lessons
-> - Proposing a new memory entry at task completion when you hit a non-obvious problem
->
-> It requires installing two items: an instruction (brain stem, ~30 lines always loaded) and a skill (on-demand write/lint procedures). The vault lives at `<project>/.ai/memory/` and is git-committed with your project.
+If `MEMORY_FULLY_INSTALLED` is `false`, ask exactly once:
 
-**If I say NO:** Skip to Step 7.
+> Would you like to enable **Agent Memory** for this project? It helps agents avoid repeat failures by checking prior lessons before tasks and proposing new memory entries after non-obvious issues are solved.
 
-**If I say YES:**
+- If user says **NO**: set `MEMORY_ENABLED = false` and go to Step 7.
+- If user says **YES**: set `MEMORY_ENABLED = true` and continue.
 
-Install both items:
+If `MEMORY_FULLY_INSTALLED` is `true`, do not ask; set `MEMORY_ENABLED = true` and continue.
+
+### 6b) Ensure both memory components are installed
+
+When `MEMORY_ENABLED = true`, you MUST guarantee both items are installed. Install only missing items (idempotent behavior):
 
 ```bash
 "<REGISTRY_PATH>/bin/skill" install local.agent-memory --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
 "<REGISTRY_PATH>/bin/skill" install local.agent-memory-workflow --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
 ```
 
-After installing, explain:
-- The memory vault (`.ai/memory/`) will be created automatically the first time the agent writes a memory entry — no manual setup needed.
-- The agent will silently check for relevant memories before each task and only propose entries at task completion (never mid-task).
-- I can ask the agent to "lint my memory vault" at any time to prune stale or duplicate entries.
-- The vault is plain Markdown files committed to git, so it's shared with the team.
+After installation commands, verify both now appear in `.skills-lock.json`. If either is still missing, report failure and stop instead of silently continuing.
 
-**CRITICAL: Merge memory instructions into the project's instruction file.**
+### 6c) Guarantee always-on memory behavior from root instructions
 
-The `local.agent-memory` install places an `AGENTS.md` in the agent's skills directory (e.g., `.claude/skills/local.agent-memory/AGENTS.md`). However, not all agents automatically load files from skills subdirectories as always-on instructions. To guarantee the memory behavior is active, you MUST also append the memory instructions to the project's root instruction file.
+The instruction in agent skill folders is not sufficient by itself for all assistants. You MUST merge memory instructions into the project's root instruction surface.
 
-1. Read the installed memory instructions file. Its content is at:
-   `<PROJECT_PATH>/<agent_skills_dir>/local.agent-memory/AGENTS.md`
+1. Read installed memory text from one of these paths (first existing path wins):
+  - `<PROJECT_PATH>/.claude/skills/local.agent-memory/AGENTS.md`
+  - `<PROJECT_PATH>/.github/skills/local.agent-memory/AGENTS.md`
+  - `<PROJECT_PATH>/.agents/skills/local.agent-memory/AGENTS.md`
+  - `<PROJECT_PATH>/.windsurf/skills/local.agent-memory/AGENTS.md`
+  - `<PROJECT_PATH>/.roo/skills/local.agent-memory/AGENTS.md`
 
-2. Determine the project's root instruction file (from Step 5, one of: `AGENTS.md`, `.github/copilot-instructions.md`, `CLAUDE.md`, or whichever was created/detected).
+2. Resolve root instruction file with this priority:
+  - Existing `AGENTS.md`
+  - Existing `.github/copilot-instructions.md`
+  - Existing `CLAUDE.md`
+  - Otherwise create `<PROJECT_PATH>/AGENTS.md`
 
-3. Check whether the root instruction file already contains an "Agent Memory" section (it may if this is a re-run). If it does, skip.
+3. Upsert a managed block (replace if exists, append if missing) using exact markers:
 
-4. If it does NOT already contain the memory instructions, append the full content of the memory `AGENTS.md` to the end of the root instruction file. Show me what will be appended and ask for confirmation before writing.
+```markdown
+<!-- BEGIN: local.agent-memory -->
+[memory instruction content copied from installed local.agent-memory/AGENTS.md]
+<!-- END: local.agent-memory -->
+```
 
-This ensures the AI assistant loads the memory check/propose behavior on every session regardless of how the agent discovers skill files.
+4. Idempotency rule: there must be exactly one begin marker and one end marker after update.
+
+5. Never duplicate free-form sections. On reruns, update the existing managed block in place.
+
+### 6d) Explain runtime behavior clearly
+
+When memory is enabled, explain:
+- Agents must check `.ai/memory/index.md` before task work and read relevant entries.
+- Agents must propose memory writeback only after task completion when a non-obvious lesson was learned.
+- `.ai/memory/` is created automatically on first write.
+- Memory files are Markdown and should be committed so the team shares lessons.
+
+This ensures memory behavior is loaded from the root instruction surface and cannot be silently skipped.
 
 ---
 
@@ -332,7 +355,11 @@ After completing all steps, provide a clear summary:
 
 **AGENTS.md:** State whether it was created, merged, or skipped.
 
-**Agent Memory:** State whether it was enabled or skipped. If enabled, note that `.ai/memory/` will be created on first use.
+**Agent Memory:** State whether it was enabled or skipped. If enabled, include:
+- whether both `local.agent-memory` and `local.agent-memory-workflow` are installed,
+- which root instruction file was updated,
+- whether the `local.agent-memory` managed block was appended or updated in place,
+- and that `.ai/memory/` is created automatically on first write.
 
 **Lock file:** Explain that `.skills-lock.json` was created in `<PROJECT_PATH>` and can be committed to version control so teammates can restore the same skills with:
 

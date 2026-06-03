@@ -7,6 +7,8 @@ description: "Use when writing, searching, or maintaining entries in the .ai/mem
 
 Detailed procedures for writing, searching, and maintaining the project's `.ai/memory/` vault.
 
+Goal: capture lessons that prevent repeated mistakes.
+
 ## When to Use
 
 - User approved a proposed memory entry (from the brain stem instruction)
@@ -15,16 +17,35 @@ Detailed procedures for writing, searching, and maintaining the project's `.ai/m
 
 Do NOT use this skill for the routine pre-task memory check — that is handled inline by the brain stem instruction (`local.agent-memory`).
 
+## Deterministic Rules
+
+- Keep one index at `.ai/memory/index.md`.
+- Keep exactly one table row per entry file.
+- On similar incidents, prefer updating an existing entry over creating a near-duplicate.
+- Keep summaries concise and actionable.
+
 ## Operations
 
-1. **Bootstrap** — Create the vault on first use
-2. **Write** — Add a new memory entry
-3. **Search** — Find relevant memories for the current task
-4. **Lint** — Audit and maintain vault health
+1. **Pre-check** — Read existing memory before task work (fallback path)
+2. **Bootstrap** — Create the vault on first use
+3. **Write/Update** — Add or update a memory entry
+4. **Search** — Find relevant memories for the current task
+5. **Lint** — Audit and maintain vault health
 
 ---
 
-## Operation 1: Bootstrap (First Use)
+## Operation 1: Pre-check (Fallback)
+
+Use only when the pre-task check from `local.agent-memory` was skipped or unavailable.
+
+1. If `.ai/memory/index.md` exists, read it.
+2. Select relevant entries by matching task keywords.
+3. Read selected entries fully.
+4. Apply lessons before continuing.
+
+If `.ai/memory/index.md` does not exist, continue.
+
+## Operation 2: Bootstrap (First Use)
 
 If `.ai/memory/` does not exist, create it before writing the first entry.
 
@@ -43,13 +64,20 @@ If `.ai/memory/` does not exist, create it before writing the first entry.
    |------|----------|------|---------|
    ```
 
-3. Proceed to Operation 2 to write the first entry.
+3. Proceed to Operation 3 to write the first entry.
 
 ---
 
-## Operation 2: Write a Memory Entry
+## Operation 3: Write or Update a Memory Entry
 
 Triggered when the user approves a proposed memory entry.
+
+### Step 0: Decide Update vs New Entry
+
+Before creating a new file, scan `index.md` for related entries.
+
+- If an existing entry covers the same root cause, update that entry file and keep the same filename.
+- If no entry covers it, create a new file.
 
 ### Step 1: Determine Category
 
@@ -59,7 +87,7 @@ Choose one:
 - `environment` — An environment-specific quirk or workaround
 - `decision` — An architectural decision with important rationale
 
-### Step 2: Generate Filename
+### Step 2: Generate Filename (new entries only)
 
 - Use kebab-case
 - Be descriptive (e.g., `docker-compose-port-conflict.md`, `use-strict-typescript.md`)
@@ -76,15 +104,21 @@ Read the appropriate template from the `templates/` directory adjacent to this `
 
 ### Step 4: Fill and Write
 
-Populate all template sections with specific, actionable content. Write to `.ai/memory/<filename>.md`.
+Populate all template sections with specific, actionable content.
+
+- New entry: write `.ai/memory/<filename>.md`.
+- Update entry: modify existing file in place, preserving useful prior context.
 
 ### Step 5: Update Index
 
-Append a row to `.ai/memory/index.md`:
+Maintain one row per file in `.ai/memory/index.md`:
 
 ```
 | <filename>.md | <category> | <tag1, tag2, tag3> | <one-line summary max ~80 chars> |
 ```
+
+- New entry: append one row.
+- Updated entry: update existing row (do not append a duplicate row).
 
 ### Step 6: Stage Files
 
@@ -96,7 +130,7 @@ Stage only — do not commit. The user will commit with their broader task chang
 
 ---
 
-## Operation 3: Search Memory
+## Operation 4: Search Memory
 
 The brain stem instruction handles the common search path (read index → match keywords → read files). This operation documents the fallback for large vaults only:
 
@@ -108,7 +142,7 @@ Use when the index scan alone is insufficient. Extract 2-3 keywords from: techno
 
 ---
 
-## Operation 4: Lint / Maintain
+## Operation 5: Lint / Maintain
 
 User-invocable. Run when the user explicitly requests it (e.g., "lint my memory vault", "audit .ai/memory", "clean up memories").
 

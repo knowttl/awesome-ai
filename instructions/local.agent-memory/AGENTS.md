@@ -1,29 +1,41 @@
 # Agent Memory
 
-This project uses a persistent memory vault at `.ai/memory/`.
+Use the project memory vault at `.ai/memory/` to prevent repeat failures.
 
-## Before Starting Any Task
+## Mandatory Pre-Task Check
 
-1. Read `.ai/memory/index.md` to scan for entries relevant to your current task.
-2. If any entries look relevant based on title/tags, read those files in full.
-3. Apply any applicable lessons to avoid known pitfalls.
+Before starting implementation or debugging on any task:
 
-If `.ai/memory/` does not exist yet, skip this step.
+1. If `.ai/memory/index.md` exists, read it.
+2. Select entries relevant to the current task by matching title/tags to the task topic, tools, and error terms.
+3. Read each selected entry fully before proceeding.
+4. Apply relevant lessons during the task.
 
-## After Completing a Task
+If `.ai/memory/index.md` does not exist, continue normally.
 
-If during this task you:
-- Hit an error that required non-obvious debugging
-- Discovered a project convention not documented elsewhere
-- Found an environment-specific quirk or workaround
-- Made an architectural decision with important rationale
+## Mandatory Post-Task Writeback Proposal
 
-Then propose a memory entry to the user:
+After task completion, evaluate whether a memory should be proposed. Propose exactly one prompt when at least one is true:
+
+- A non-obvious error required debugging or a workaround.
+- A project convention was discovered that is not documented elsewhere.
+- An environment-specific quirk changed expected behavior.
+- An architectural decision was made with durable rationale.
+
+Use this exact prompt:
+
 > "I learned [summary]. Want me to save this to `.ai/memory/`?"
 
-Only propose at task completion. Do not interrupt mid-task.
-If the user approves, read the `SKILL.md` in the `local.agent-memory-workflow` skill directory (installed alongside this instruction) and follow its write procedure.
+Rules:
 
-## Vault Health
+- Do not propose memory writes mid-task.
+- If approved, invoke `local.agent-memory-workflow` and follow its write/update procedure.
+- If declined, do not write files.
 
-If `.ai/memory/index.md` exceeds ~30 entries, suggest the user run a lint/audit to prune stale entries.
+## Reinforcement Rule
+
+When a memory entry prevented a mistake or repeated failure in the current task, mention that briefly in the task summary.
+
+## Vault Health Trigger
+
+If `.ai/memory/index.md` grows beyond about 30 entries, suggest a memory lint/audit.
