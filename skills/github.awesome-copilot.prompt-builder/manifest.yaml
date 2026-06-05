@@ -1,0 +1,21 @@
+name: github.awesome-copilot.prompt-builder
+type: skill
+description: "Expert prompt engineering and validation workflow for creating and improving high-quality prompts."
+tags:
+  - github
+  - awesome-copilot
+  - prompt-engineering
+  - validation
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - SKILL.md
+version: "1.0.0"
+source: https://github.com/github/awesome-copilot
