@@ -306,7 +306,32 @@ When `MEMORY_ENABLED = true`, you MUST guarantee both items are installed. Insta
 
 After installation commands, verify both now appear in `.skills-lock.json`. If either is still missing, report failure and stop instead of silently continuing.
 
-### 6c) Guarantee always-on memory behavior from root instructions
+### 6c) Scaffold initial memory vault structure
+
+When `MEMORY_ENABLED = true`, scaffold the vault immediately (do not wait for first write). This must be idempotent:
+
+```bash
+mkdir -p "<PROJECT_PATH>/.ai/memory"
+```
+
+If `<PROJECT_PATH>/.ai/memory/index.md` does not exist, create it with:
+
+```markdown
+# Memory Index
+
+> Auto-maintained by the agent. Do not edit manually.
+
+| File | Category | Tags | Summary |
+|------|----------|------|---------|
+```
+
+Then verify:
+- `<PROJECT_PATH>/.ai/memory/` exists.
+- `<PROJECT_PATH>/.ai/memory/index.md` exists and includes the table header.
+
+If verification fails, report failure and stop.
+
+### 6d) Guarantee always-on memory behavior from root instructions
 
 The instruction in agent skill folders is not sufficient by itself for all assistants. You MUST merge memory instructions into the project's root instruction surface.
 
@@ -335,12 +360,12 @@ The instruction in agent skill folders is not sufficient by itself for all assis
 
 5. Never duplicate free-form sections. On reruns, update the existing managed block in place.
 
-### 6d) Explain runtime behavior clearly
+### 6e) Explain runtime behavior clearly
 
 When memory is enabled, explain:
 - Agents must check `.ai/memory/index.md` before task work and read relevant entries.
 - Agents must propose memory writeback only after task completion when a non-obvious lesson was learned.
-- `.ai/memory/` is created automatically on first write.
+- `.ai/memory/` and `.ai/memory/index.md` were scaffolded during setup.
 - Memory files are Markdown and should be committed so the team shares lessons.
 
 This ensures memory behavior is loaded from the root instruction surface and cannot be silently skipped.
@@ -359,7 +384,7 @@ After completing all steps, provide a clear summary:
 - whether both `local.agent-memory` and `local.agent-memory-workflow` are installed,
 - which root instruction file was updated,
 - whether the `local.agent-memory` managed block was appended or updated in place,
-- and that `.ai/memory/` is created automatically on first write.
+- and that `.ai/memory/` plus `.ai/memory/index.md` were scaffolded.
 
 **Lock file:** Explain that `.skills-lock.json` was created in `<PROJECT_PATH>` and can be committed to version control so teammates can restore the same skills with:
 
