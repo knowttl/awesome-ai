@@ -23,6 +23,36 @@ Do NOT use this skill for the routine pre-task memory check — that is handled 
 - Keep exactly one table row per entry file.
 - On similar incidents, prefer updating an existing entry over creating a near-duplicate.
 - Keep summaries concise and actionable.
+- **Default to generalized, pattern-level entries.** Capture the reusable lesson, not the one-off incident.
+- **Keep specifics only when justified** (see the Generalization Rule below), and always pair them with a generic takeaway.
+- Exclude transient debugging context, temporary paths, and one-time ticket details unless essential.
+
+## Generalization Rule
+
+A memory entry should help future *similar* tasks. Before writing, decide whether the lesson
+stays generalized (default) or keeps specific detail.
+
+Store specific details only when at least one is true:
+
+1. The file/component is critical and broadly reused across the codebase.
+2. The file/component has unique design constraints or non-obvious logic that must be preserved.
+3. The issue cannot be accurately represented without exact implementation context.
+
+When specifics are included, always pair them with a generic takeaway so the entry stays reusable.
+The agent owns this decision and must make it before saving.
+
+### Decision Gate (run before every write)
+
+Run this checklist before writing or updating any entry:
+
+1. Can this be reframed as a reusable pattern?
+2. Is this tied to a critical/shared component?
+3. Does the component have unique logic that justifies specificity?
+4. If specific details are present, is there also a generic takeaway?
+5. Would another similar feature benefit from this entry as written?
+
+If the entry cannot pass (1) or (5), generalize it further before saving. Record specifics only
+when (2) or (3) is true; otherwise leave the `Specific Context` section empty.
 
 ## Operations
 
@@ -72,11 +102,16 @@ If `.ai/memory/` does not exist, create it before writing the first entry.
 
 Triggered when the user approves a proposed memory entry.
 
-### Step 0: Decide Update vs New Entry
+### Step 0: Run the Decision Gate
 
-Before creating a new file, scan `index.md` for related entries.
+Before touching any file, run the Decision Gate (see the Generalization Rule above) and decide:
 
-- If an existing entry covers the same root cause, update that entry file and keep the same filename.
+- Whether the lesson is stored generalized (default) or with justified specifics.
+- Whether to update an existing entry or create a new one.
+
+Scan `index.md` for related entries.
+
+- If an existing entry covers the same root-cause class, update that entry file and keep the same filename.
 - If no entry covers it, create a new file.
 
 ### Step 1: Determine Category
@@ -104,7 +139,15 @@ Read the appropriate template from the `templates/` directory adjacent to this `
 
 ### Step 4: Fill and Write
 
-Populate all template sections with specific, actionable content.
+Populate template sections following the Generalization Rule:
+
+- Write the **Title** as a short, reusable lesson statement (not "Bug in foo.ts on 2026-01-02").
+- Write **Pattern** and **Reusable Guidance** so they apply to any similar case.
+- Fill **Specific Context** only when the Decision Gate justifies it; otherwise leave it empty or omit it.
+- If specifics are present, ensure **Reusable Guidance** still reads as a standalone generic takeaway.
+- Set **Confidence** (High/Medium/Low) based on how broadly the lesson has been validated.
+
+Then:
 
 - New entry: write `.ai/memory/<filename>.md`.
 - Update entry: modify existing file in place, preserving useful prior context.
@@ -117,6 +160,7 @@ Maintain one row per file in `.ai/memory/index.md`:
 | <filename>.md | <category> | <tag1, tag2, tag3> | <one-line summary max ~80 chars> |
 ```
 
+- Write the summary as a reusable lesson statement, not a one-off incident description.
 - New entry: append one row.
 - Updated entry: update existing row (do not append a duplicate row).
 
@@ -159,6 +203,7 @@ Read every `.md` file in `.ai/memory/` (excluding `index.md`). Read `index.md` s
 | Contradictions | Entries giving conflicting advice |
 | Orphan files | `.md` files in the vault not listed in `index.md` |
 | Ghost entries | Index rows pointing to files that don't exist |
+| Overly-specific entries | Entries tied to one-off detail with no reusable guidance, where specificity is not justified by a critical/shared/unique component |
 
 ### Step 3: Propose Changes
 

@@ -1,21 +1,32 @@
-# <Title>
+# <Title — short reusable lesson statement>
 
-**Category:** error-fix
+**Category:** error-fix — <root cause class: validation, state sync, contract mismatch, etc.>
 **Tags:** <comma-separated keywords>
 **Date:** <YYYY-MM-DD>
+**Confidence:** <High | Medium | Low>
 
-## Symptom
+## Pattern
 
-What went wrong. Error messages, observed behavior.
+The generic condition/symptom. Describe the class of error, not the one-off incident.
+
+## Reusable Guidance
+
+The action that applies in similar cases. Must stand on its own as a generic takeaway.
 
 ## Failed Approaches
 
-What was tried that didn't work (so the agent doesn't retry them).
+What was tried that didn't work, generalized so the agent avoids the same dead ends.
 
-## Root Cause
+## Specific Context (optional)
 
-Why it happened.
+Fill only when the Decision Gate justifies it — i.e. a critical/shared component, unique
+design constraints, or non-obvious logic that cannot be represented without exact detail.
+Leave empty otherwise.
 
-## Fix
+## Example (optional)
 
-The correct solution. Commands, config changes, or code.
+A brief concrete instance (error message, command, or snippet) illustrating the pattern.
+
+## Applicability
+
+Where this lesson should generally apply (similar features, components, or situations).
