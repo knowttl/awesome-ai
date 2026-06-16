@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-13T05:19:48Z",
+  "generatedAt": "2026-06-16T01:11:04Z",
   "items": [
     {
       "name": "anthropics.skills.frontend-design",
@@ -23,6 +23,17 @@
       "dependencies": [],
       "version": "1.0.0",
       "path": "skills/github.awesome-copilot.prompt-builder"
+    },
+    {
+      "name": "juliusbrussee.caveman.caveman",
+      "type": "skill",
+      "description": "Ultra-compressed communication mode that preserves full technical accuracy while reducing output tokens.",
+      "tags": ["caveman","compression","brevity","juliusbrussee"],
+      "targets": ["claude-code","github-copilot"],
+      "files": ["SKILL.md","README.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/juliusbrussee.caveman.caveman"
     },
     {
       "name": "local.agent-memory-workflow",

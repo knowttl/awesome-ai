@@ -1,0 +1,16 @@
+name: juliusbrussee.caveman.caveman
+type: skill
+description: "Ultra-compressed communication mode that preserves full technical accuracy while reducing output tokens."
+tags:
+  - caveman
+  - compression
+  - brevity
+  - juliusbrussee
+targets:
+  - claude-code
+  - github-copilot
+files:
+  - SKILL.md
+  - README.md
+version: "1.0.0"
+source: https://github.com/JuliusBrussee/caveman
