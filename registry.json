@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-16T01:11:04Z",
+  "generatedAt": "2026-06-17T03:10:43Z",
   "items": [
     {
       "name": "anthropics.skills.frontend-design",
@@ -342,6 +342,17 @@
       "dependencies": [],
       "version": "1.0.0",
       "path": "instructions/local.baseline-agents"
+    },
+    {
+      "name": "local.opensrc-source-context",
+      "type": "instruction",
+      "description": "Optional guidance for using opensrc to fetch dependency source code when deeper implementation context is needed.",
+      "tags": ["opensrc","source-code","dependencies","debugging"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["AGENTS.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "instructions/local.opensrc-source-context"
     }
   ]
 }

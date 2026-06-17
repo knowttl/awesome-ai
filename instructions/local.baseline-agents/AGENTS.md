@@ -116,6 +116,17 @@ Inspired by *The Pragmatic Programmer* (Hunt & Thomas):
 - ALWAYS debug from reproduced facts: observe, isolate, explain, fix, and verify before guessing.
 - ALWAYS apply the broken windows rule: fix or visibly contain small quality decay before it becomes normal.
 
+## 9. Dependency Source Context (Optional)
+
+**Use source internals only when needed. Keep third-party source read-only.**
+
+When diagnosing library behavior that docs and types do not explain, you MAY use `opensrc` (if installed) to inspect dependency implementations.
+
+- Prefer targeted inspection: `rg`, `cat`, and `find` against `$(opensrc path <package>)`.
+- Use explicit versions when reproducing dependency bugs.
+- Record which package/version/ref was inspected in your summary for reproducibility.
+- NEVER propose edits inside cached third-party source trees.
+
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.

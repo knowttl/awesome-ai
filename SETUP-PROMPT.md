@@ -12,7 +12,8 @@ This prompt guides you through an interactive setup process with your AI coding 
 4. **Installation** — runs the CLI commands to install selected skills into your project
 5. **AGENTS.md setup** — optionally creates or merges behavioral guidelines for your AI assistant
 6. **Agent memory** — optionally installs a persistent memory system so your AI learns from past mistakes
-7. **Summary** — confirms what was installed and provides maintenance commands
+7. **OpenSrc source context (optional)** — optionally adds guidance for using `opensrc` to inspect dependency internals
+8. **Summary** — confirms what was installed and provides maintenance commands
 
 No manual CLI knowledge required — the AI detects your environment and handles everything based on your choices.
 
@@ -185,6 +186,10 @@ Tell me I can select by:
 When I select by shorthand or keyword, map my input to the exact full `name` values from `registry.json`. The install command requires the exact full name (e.g., `obra.superpowers.brainstorming`, not just `brainstorming`).
 
 **If I say "recommend":** Based on what you read in the SKILL.md files, suggest a balanced starter set covering design/planning, testing, debugging, and quality verification. Prefer skills with broader assistant compatibility when possible. Explain briefly why you chose each one.
+
+**OpenSrc recommendation rule (dependency debugging):**
+- If my request/history mentions dependency internals, third-party library bugs, "how does this package work", source-level investigation, or edge-case behavior inside npm/PyPI/crates/GitHub dependencies, explicitly include `local.opensrc-source-context` in your recommendation.
+- If these signals are not present, keep OpenSrc optional and ask one quick follow-up: "Do you often debug dependency internals or inspect third-party source code?" If yes, include it.
 
 ---
 
@@ -372,7 +377,65 @@ This ensures memory behavior is loaded from the root instruction surface and can
 
 ---
 
-## Step 7: Summary & Next Steps
+## Step 7: OpenSrc Source Context (Optional)
+
+This step is optional and should run after Step 6.
+
+Use this deterministic state model:
+
+- `OPENSRC_ITEM = "local.opensrc-source-context"`
+- `HAS_OPENSRC_ITEM = "local.opensrc-source-context" in ALREADY_INSTALLED`
+- `HAS_OPENSRC_BIN = command -v opensrc succeeds`
+
+### 7a) Ask whether to enable OpenSrc guidance
+
+If `HAS_OPENSRC_ITEM` is `false`, ask exactly once:
+
+> Would you like to enable **OpenSrc source context guidance**? This adds optional instructions for using `opensrc` to fetch and inspect dependency source code when docs and types are not enough.
+
+- If user says **NO**: set `OPENSRC_ENABLED = false` and go to Step 8.
+- If user says **YES**: set `OPENSRC_ENABLED = true` and continue.
+
+If `HAS_OPENSRC_ITEM` is `true`, do not ask; set `OPENSRC_ENABLED = true` and continue.
+
+### 7b) Install OpenSrc instruction item (if enabled)
+
+When `OPENSRC_ENABLED = true`, ensure `local.opensrc-source-context` is installed. Install only if missing:
+
+```bash
+"<REGISTRY_PATH>/bin/skill" install local.opensrc-source-context --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
+```
+
+After installation, verify the item appears in `.skills-lock.json`. If it does not, report failure and stop.
+
+### 7c) Ensure the `opensrc` CLI exists (if enabled)
+
+When `OPENSRC_ENABLED = true`, check:
+
+```bash
+command -v opensrc
+```
+
+If missing, ask whether to install it now using npm:
+
+```bash
+npm install -g opensrc
+```
+
+- If the user approves, run the command and re-check `command -v opensrc`.
+- If install fails, report the error and continue setup (do not fail the whole setup).
+- If the user declines install, continue setup and note that only guidance was installed.
+
+### 7d) Explain runtime behavior clearly
+
+When OpenSrc guidance is enabled, explain:
+- Use `opensrc` only when dependency internals are needed.
+- `opensrc path <package>` can be used inside shell substitutions for `rg`, `cat`, and `find`.
+- Third-party cached source should be treated as read-only analysis context.
+
+---
+
+## Step 8: Summary & Next Steps
 
 After completing all steps, provide a clear summary:
 
@@ -385,6 +448,11 @@ After completing all steps, provide a clear summary:
 - which root instruction file was updated,
 - whether the `local.agent-memory` managed block was appended or updated in place,
 - and that `.ai/memory/` plus `.ai/memory/index.md` were scaffolded.
+
+**OpenSrc Source Context:** State whether it was enabled or skipped. If enabled, include:
+- whether `local.opensrc-source-context` is installed,
+- whether the `opensrc` CLI is available in PATH,
+- and whether CLI install was run or deferred.
 
 **Lock file:** Explain that `.skills-lock.json` was created in `<PROJECT_PATH>` and can be committed to version control so teammates can restore the same skills with:
 
