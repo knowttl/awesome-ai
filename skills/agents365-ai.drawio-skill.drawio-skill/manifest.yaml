@@ -1,0 +1,46 @@
+name: agents365-ai.drawio-skill.drawio-skill
+type: skill
+description: "Generate draw.io diagrams with rich shape support and local CLI export workflows for architecture, UML, ERD, sequence, and flow diagrams."
+tags:
+  - agents365-ai
+  - drawio
+  - diagram
+  - visualization
+  - architecture
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - SKILL.md
+  - data/lobe-icons.json
+  - data/shape-index.json.gz
+  - data/SHAPE-INDEX-NOTICE.md
+  - references/autolayout.md
+  - references/diagram-types.md
+  - references/shapes.md
+  - references/style-extraction.md
+  - references/style-presets.md
+  - references/troubleshooting.md
+  - scripts/aiicons.py
+  - scripts/autolayout.py
+  - scripts/encode_drawio_url.py
+  - scripts/goimports.py
+  - scripts/jsimports.py
+  - scripts/pyclasses.py
+  - scripts/pyimports.py
+  - scripts/repair_png.py
+  - scripts/rustimports.py
+  - scripts/shapesearch.py
+  - scripts/validate.py
+  - styles/built-in/corporate.json
+  - styles/built-in/default.json
+  - styles/built-in/handdrawn.json
+  - styles/schema.json
+version: "1.14.0"
+source: https://github.com/Agents365-ai/drawio-skill
