@@ -1,7 +1,18 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-17T03:10:43Z",
+  "generatedAt": "2026-06-17T22:50:07Z",
   "items": [
+    {
+      "name": "agents365-ai.drawio-skill.drawio-skill",
+      "type": "skill",
+      "description": "Generate draw.io diagrams with rich shape support and local CLI export workflows for architecture, UML, ERD, sequence, and flow diagrams.",
+      "tags": ["agents365-ai","drawio","diagram","visualization","architecture"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md","data/lobe-icons.json","data/shape-index.json.gz","data/SHAPE-INDEX-NOTICE.md","references/autolayout.md","references/diagram-types.md","references/shapes.md","references/style-extraction.md","references/style-presets.md","references/troubleshooting.md","scripts/aiicons.py","scripts/autolayout.py","scripts/encode_drawio_url.py","scripts/goimports.py","scripts/jsimports.py","scripts/pyclasses.py","scripts/pyimports.py","scripts/repair_png.py","scripts/rustimports.py","scripts/shapesearch.py","scripts/validate.py","styles/built-in/corporate.json","styles/built-in/default.json","styles/built-in/handdrawn.json","styles/schema.json"],
+      "dependencies": [],
+      "version": "1.14.0",
+      "path": "skills/agents365-ai.drawio-skill.drawio-skill"
+    },
     {
       "name": "anthropics.skills.frontend-design",
       "type": "skill",
@@ -12,6 +23,61 @@
       "dependencies": [],
       "version": "1.0.0",
       "path": "skills/anthropics.skills.frontend-design"
+    },
+    {
+      "name": "dietrichgebert.ponytail.ponytail",
+      "type": "skill",
+      "description": "Enforces a minimal, YAGNI-first coding style with lite/full/ultra intensity modes.",
+      "tags": ["dietrichgebert","ponytail"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/dietrichgebert.ponytail.ponytail"
+    },
+    {
+      "name": "dietrichgebert.ponytail.ponytail-audit",
+      "type": "skill",
+      "description": "Audits an entire repository for over-engineering and ranks simplification opportunities.",
+      "tags": ["dietrichgebert","ponytail"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/dietrichgebert.ponytail.ponytail-audit"
+    },
+    {
+      "name": "dietrichgebert.ponytail.ponytail-debt",
+      "type": "skill",
+      "description": "Collects ponytail-marked shortcuts into a debt ledger with explicit upgrade triggers.",
+      "tags": ["dietrichgebert","ponytail"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/dietrichgebert.ponytail.ponytail-debt"
+    },
+    {
+      "name": "dietrichgebert.ponytail.ponytail-help",
+      "type": "skill",
+      "description": "Displays a quick-reference card for Ponytail modes, skills, and commands.",
+      "tags": ["dietrichgebert","ponytail"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/dietrichgebert.ponytail.ponytail-help"
+    },
+    {
+      "name": "dietrichgebert.ponytail.ponytail-review",
+      "type": "skill",
+      "description": "Reviews diffs for over-engineering and reports what to delete or simplify.",
+      "tags": ["dietrichgebert","ponytail"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/dietrichgebert.ponytail.ponytail-review"
     },
     {
       "name": "github.awesome-copilot.prompt-builder",

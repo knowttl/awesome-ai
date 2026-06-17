@@ -1,0 +1,19 @@
+name: dietrichgebert.ponytail.ponytail-audit
+type: skill
+description: Audits an entire repository for over-engineering and ranks simplification opportunities.
+tags:
+  - dietrichgebert
+  - ponytail
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - SKILL.md
+version: "1.0.0"
+source: https://github.com/DietrichGebert/ponytail

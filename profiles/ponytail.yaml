@@ -1,0 +1,13 @@
+name: ponytail
+description: Install all DietrichGebert Ponytail skills from the local registry.
+items:
+  - name: dietrichgebert.ponytail.ponytail
+    source: local
+  - name: dietrichgebert.ponytail.ponytail-review
+    source: local
+  - name: dietrichgebert.ponytail.ponytail-help
+    source: local
+  - name: dietrichgebert.ponytail.ponytail-audit
+    source: local
+  - name: dietrichgebert.ponytail.ponytail-debt
+    source: local

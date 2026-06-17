@@ -1,0 +1,19 @@
+name: dietrichgebert.ponytail.ponytail-debt
+type: skill
+description: Collects ponytail-marked shortcuts into a debt ledger with explicit upgrade triggers.
+tags:
+  - dietrichgebert
+  - ponytail
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - SKILL.md
+version: "1.0.0"
+source: https://github.com/DietrichGebert/ponytail

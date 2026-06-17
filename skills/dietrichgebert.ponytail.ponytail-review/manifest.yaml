@@ -1,0 +1,19 @@
+name: dietrichgebert.ponytail.ponytail-review
+type: skill
+description: Reviews diffs for over-engineering and reports what to delete or simplify.
+tags:
+  - dietrichgebert
+  - ponytail
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - SKILL.md
+version: "1.0.0"
+source: https://github.com/DietrichGebert/ponytail

@@ -1,0 +1,19 @@
+name: dietrichgebert.ponytail.ponytail
+type: skill
+description: Enforces a minimal, YAGNI-first coding style with lite/full/ultra intensity modes.
+tags:
+  - dietrichgebert
+  - ponytail
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - SKILL.md
+version: "1.0.0"
+source: https://github.com/DietrichGebert/ponytail
