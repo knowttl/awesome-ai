@@ -1,0 +1,24 @@
+name: shadcn.improve.improve
+type: skill
+description: Senior advisor skill that audits codebases and writes self-contained implementation plans for other agents to execute.
+tags:
+  - shadcn
+  - improve
+  - audit
+  - planning
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - SKILL.md
+  - references/audit-playbook.md
+  - references/closing-the-loop.md
+  - references/plan-template.md
+version: "1.0.0"
+source: https://github.com/shadcn/improve
