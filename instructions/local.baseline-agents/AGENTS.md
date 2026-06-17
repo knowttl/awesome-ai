@@ -116,7 +116,27 @@ Inspired by *The Pragmatic Programmer* (Hunt & Thomas):
 - ALWAYS debug from reproduced facts: observe, isolate, explain, fix, and verify before guessing.
 - ALWAYS apply the broken windows rule: fix or visibly contain small quality decay before it becomes normal.
 
-## 9. Dependency Source Context (Optional)
+## 9. Service Layer Boundaries
+
+**Keep product flow intent in actions. Keep reusable operational mechanics in services.**
+
+- Keep domain orchestration in actions: business rules, auth/ownership checks, policy decisions, state transitions, retries, and user-facing error classification.
+- Move shared mechanics to services: provider/SDK calls, command execution details, readiness/health checks, and operational sequencing reused across flows.
+- Extract to a service only when operational logic repeats across 2+ callers, or when fixing one path should automatically fix equivalent paths.
+- Do NOT extract domain-specific logic used by one caller; avoid over-abstraction and keep it local until repetition is real.
+- Design service functions as composable capability blocks, not one "do everything" method.
+- Require explicit inputs and structured outputs for services; avoid hidden globals and ambiguous return contracts.
+- Services MUST NOT mutate domain persistence/state directly. Keep domain policy and state ownership in action/orchestration code.
+- Migrate incrementally: extract one repeated block, replace one caller, verify behavior, then migrate remaining callers.
+- Keep service APIs consistent across functions (argument style, result shape, and failure semantics).
+
+Anti-patterns to reject:
+- God service that hides control flow and policy.
+- Leaky service that reaches into domain tables/state.
+- Inconsistent service contracts across similar operations.
+- Premature extraction for one-off logic.
+
+## 10. Dependency Source Context (Optional)
 
 **Use source internals only when needed. Keep third-party source read-only.**
 
