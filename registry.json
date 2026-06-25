@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-25T05:19:31Z",
+  "generatedAt": "2026-06-25T05:43:13Z",
   "items": [
     {
       "name": "agents365-ai.drawio-skill.drawio-skill",
@@ -111,6 +111,17 @@
       "dependencies": [],
       "version": "1.0.0",
       "path": "skills/local.agent-memory-workflow"
+    },
+    {
+      "name": "local.agentsmd-init",
+      "type": "skill",
+      "description": ">",
+      "tags": ["local","documentation","onboarding","context"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/local.agentsmd-init"
     },
     {
       "name": "local.context-sync",

@@ -1,0 +1,25 @@
+name: local.agentsmd-init
+type: skill
+description: >
+  Create or update the AGENTS.md instruction file for a repository. Use whenever
+  the user wants to initialize, improve, refresh, or audit their AGENTS.md,
+  CLAUDE.md, or cursor rules. Also use when setting up a new project, after major
+  refactors, when the user says "write agent instructions for this repo," or asks
+  to capture hard-earned context so future AI sessions avoid mistakes.
+tags:
+  - local
+  - documentation
+  - onboarding
+  - context
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - SKILL.md
+version: "1.0.0"
