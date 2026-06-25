@@ -57,12 +57,16 @@ function Find-RepoItems {
     foreach ($subdir in @("skills", "agents", "instructions", ".claude/skills", ".agents/skills")) {
         $fullPath = Join-Path $RepoDir $subdir
         if (Test-Path $fullPath) {
-            foreach ($itemDir in Get-ChildItem -Path $fullPath -Directory) {
-                if (Test-Path (Join-Path $itemDir.FullName "manifest.yaml")) {
-                    $found += $itemDir.FullName
-                } elseif (Test-Path (Join-Path $itemDir.FullName "SKILL.md")) {
-                    New-SyntheticManifest -ItemDir $itemDir.FullName | Out-Null
-                    $found += $itemDir.FullName
+            # Recursively search for manifest.yaml files
+            Get-ChildItem -Path $fullPath -Filter "manifest.yaml" -Recurse -File | ForEach-Object {
+                $found += $_.DirectoryName
+            }
+            # For repos without manifest.yaml (npx skills style), find SKILL.md files
+            # in directories that don't have a manifest.yaml
+            Get-ChildItem -Path $fullPath -Filter "SKILL.md" -Recurse -File | ForEach-Object {
+                if (-not (Test-Path (Join-Path $_.DirectoryName "manifest.yaml"))) {
+                    New-SyntheticManifest -ItemDir $_.DirectoryName | Out-Null
+                    $found += $_.DirectoryName
                 }
             }
         }
@@ -73,7 +77,7 @@ function Find-RepoItems {
         New-SyntheticManifest -ItemDir $RepoDir | Out-Null
         $found += $RepoDir
     }
-    return $found
+    return ($found | Select-Object -Unique)
 }
 
 function New-SyntheticManifest {

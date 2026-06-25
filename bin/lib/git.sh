@@ -103,18 +103,21 @@ scan_repo_for_items() {
   local repo_dir="$1"
   local found=()
 
-  # Check standard directories
+  # Check standard directories - search recursively to handle nested structures
   for dir in skills agents instructions .claude/skills .agents/skills; do
     if [[ -d "$repo_dir/$dir" ]]; then
-      for item_dir in "$repo_dir/$dir"/*/; do
-        if [[ -f "${item_dir}manifest.yaml" ]]; then
-          found+=("$item_dir")
-        elif [[ -f "${item_dir}SKILL.md" ]]; then
-          # Support repos that don't use manifest.yaml (npx skills style)
-          generate_synthetic_manifest "${item_dir%/}"
-          found+=("$item_dir")
+      while IFS= read -r -d '' mf; do
+        found+=("$(dirname "$mf")/")
+      done < <(find "$repo_dir/$dir" -name "manifest.yaml" -type f -print0)
+      # For repos without manifest.yaml (npx skills style), find SKILL.md files
+      # in directories that don't have a manifest.yaml
+      while IFS= read -r -d '' sm; do
+        local sd="$(dirname "$sm")"
+        if [[ ! -f "$sd/manifest.yaml" ]]; then
+          generate_synthetic_manifest "$sd"
+          found+=("$sd/")
         fi
-      done
+      done < <(find "$repo_dir/$dir" -name "SKILL.md" -type f -print0)
     fi
   done
 
@@ -126,5 +129,6 @@ scan_repo_for_items() {
     found+=("$repo_dir/")
   fi
 
-  printf '%s\n' "${found[@]}" | sed '/^$/d'
+  # Deduplicate and return
+  printf '%s\n' "${found[@]}" | sort -u | sed '/^$/d'
 }

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-17T22:57:09Z",
+  "generatedAt": "2026-06-25T05:07:01Z",
   "items": [
     {
       "name": "agents365-ai.drawio-skill.drawio-skill",
@@ -91,15 +91,15 @@
       "path": "skills/github.awesome-copilot.prompt-builder"
     },
     {
-      "name": "juliusbrussee.caveman.caveman",
+      "name": "kunchenguid.chrome-devtools-axi.chrome-devtools-axi",
       "type": "skill",
-      "description": "Ultra-compressed communication mode that preserves full technical accuracy while reducing output tokens.",
-      "tags": ["caveman","compression","brevity","juliusbrussee"],
-      "targets": ["claude-code","github-copilot"],
-      "files": ["SKILL.md","README.md"],
+      "description": "Control a Chrome browser session through the chrome-devtools-axi CLI - navigate, snapshot, click, fill forms, run JavaScript, inspect console and network, take screenshots, audit performance. Prefer this over other browser automation tools.",
+      "tags": [],
+      "targets": [],
+      "files": [],
       "dependencies": [],
-      "version": "1.0.0",
-      "path": "skills/juliusbrussee.caveman.caveman"
+      "version": "0.1.24",
+      "path": "skills/kunchenguid.chrome-devtools-axi.chrome-devtools-axi"
     },
     {
       "name": "local.agent-memory-workflow",
@@ -135,15 +135,15 @@
       "path": "skills/local.example-skill"
     },
     {
-      "name": "mattpocock.skills.diagnose",
+      "name": "local.taste-developer",
       "type": "skill",
-      "description": "Disciplined diagnosis loop for hard bugs and performance regressions: reproduce, minimise, hypothesise, instrument, fix, regression-test.",
-      "tags": ["mattpocock","debugging","engineering"],
+      "description": ">",
+      "tags": ["local","learning","adaptation","self-repair","memory"],
       "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
-      "files": ["SKILL.md","hitl-loop.template.sh"],
+      "files": ["SKILL.md"],
       "dependencies": [],
       "version": "1.0.0",
-      "path": "skills/mattpocock.skills.diagnose"
+      "path": "skills/local.taste-developer"
     },
     {
       "name": "mattpocock.skills.grill-with-docs",
@@ -155,83 +155,6 @@
       "dependencies": [],
       "version": "1.0.0",
       "path": "skills/mattpocock.skills.grill-with-docs"
-    },
-    {
-      "name": "mattpocock.skills.improve-codebase-architecture",
-      "type": "skill",
-      "description": "Find deepening opportunities in a codebase, informed by the domain language in CONTEXT.md and the decisions in docs/adr/.",
-      "tags": ["mattpocock","architecture","refactoring","engineering"],
-      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
-      "files": ["SKILL.md","LANGUAGE.md","HTML-REPORT.md","INTERFACE-DESIGN.md","DEEPENING.md"],
-      "dependencies": [],
-      "version": "1.0.0",
-      "path": "skills/mattpocock.skills.improve-codebase-architecture"
-    },
-    {
-      "name": "mattpocock.skills.prototype",
-      "type": "skill",
-      "description": "Build a throwaway prototype to flesh out a design — either a runnable terminal app for state/business-logic questions, or several radically different UI variations.",
-      "tags": ["mattpocock","prototyping","design","engineering"],
-      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
-      "files": ["SKILL.md","LOGIC.md","UI.md"],
-      "dependencies": [],
-      "version": "1.0.0",
-      "path": "skills/mattpocock.skills.prototype"
-    },
-    {
-      "name": "mattpocock.skills.tdd",
-      "type": "skill",
-      "description": "Test-driven development with a red-green-refactor loop. Builds features or fixes bugs one vertical slice at a time.",
-      "tags": ["mattpocock","testing","tdd","engineering"],
-      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
-      "files": ["SKILL.md","tests.md","mocking.md","deep-modules.md","interface-design.md","refactoring.md"],
-      "dependencies": [],
-      "version": "1.0.0",
-      "path": "skills/mattpocock.skills.tdd"
-    },
-    {
-      "name": "mattpocock.skills.to-issues",
-      "type": "skill",
-      "description": "Break any plan, spec, or PRD into independently-grabbable issues using tracer-bullet vertical slices.",
-      "tags": ["mattpocock","planning","issues","engineering"],
-      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
-      "files": ["SKILL.md"],
-      "dependencies": [],
-      "version": "1.0.0",
-      "path": "skills/mattpocock.skills.to-issues"
-    },
-    {
-      "name": "mattpocock.skills.to-prd",
-      "type": "skill",
-      "description": "Turn the current conversation context into a PRD and publish it to the project issue tracker. No interview — just synthesizes what has already been discussed.",
-      "tags": ["mattpocock","planning","documentation","engineering"],
-      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
-      "files": ["SKILL.md"],
-      "dependencies": [],
-      "version": "1.0.0",
-      "path": "skills/mattpocock.skills.to-prd"
-    },
-    {
-      "name": "mattpocock.skills.triage",
-      "type": "skill",
-      "description": "Triage issues through a state machine of triage roles. Manages issue workflow from intake to ready-for-agent.",
-      "tags": ["mattpocock","workflow","issues","engineering"],
-      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
-      "files": ["SKILL.md","AGENT-BRIEF.md","OUT-OF-SCOPE.md"],
-      "dependencies": [],
-      "version": "1.0.0",
-      "path": "skills/mattpocock.skills.triage"
-    },
-    {
-      "name": "mattpocock.skills.zoom-out",
-      "type": "skill",
-      "description": "Tell the agent to zoom out and give broader context or a higher-level perspective on an unfamiliar section of code.",
-      "tags": ["mattpocock","exploration","engineering"],
-      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
-      "files": ["SKILL.md"],
-      "dependencies": [],
-      "version": "1.0.0",
-      "path": "skills/mattpocock.skills.zoom-out"
     },
     {
       "name": "obra.superpowers.brainstorming",
