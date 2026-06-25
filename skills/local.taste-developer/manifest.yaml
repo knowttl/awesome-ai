@@ -1,0 +1,26 @@
+name: local.taste-developer
+type: skill
+description: >
+  Learns your coding preferences, conventions, and style by observing which
+  outputs you accept, reject, or edit over time. Also detects and self-repairs
+  repeated tool-call errors and schema violations. Use whenever the user wants
+  the AI to remember their preferences, adapt to their style, or stop
+  repeating the same mistakes.
+tags:
+  - local
+  - learning
+  - adaptation
+  - self-repair
+  - memory
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - SKILL.md
+version: "1.0.0"
