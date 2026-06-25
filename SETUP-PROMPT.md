@@ -19,6 +19,29 @@ This prompt guides you through an interactive setup process with your AI coding 
 
 No manual CLI knowledge required — the AI detects your environment and handles everything based on your choices.
 
+## Idempotent by Design
+
+This setup is designed to be run **repeatedly** — it is a verification pass, not just a one-time install. On every run:
+
+- **Every step checks current state first** before taking any action.
+- **If a step is already complete, it is skipped** after a lightweight confirmation (file exists, lock entry present, block marker found).
+- **Registry is always refreshed** (`git pull` + `bin/skill sync`) so you pick up new skills on re-runs.
+- **Steps 5–9 are never silently skipped** — even if installs are already complete, each step verifies its state and reports "already done."
+
+This means you can run the same prompt again next week or next month, and it will catch anything that changed or was missed.
+
+## Sub-Agent Discipline
+
+Your role is **orchestration, not execution.** To keep your context lean, **delegate each step's implementation to a sub-agent.** You handle only:
+
+- Running lightweight detection commands (file existence checks, `pwd`)
+- Presenting findings and prompts to the user
+- Collecting user input
+- Passing structured instructions to sub-agents
+- Reporting final results
+
+Each step below specifies what the sub-agent must do and what it must return. Launch sub-agents as the step dictates and wait for their results before presenting the next step to the user.
+
 ---
 
 You are helping me set up AI coding skills and behavioral guidelines for my project. Guide me through this interactively, one step at a time. Do NOT proceed to the next step until I respond. Present each step clearly and wait for my input.
@@ -71,8 +94,20 @@ done
 
 Also check if the current directory IS the skills-registry (if `bin/skill` exists in `pwd`).
 
-**If found**, confirm:
+**If found**, confirm and delegate the refresh to a sub-agent:
 > "I found the skills-registry at `<path>`."
+>
+> Run a sub-agent with these instructions:
+>
+> > Refresh the skills-registry at `<REGISTRY_PATH>`:
+> > ```bash
+> > cd "<REGISTRY_PATH>" && git pull && bin/skill sync
+> > ```
+> > If `git pull` fails, report the error. Return success/failure and the sync output.
+>
+> If the sub-agent reports a `git pull` failure (no network, upstream changed), ask me whether to continue with the current version or abort.
+>
+> When successful, confirm: "Registry refreshed to latest version."
 
 **If NOT found**, tell me and explicitly ask where to clone it. Do NOT pick a location yourself — present both options and wait for my choice:
 > "I couldn't find the skills-registry locally. Where would you like me to clone it? Please pick one:"
@@ -128,31 +163,26 @@ Store confirmed values:
 
 ## Step 2: Discover the Registry
 
-Once `REGISTRY_PATH` is available (either from an existing clone or after cloning), do the following **before presenting any skills to me**:
+**Delegate this entire step to a sub-agent.** Run the sub-agent with these instructions:
 
-1. **Read the README** at `<REGISTRY_PATH>/README.md` to understand how the CLI works, what commands are available, and the project structure.
+> You are discovering the skills-registry for setup. Do the following and return a structured summary:
+>
+> 1. Read the README at `<REGISTRY_PATH>/README.md`. Summarize only the key CLI commands and project structure.
+>
+> 2. Parse `<REGISTRY_PATH>/bin/lib/agents.sh` and extract the `AGENT_TABLE`. The format is: `name|project_path|global_suffix|detection_dirs|detection_bins`. Return a table mapping each agent name to its `--agent` flag value and install paths.
+>
+> 3. Read `<REGISTRY_PATH>/registry.json`. Parse every entry (name, type, description, tags, targets, files).
+>
+> 4. Cross-reference the detected installations from Step 1d against `registry.json`. Build:
+>    - `COMPATIBLE_SKILLS`: items whose `targets` includes any of the user's agents. Note: `roo-code` in targets matches the `roo` agent.
+>    - `ALREADY_INSTALLED`: compatible items already present (found in lock file or agent dirs).
+>    - `NOT_INSTALLED`: compatible items not yet installed.
+>
+> Return all four data structures in your response.
 
-2. **Read the agent path registry** at `<REGISTRY_PATH>/bin/lib/agents.sh`. This file contains the `AGENT_TABLE` array that maps agent names to their `--agent` flag values and project install paths. Parse this to build the supported assistants table dynamically. The format is: `name|project_path|global_suffix|detection_dirs|detection_bins`. The `name` field is what you pass to `--agent`.
+When the sub-agent returns, consolidate results in your main context. If `NOT_INSTALLED` is empty, tell me: "All compatible skills are already installed. You can still update them with `bin/skill update` or add new ones as they become available."
 
-3. **Read `registry.json`** at `<REGISTRY_PATH>/registry.json`. This is the generated index of all available skills and instructions. If it doesn't exist, run:
-
-       cd "<REGISTRY_PATH>" && bin/skill sync
-
-4. **Parse each item** in `registry.json`. Each entry has:
-   - `name`: the skill identifier used with `bin/skill install`
-   - `type`: `skill`, `agent`, or `instruction`
-   - `description`: one-line summary
-   - `tags`: searchable keywords
-   - `targets`: which AI assistants this item supports (these correspond to the `name` column in `AGENT_TABLE`)
-   - `files`: what gets installed
-
-5. **Filter for compatibility.** Cross-reference each item's `targets` array against my selected assistant(s) from Step 1. An item is installable only if my assistant appears in its `targets` list.
-
-   **Important name mapping:** The `targets` values in `registry.json` do NOT always exactly match the `name` field in `AGENT_TABLE`. Known difference: targets use `roo-code` but the `--agent` flag value is `roo`. When filtering compatibility, treat `roo-code` in targets as matching the `roo` agent. For all other agents, the names match exactly between targets and AGENT_TABLE.
-
-6. **Optionally read individual SKILL.md files** at `<REGISTRY_PATH>/<item.path>/SKILL.md` if I ask for more detail about a specific skill. These contain the full instructions that get installed.
-
-7. **Build `ALREADY_INSTALLED` list.** Using the installation data detected in Step 1d (lock file + agent directories), cross-reference against `registry.json` to classify each installed item as known (in registry) or unrecognized (manually installed / old version). If everything compatible is already installed, tell me: "All compatible skills are already installed. You can still update them with `bin/skill update` or add new ones as they become available."
+If I ask for more detail on a specific skill, delegate a separate sub-agent to read `<REGISTRY_PATH>/<item.path>/SKILL.md` and return a summary.
 
 ---
 
@@ -197,35 +227,27 @@ When I select by shorthand or keyword, map my input to the exact full `name` val
 
 ## Step 4: Install Skills
 
-Based on my selections, generate and execute the install commands. **Skip any items that are already in `ALREADY_INSTALLED`** — only install new selections.
-
-**Pre-flight (if the registry was just cloned or hasn't been synced):**
-
-    cd "<REGISTRY_PATH>" && bin/skill sync
+Based on my selections, generate the install commands. **Skip any items that are already in `ALREADY_INSTALLED`** — only install new selections.
 
 **Determine the correct `--agent` flag values.** Look up each of my selected assistants in the `AGENT_TABLE` from `agents.sh`. The first field (`name`) is what gets passed to `--agent`. Build the flags as `--agent <name>` repeated for each assistant. Remember: if the user said "Roo Code", the `--agent` value is `roo` (not `roo-code`).
 
 **Deduplication note:** GitHub Copilot can read skills from both `.github/skills` and `.claude/skills`. The CLI automatically deduplicates: when both `claude-code` and `github-copilot` are selected, it only installs to `.claude/skills` (serving both agents) and skips `.github/skills` to avoid duplicated files. You should still pass both `--agent claude-code --agent github-copilot`; the CLI handles the dedup internally. If `github-copilot` is selected alone (without `claude-code`), it installs to `.github/skills` as normal.
 
-**Install each selected skill individually.** This is safest because different skills may support different subsets of assistants:
+**Delegate the install execution to a sub-agent.** Run the sub-agent with these instructions:
 
-    "<REGISTRY_PATH>/bin/skill" install <SKILL_NAME> --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
+> Install the following skills into the project. Run each command individually and report success or failure for each:
+>
+> ```
+> "<REGISTRY_PATH>/bin/skill" install <SKILL_NAME> --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
+> ```
+>
+> (repeat for each skill in the selection list)
+>
+> For each skill, only include `--agent` flags for assistants that appear in that skill's `targets` array from `registry.json`.
+>
+> After running all commands, list the installed directories to confirm success. Return the list of what was created.
 
-For each skill, only include `--agent` flags for assistants that appear in that skill's `targets` array from `registry.json`.
-
-**Optional reusable profile:** Only suggest creating a profile if I explicitly ask for a reusable bundle. A profile applies the same agent flags to every item, so only use one when all selected skills share the same compatibility. The profile format is:
-
-    name: my-setup
-    description: Custom skill bundle.
-    items:
-      - name: <skill-name>
-        source: local
-
-Save to `<REGISTRY_PATH>/profiles/<name>.yaml` and install with:
-
-    "<REGISTRY_PATH>/bin/skill" install --profile <name> --target "<PROJECT_PATH>" --agent <AGENT> --yes
-
-**After running commands:** List the installed directories to confirm success. Show me what was created.
+When the sub-agent returns, show me what was installed.
 
 ---
 
@@ -233,7 +255,7 @@ Save to `<REGISTRY_PATH>/profiles/<name>.yaml` and install with:
 
 **Before setting up a project-local AGENTS.md**, ask whether the user wants a **user-level** `AGENTS.md` at `~/AGENTS.md`. This file applies baseline behavioral guidelines across all projects for this AI assistant, not just the current project.
 
-### 5a) Detect existing user profile
+### 5a) Detect existing user profile (lightweight check)
 
 Check if `~/AGENTS.md` already exists:
 
@@ -241,26 +263,32 @@ Check if `~/AGENTS.md` already exists:
 [[ -f "$HOME/AGENTS.md" ]] && echo "Found: ~/AGENTS.md"
 ```
 
-### 5b) Ask the user
+### 5b) Act based on state
 
 **If `~/AGENTS.md` does NOT exist:**
 
 > Would you like to install a user profile `AGENTS.md` at `~/AGENTS.md`? This provides baseline behavioral guidelines (think before coding, write the minimum, touch only what you must, etc.) that apply across all projects you work on with AI assistants.
 
 If the user says **YES**:
-1. Read `<REGISTRY_PATH>/instructions/local.baseline-agents/AGENTS.md` in full.
-2. Write the content to `~/AGENTS.md`.
-3. Confirm: "User profile AGENTS.md installed at `~/AGENTS.md`."
+**Delegate to a sub-agent:**
 
-**If `~/AGENTS.md` DOES exist:**
+> Read `<REGISTRY_PATH>/instructions/local.baseline-agents/AGENTS.md`. Write the full content to `~/AGENTS.md`. Return "User profile AGENTS.md installed."
 
-> A user profile AGENTS.md already exists at `~/AGENTS.md`. Would you like me to review it against the skills-registry baseline for any missing guidelines?
+Confirm: "User profile AGENTS.md installed at `~/AGENTS.md`."
 
-If the user says YES:
-1. Read both `~/AGENTS.md` and `<REGISTRY_PATH>/instructions/local.baseline-agents/AGENTS.md`.
-2. Compare and identify which baseline principles are NOT already covered (check for semantic equivalence, not just keywords).
-3. Propose appending only the missing sections at the end.
-4. Wait for approval before writing.
+**If `~/AGENTS.md` DOES exist (re-run path):**
+
+> User profile AGENTS.md already exists at `~/AGENTS.md`. Setup complete for this step.
+
+Lightweight check only — do not deep-compare content unless the user explicitly asks: "Would you also like me to review it against the skills-registry baseline for any missing guidelines?"
+
+If the user says YES to review:
+**Delegate to a sub-agent:**
+
+> Read both `~/AGENTS.md` and `<REGISTRY_PATH>/instructions/local.baseline-agents/AGENTS.md`. Compare the two files and identify which baseline principles from the registry version are NOT already covered in the user's file (check for semantic equivalence, not just keywords). Return the list of missing sections.
+
+Present the sub-agent's findings and propose appending only the missing sections at the end. Wait for approval before writing.
+**Delegate the write to a sub-agent** after approval.
 
 If the user says **NO** to installing or reviewing the user profile: skip to Step 6.
 
@@ -280,20 +308,22 @@ If the user says **YES**: continue below.
 
 ### 6b) Generate using the agentsmd-init skill
 
-Do NOT manually copy the baseline-agents file. Load the `agentsmd-init` skill and follow its workflow to produce project-specific instructions.
+Do NOT manually copy the baseline-agents file or run the workflow yourself. **Delegate this entire step to a sub-agent:**
 
-1. Read the full `agentsmd-init` skill at `<REGISTRY_PATH>/skills/local.agentsmd-init/SKILL.md`.
+> You are executing the agentsmd-init workflow for the project at `<PROJECT_PATH>`. Do not ask the user questions that the filesystem can answer. Return a summary of what you did and what changed.
+>
+> 1. Read the full agentsmd-init skill at `<REGISTRY_PATH>/skills/local.agentsmd-init/SKILL.md`.
+>
+> 2. Follow the skill's workflow exactly as written:
+>    - **Step 1 (Check what exists):** Read any existing instruction files in `<PROJECT_PATH>` — `AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, `.cursorrules`, `.github/copilot-instructions.md`, `opencode.json`.
+>    - **Step 2 (Init vs. update mode):** Branch on whether `AGENTS.md` exists — follow the audit flow for update mode or investigation flow for init mode.
+>    - **Step 3 (Extract high-signal facts):** Investigate the repo following the skill's priority order. Extract only facts an agent would get wrong without help.
+>    - **Step 4 (Identify gaps, update mode only):** Compare found facts against the audited file.
+>    - **Step 5 (Ask questions):** Only if the repo cannot answer something important. Never ask about anything the repo already makes clear.
+>    - **Step 6 (Write or merge):** Write fresh in init mode or merge audit results in update mode. Apply the filter test: "Would an agent likely miss this without help?"
+>    - **Step 7 (Verify and summarize):** Final pass for correctness. Return what was added, removed, or corrected.
 
-2. Follow the skill's workflow exactly as written, including its branching logic:
-   - **Step 1 (Check what exists):** Read any existing instruction files in `<PROJECT_PATH>` — `AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, `.cursorrules`, `.github/copilot-instructions.md`, `opencode.json`.
-   - **Step 2 (Init vs. update mode):** The skill branches on whether an `AGENTS.md` exists — follow its audit flow for update mode or investigation flow for init mode.
-   - **Step 3 (Extract high-signal facts):** Investigate the repo following the skill's priority order. Extract only facts an agent would get wrong without help.
-   - **Step 4 (Identify gaps, update mode only):** Compare found facts against the audited file.
-   - **Step 5 (Ask questions):** Only if the repo cannot answer something important. Never ask about anything the repo already makes clear.
-   - **Step 6 (Write or merge):** Write fresh in init mode or merge audit results in update mode. Apply the filter test to every line: "Would an agent likely miss this without help?"
-   - **Step 7 (Verify and summarize):** Final pass for correctness, then summarize what was added, removed, or corrected.
-
-3. After following the skill's workflow, confirm the final state of `<PROJECT_PATH>/AGENTS.md`.
+When the sub-agent returns, confirm the final state of `<PROJECT_PATH>/AGENTS.md` with me.
 
 ---
 
@@ -321,14 +351,18 @@ If `TASTE_FULLY_INSTALLED` is `true`, do not ask; set `TASTE_ENABLED = true` and
 
 ### 7b) Ensure both taste components are installed
 
-When `TASTE_ENABLED = true`, install only missing items (idempotent behavior):
+When `TASTE_ENABLED = true`, install only missing items. **Delegate to a sub-agent:**
 
-```bash
-"<REGISTRY_PATH>/bin/skill" install local.taste-setup --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
-"<REGISTRY_PATH>/bin/skill" install local.taste-developer --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
-```
+> Install taste components into `<PROJECT_PATH>`. Only install items that are missing from `.skills-lock.json`:
+>
+> ```bash
+> "<REGISTRY_PATH>/bin/skill" install local.taste-setup --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
+> "<REGISTRY_PATH>/bin/skill" install local.taste-developer --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
+> ```
+>
+> After running commands, verify both `local.taste-setup` and `local.taste-developer` appear in `<PROJECT_PATH>/.skills-lock.json`. Return which items were installed (or "already installed" if both were present). If either is missing after install, report failure.
 
-After installation commands, verify both now appear in `.skills-lock.json`. If either is still missing, report failure and stop.
+If the sub-agent reports failure, stop and tell me.
 
 ### 7c) Explain runtime behavior clearly
 
@@ -362,72 +396,57 @@ If `MEMORY_FULLY_INSTALLED` is `false`, ask exactly once:
 
 If `MEMORY_FULLY_INSTALLED` is `true`, do not ask; set `MEMORY_ENABLED = true` and continue.
 
-### 8b) Ensure both memory components are installed
+### 8b) Full memory setup (install, scaffold, managed block)
 
-When `MEMORY_ENABLED = true`, you MUST guarantee both items are installed. Install only missing items (idempotent behavior):
+When `MEMORY_ENABLED = true`, **delegate all memory work to a single sub-agent:**
 
-```bash
-"<REGISTRY_PATH>/bin/skill" install local.agent-memory --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
-"<REGISTRY_PATH>/bin/skill" install local.agent-memory-workflow --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
-```
+> Set up agent memory for `<PROJECT_PATH>`. Do everything below and return what was done:
+>
+> 1. **Install memory items** (skip if already in `.skills-lock.json`):
+> ```bash
+> "<REGISTRY_PATH>/bin/skill" install local.agent-memory --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
+> "<REGISTRY_PATH>/bin/skill" install local.agent-memory-workflow --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
+> ```
+> Verify both appear in `.skills-lock.json`. If either is missing after install, return failure.
+>
+> 2. **Scaffold vault** (idempotent — only create if missing):
+> ```bash
+> mkdir -p "<PROJECT_PATH>/.ai/memory"
+> ```
+> If `<PROJECT_PATH>/.ai/memory/index.md` does not exist, create it with:
+> ```markdown
+> # Memory Index
+> 
+> > Auto-maintained by the agent. Do not edit manually.
+> 
+> | File | Category | Tags | Summary |
+> |------|----------|------|---------|
+> ```
+> Verify the directory and index.md exist with the table header.
+>
+> 3. **Managed block — lightweight check.** Check if the root instruction file already contains `<!-- BEGIN: local.agent-memory -->` and `<!-- END: local.agent-memory -->` markers. If both markers exist, report "managed block already present" and skip. Only create the block if it does not exist:
+>
+> First, resolve the root instruction file (first existing wins): `AGENTS.md`, `.github/copilot-instructions.md`, `CLAUDE.md`. If none exist, create `<PROJECT_PATH>/AGENTS.md`.
+>
+> Then read the installed memory text from the first existing path:
+> - `<PROJECT_PATH>/.claude/skills/local.agent-memory/AGENTS.md`
+> - `<PROJECT_PATH>/.github/skills/local.agent-memory/AGENTS.md`
+> - `<PROJECT_PATH>/.agents/skills/local.agent-memory/AGENTS.md`
+> - `<PROJECT_PATH>/.windsurf/skills/local.agent-memory/AGENTS.md`
+> - `<PROJECT_PATH>/.roo/skills/local.agent-memory/AGENTS.md`
+>
+> Append the managed block to the resolved root instruction file:
+> ```markdown
+> <!-- BEGIN: local.agent-memory -->
+> [memory instruction content copied from the installed local.agent-memory/AGENTS.md]
+> <!-- END: local.agent-memory -->
+> ```
+>
+> Return a summary of what was installed, scaffolded, and whether the managed block was created or already present.
 
-After installation commands, verify both now appear in `.skills-lock.json`. If either is still missing, report failure and stop instead of silently continuing.
+If the sub-agent reports failure, stop and tell me.
 
-### 8c) Scaffold initial memory vault structure
-
-When `MEMORY_ENABLED = true`, scaffold the vault immediately (do not wait for first write). This must be idempotent:
-
-```bash
-mkdir -p "<PROJECT_PATH>/.ai/memory"
-```
-
-If `<PROJECT_PATH>/.ai/memory/index.md` does not exist, create it with:
-
-```markdown
-# Memory Index
-
-> Auto-maintained by the agent. Do not edit manually.
-
-| File | Category | Tags | Summary |
-|------|----------|------|---------|
-```
-
-Then verify:
-- `<PROJECT_PATH>/.ai/memory/` exists.
-- `<PROJECT_PATH>/.ai/memory/index.md` exists and includes the table header.
-
-If verification fails, report failure and stop.
-
-### 8d) Guarantee always-on memory behavior from root instructions
-
-The instruction in agent skill folders is not sufficient by itself for all assistants. You MUST merge memory instructions into the project's root instruction surface.
-
-1. Read installed memory text from one of these paths (first existing path wins):
-  - `<PROJECT_PATH>/.claude/skills/local.agent-memory/AGENTS.md`
-  - `<PROJECT_PATH>/.github/skills/local.agent-memory/AGENTS.md`
-  - `<PROJECT_PATH>/.agents/skills/local.agent-memory/AGENTS.md`
-  - `<PROJECT_PATH>/.windsurf/skills/local.agent-memory/AGENTS.md`
-  - `<PROJECT_PATH>/.roo/skills/local.agent-memory/AGENTS.md`
-
-2. Resolve root instruction file with this priority:
-  - Existing `AGENTS.md`
-  - Existing `.github/copilot-instructions.md`
-  - Existing `CLAUDE.md`
-  - Otherwise create `<PROJECT_PATH>/AGENTS.md`
-
-3. Upsert a managed block (replace if exists, append if missing) using exact markers:
-
-```markdown
-<!-- BEGIN: local.agent-memory -->
-[memory instruction content copied from installed local.agent-memory/AGENTS.md]
-<!-- END: local.agent-memory -->
-```
-
-4. Idempotency rule: there must be exactly one begin marker and one end marker after update.
-
-5. Never duplicate free-form sections. On reruns, update the existing managed block in place.
-
-### 8e) Explain runtime behavior clearly
+### 8c) Explain runtime behavior clearly
 
 When memory is enabled, explain:
 - Agents must check `.ai/memory/index.md` before task work and read relevant entries.
@@ -462,33 +481,36 @@ If `HAS_OPENSRC_ITEM` is `true`, do not ask; set `OPENSRC_ENABLED = true` and co
 
 ### 9b) Install OpenSrc instruction item (if enabled)
 
-When `OPENSRC_ENABLED = true`, ensure `local.opensrc-source-context` is installed. Install only if missing:
+When `OPENSRC_ENABLED = true`, **delegate to a sub-agent:**
 
-```bash
-"<REGISTRY_PATH>/bin/skill" install local.opensrc-source-context --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
-```
+> Set up OpenSrc for `<PROJECT_PATH>`:
+>
+> 1. Install the instruction item (skip if already in `.skills-lock.json`):
+> ```bash
+> "<REGISTRY_PATH>/bin/skill" install local.opensrc-source-context --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
+> ```
+> Verify it appears in `.skills-lock.json`. If missing, return failure.
+>
+> 2. Check if the `opensrc` CLI is available:
+> ```bash
+> command -v opensrc
+> ```
+>
+> Return whether the item was installed (or already present) and whether `opensrc` is in PATH.
 
-After installation, verify the item appears in `.skills-lock.json`. If it does not, report failure and stop.
+If the sub-agent reports the item failed to install, stop and tell me.
 
-### 9c) Ensure the `opensrc` CLI exists (if enabled)
-
-When `OPENSRC_ENABLED = true`, check:
-
-```bash
-command -v opensrc
-```
-
-If missing, ask whether to install it now using npm:
+If `opensrc` is not in PATH, ask me whether to install it:
 
 ```bash
 npm install -g opensrc
 ```
 
-- If the user approves, run the command and re-check `command -v opensrc`.
+- If I approve, **delegate the install to a sub-agent** and re-check `command -v opensrc`.
 - If install fails, report the error and continue setup (do not fail the whole setup).
-- If the user declines install, continue setup and note that only guidance was installed.
+- If I decline install, continue setup and note that only guidance was installed.
 
-### 9d) Explain runtime behavior clearly
+### 9c) Explain runtime behavior clearly
 
 When OpenSrc guidance is enabled, explain:
 - Use `opensrc` only when dependency internals are needed.
