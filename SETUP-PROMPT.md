@@ -10,10 +10,12 @@ This prompt guides you through an interactive setup process with your AI coding 
 2. **Registry discovery** — reads the skills-registry to find available skills
 3. **Skill selection** — presents compatible skills grouped by source, lets you pick
 4. **Installation** — runs the CLI commands to install selected skills into your project
-5. **AGENTS.md setup** — optionally creates or merges behavioral guidelines for your AI assistant
-6. **Agent memory** — optionally installs a persistent memory system so your AI learns from past mistakes
-7. **OpenSrc source context (optional)** — optionally adds guidance for using `opensrc` to inspect dependency internals
-8. **Summary** — confirms what was installed and provides maintenance commands
+5. **User profile AGENTS.md** — optionally installs baseline behavioral guidelines to `~/AGENTS.md` for use across all projects
+6. **Project AGENTS.md** — uses the agentsmd-init skill to generate or update a project-specific `AGENTS.md`
+7. **Taste setup (optional)** — optionally installs the Taste Developer opt-in prompt for adaptive preference learning
+8. **Agent memory** — optionally installs a persistent memory system so your AI learns from past mistakes
+9. **OpenSrc source context (optional)** — optionally adds guidance for using `opensrc` to inspect dependency internals
+10. **Summary** — confirms what was installed and provides maintenance commands
 
 No manual CLI knowledge required — the AI detects your environment and handles everything based on your choices.
 
@@ -166,7 +168,7 @@ Once `REGISTRY_PATH` is available (either from an existing clone or after clonin
 
 Then ask: "Would you like to install any of the items that aren't installed yet, or are you happy with your current setup?"
 
-If I say I'm happy, skip to Step 5 (AGENTS.md setup) — but you MUST still proceed through Steps 5 and 6 for anything not yet configured. **Step 6 (Agent Memory) is required regardless of my answer here** unless both `local.agent-memory` AND `local.agent-memory-workflow` are already in `ALREADY_INSTALLED`. Do not silently skip the Agent Memory question.
+If I say I'm happy, proceed to Step 5 (User Profile AGENTS.md) — continue through all remaining steps for anything not yet configured. **Step 8 (Agent Memory) is required regardless of my answer here** unless both `local.agent-memory` AND `local.agent-memory-workflow` are already in `ALREADY_INSTALLED`. Do not silently skip the Agent Memory question.
 
 **If nothing is installed yet (fresh project)**, present all compatible skills as before:
 
@@ -227,60 +229,120 @@ Save to `<REGISTRY_PATH>/profiles/<name>.yaml` and install with:
 
 ---
 
-## Step 5: AGENTS.md Setup
+## Step 5: User Profile AGENTS.md
 
-**If an existing AGENTS.md (or equivalent) was detected in Step 2**, tell me what was found and ask whether I want to review it against the baseline for any missing guidelines. If I say no, skip to Step 6.
+**Before setting up a project-local AGENTS.md**, ask whether the user wants a **user-level** `AGENTS.md` at `~/AGENTS.md`. This file applies baseline behavioral guidelines across all projects for this AI assistant, not just the current project.
 
-**If no instruction file was detected**, ask me:
+### 5a) Detect existing user profile
 
-1. Would you like to set up an `AGENTS.md` file for your project? This provides behavioral guidelines that make AI coding assistants produce better code.
-2. Does your project already have an `AGENTS.md` (or `.github/copilot-instructions.md`, `CLAUDE.md`, or similar instruction file)?
+Check if `~/AGENTS.md` already exists:
 
-Before creating or merging instructions, review the current project context. At minimum, inspect existing instruction files, the README, package/build/test configuration files, and any architecture docs. Use that context to avoid generic or contradictory guidance.
+```bash
+[[ -f "$HOME/AGENTS.md" ]] && echo "Found: ~/AGENTS.md"
+```
 
-**If I say NO to question 1 (don't want AGENTS.md):** Skip to Step 6 (Agent Memory).
+### 5b) Ask the user
 
-**If I say YES to question 1:**
+**If `~/AGENTS.md` does NOT exist:**
 
-First, read the baseline AGENTS.md file from the registry at this path:
+> Would you like to install a user profile `AGENTS.md` at `~/AGENTS.md`? This provides baseline behavioral guidelines (think before coding, write the minimum, touch only what you must, etc.) that apply across all projects you work on with AI assistants.
 
-`<REGISTRY_PATH>/instructions/local.baseline-agents/AGENTS.md`
+If the user says **YES**:
+1. Read `<REGISTRY_PATH>/instructions/local.baseline-agents/AGENTS.md` in full.
+2. Write the content to `~/AGENTS.md`.
+3. Confirm: "User profile AGENTS.md installed at `~/AGENTS.md`."
 
-This is the source of truth for the baseline guidelines. Read it in full before proceeding.
+**If `~/AGENTS.md` DOES exist:**
 
-**If the project has NO existing AGENTS.md:**
+> A user profile AGENTS.md already exists at `~/AGENTS.md`. Would you like me to review it against the skills-registry baseline for any missing guidelines?
 
-If equivalent instruction files exist, read them first and ask whether I want a new root `AGENTS.md` that complements them or merge guidance into the existing file. Do not duplicate.
+If the user says YES:
+1. Read both `~/AGENTS.md` and `<REGISTRY_PATH>/instructions/local.baseline-agents/AGENTS.md`.
+2. Compare and identify which baseline principles are NOT already covered (check for semantic equivalence, not just keywords).
+3. Propose appending only the missing sections at the end.
+4. Wait for approval before writing.
 
-Present two options:
-
-- **Option A: Start with the baseline** — Write the content from `local.baseline-agents/AGENTS.md` to `<PROJECT_PATH>/AGENTS.md`. Then ask if I want to add project-specific sections by interviewing me about my language/framework, testing conventions, code style, architecture, and constraints.
-
-- **Option B: Write fully custom guidelines** — Interview me to create tailored guidelines from scratch:
-  1. What language(s) and framework(s) does this project use?
-  2. What testing framework and conventions?
-  3. Preferred code style? (functional vs OOP, naming, file organization)
-  4. Architectural patterns? (clean architecture, DDD, hexagonal, etc.)
-  5. What should the AI absolutely NEVER do?
-  6. Domain-specific rules?
-
-  Then generate an AGENTS.md incorporating my answers with the baseline principles.
-
-**If the project ALREADY HAS an AGENTS.md (or equivalent):**
-
-1. Read the existing file in full.
-2. Review the project context.
-3. Compare the existing file against the baseline from the registry.
-4. Identify which baseline principles are NOT already covered (check for semantic equivalence, not just keywords).
-5. Propose appending only the missing sections at the end under a heading like `## Additional Guidelines (from skills-registry baseline)`.
-6. Show me exactly what will be added (just the new sections, not the full file).
-7. Ask for my approval before writing.
+If the user says **NO** to installing or reviewing the user profile: skip to Step 6.
 
 ---
 
-## Step 6: Agent Memory (Required Checkpoint)
+## Step 6: Project AGENTS.md Setup
 
-**This step is mandatory on every setup run.** You MUST always execute Step 6 logic, even if the user skipped installs in Step 3 or skipped AGENTS.md work in Step 5.
+### 6a) Ask whether to set up a project AGENTS.md
+
+Detect whether any instruction file already exists in `<PROJECT_PATH>` — check `AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, `.cursorrules`, `.github/copilot-instructions.md`, `opencode.json`. Present your finding, then ask:
+
+> Would you like to set up or update a project `AGENTS.md`? This provides AI assistants with project-specific behavioral guidelines, conventions, and commands.
+
+If the user says **NO**: skip to Step 7.
+
+If the user says **YES**: continue below.
+
+### 6b) Generate using the agentsmd-init skill
+
+Do NOT manually copy the baseline-agents file. Load the `agentsmd-init` skill and follow its workflow to produce project-specific instructions.
+
+1. Read the full `agentsmd-init` skill at `<REGISTRY_PATH>/skills/local.agentsmd-init/SKILL.md`.
+
+2. Follow the skill's workflow exactly as written, including its branching logic:
+   - **Step 1 (Check what exists):** Read any existing instruction files in `<PROJECT_PATH>` — `AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, `.cursorrules`, `.github/copilot-instructions.md`, `opencode.json`.
+   - **Step 2 (Init vs. update mode):** The skill branches on whether an `AGENTS.md` exists — follow its audit flow for update mode or investigation flow for init mode.
+   - **Step 3 (Extract high-signal facts):** Investigate the repo following the skill's priority order. Extract only facts an agent would get wrong without help.
+   - **Step 4 (Identify gaps, update mode only):** Compare found facts against the audited file.
+   - **Step 5 (Ask questions):** Only if the repo cannot answer something important. Never ask about anything the repo already makes clear.
+   - **Step 6 (Write or merge):** Write fresh in init mode or merge audit results in update mode. Apply the filter test to every line: "Would an agent likely miss this without help?"
+   - **Step 7 (Verify and summarize):** Final pass for correctness, then summarize what was added, removed, or corrected.
+
+3. After following the skill's workflow, confirm the final state of `<PROJECT_PATH>/AGENTS.md`.
+
+---
+
+## Step 7: Taste Setup (Optional)
+
+Run this step after Step 6.
+
+Use this deterministic state model:
+
+- `TASTE_ITEMS = ["local.taste-setup", "local.taste-developer"]`
+- `HAS_TASTE_SETUP = "local.taste-setup" in ALREADY_INSTALLED`
+- `HAS_TASTE_DEVELOPER = "local.taste-developer" in ALREADY_INSTALLED`
+- `TASTE_FULLY_INSTALLED = HAS_TASTE_SETUP && HAS_TASTE_DEVELOPER`
+
+### 7a) Ask whether to enable Taste setup
+
+If `TASTE_FULLY_INSTALLED` is `false`, ask exactly once:
+
+> Would you like to enable **Taste Developer** setup? This adds a one-time opt-in prompt that asks whether to activate adaptive preference learning — the agent observes which outputs you accept, reject, or edit over time and auto-adjusts.
+
+- If user says **NO**: set `TASTE_ENABLED = false` and go to Step 8.
+- If user says **YES**: set `TASTE_ENABLED = true` and continue.
+
+If `TASTE_FULLY_INSTALLED` is `true`, do not ask; set `TASTE_ENABLED = true` and continue.
+
+### 7b) Ensure both taste components are installed
+
+When `TASTE_ENABLED = true`, install only missing items (idempotent behavior):
+
+```bash
+"<REGISTRY_PATH>/bin/skill" install local.taste-setup --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
+"<REGISTRY_PATH>/bin/skill" install local.taste-developer --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
+```
+
+After installation commands, verify both now appear in `.skills-lock.json`. If either is still missing, report failure and stop.
+
+### 7c) Explain runtime behavior clearly
+
+When taste setup is enabled, explain:
+- The taste-setup instruction will prompt once on first project interaction (detected by absence of `.ai/taste/taste.md` and `.ai/taste/SKIP`).
+- If accepted, the Taste Developer skill begins learning preferences from user feedback.
+- If declined, a `.ai/taste/SKIP` file is written to suppress future prompts.
+- The user can manually enable later by saying "start taste" or "enable taste developer."
+
+---
+
+## Step 8: Agent Memory (Required Checkpoint)
+
+**This step is mandatory on every setup run.** You MUST always execute Step 8 logic, even if the user skipped installs in Step 3 or skipped project AGENTS.md work in Step 6.
 
 Use this deterministic state model:
 
@@ -289,18 +351,18 @@ Use this deterministic state model:
 - `HAS_MEMORY_WORKFLOW = "local.agent-memory-workflow" in ALREADY_INSTALLED`
 - `MEMORY_FULLY_INSTALLED = HAS_MEMORY_INSTRUCTION && HAS_MEMORY_WORKFLOW`
 
-### 6a) Decide enablement
+### 8a) Decide enablement
 
 If `MEMORY_FULLY_INSTALLED` is `false`, ask exactly once:
 
 > Would you like to enable **Agent Memory** for this project? It helps agents avoid repeat failures by checking prior lessons before tasks and proposing new memory entries after non-obvious issues are solved.
 
-- If user says **NO**: set `MEMORY_ENABLED = false` and go to Step 7.
+- If user says **NO**: set `MEMORY_ENABLED = false` and go to Step 9.
 - If user says **YES**: set `MEMORY_ENABLED = true` and continue.
 
 If `MEMORY_FULLY_INSTALLED` is `true`, do not ask; set `MEMORY_ENABLED = true` and continue.
 
-### 6b) Ensure both memory components are installed
+### 8b) Ensure both memory components are installed
 
 When `MEMORY_ENABLED = true`, you MUST guarantee both items are installed. Install only missing items (idempotent behavior):
 
@@ -311,7 +373,7 @@ When `MEMORY_ENABLED = true`, you MUST guarantee both items are installed. Insta
 
 After installation commands, verify both now appear in `.skills-lock.json`. If either is still missing, report failure and stop instead of silently continuing.
 
-### 6c) Scaffold initial memory vault structure
+### 8c) Scaffold initial memory vault structure
 
 When `MEMORY_ENABLED = true`, scaffold the vault immediately (do not wait for first write). This must be idempotent:
 
@@ -336,7 +398,7 @@ Then verify:
 
 If verification fails, report failure and stop.
 
-### 6d) Guarantee always-on memory behavior from root instructions
+### 8d) Guarantee always-on memory behavior from root instructions
 
 The instruction in agent skill folders is not sufficient by itself for all assistants. You MUST merge memory instructions into the project's root instruction surface.
 
@@ -365,7 +427,7 @@ The instruction in agent skill folders is not sufficient by itself for all assis
 
 5. Never duplicate free-form sections. On reruns, update the existing managed block in place.
 
-### 6e) Explain runtime behavior clearly
+### 8e) Explain runtime behavior clearly
 
 When memory is enabled, explain:
 - Agents must check `.ai/memory/index.md` before task work and read relevant entries.
@@ -377,9 +439,9 @@ This ensures memory behavior is loaded from the root instruction surface and can
 
 ---
 
-## Step 7: OpenSrc Source Context (Optional)
+## Step 9: OpenSrc Source Context (Optional)
 
-This step is optional and should run after Step 6.
+Run this step after Step 8.
 
 Use this deterministic state model:
 
@@ -387,18 +449,18 @@ Use this deterministic state model:
 - `HAS_OPENSRC_ITEM = "local.opensrc-source-context" in ALREADY_INSTALLED`
 - `HAS_OPENSRC_BIN = command -v opensrc succeeds`
 
-### 7a) Ask whether to enable OpenSrc guidance
+### 9a) Ask whether to enable OpenSrc guidance
 
 If `HAS_OPENSRC_ITEM` is `false`, ask exactly once:
 
 > Would you like to enable **OpenSrc source context guidance**? This adds optional instructions for using `opensrc` to fetch and inspect dependency source code when docs and types are not enough.
 
-- If user says **NO**: set `OPENSRC_ENABLED = false` and go to Step 8.
+- If user says **NO**: set `OPENSRC_ENABLED = false` and go to Step 10.
 - If user says **YES**: set `OPENSRC_ENABLED = true` and continue.
 
 If `HAS_OPENSRC_ITEM` is `true`, do not ask; set `OPENSRC_ENABLED = true` and continue.
 
-### 7b) Install OpenSrc instruction item (if enabled)
+### 9b) Install OpenSrc instruction item (if enabled)
 
 When `OPENSRC_ENABLED = true`, ensure `local.opensrc-source-context` is installed. Install only if missing:
 
@@ -408,7 +470,7 @@ When `OPENSRC_ENABLED = true`, ensure `local.opensrc-source-context` is installe
 
 After installation, verify the item appears in `.skills-lock.json`. If it does not, report failure and stop.
 
-### 7c) Ensure the `opensrc` CLI exists (if enabled)
+### 9c) Ensure the `opensrc` CLI exists (if enabled)
 
 When `OPENSRC_ENABLED = true`, check:
 
@@ -426,7 +488,7 @@ npm install -g opensrc
 - If install fails, report the error and continue setup (do not fail the whole setup).
 - If the user declines install, continue setup and note that only guidance was installed.
 
-### 7d) Explain runtime behavior clearly
+### 9d) Explain runtime behavior clearly
 
 When OpenSrc guidance is enabled, explain:
 - Use `opensrc` only when dependency internals are needed.
@@ -435,13 +497,18 @@ When OpenSrc guidance is enabled, explain:
 
 ---
 
-## Step 8: Summary & Next Steps
+## Step 10: Summary & Next Steps
 
 After completing all steps, provide a clear summary:
 
 **Installed skills:** List each skill name and where it was installed (full path).
 
-**AGENTS.md:** State whether it was created, merged, or skipped.
+**User Profile AGENTS.md:** State whether `~/AGENTS.md` was created, merged, or skipped.
+
+**Project AGENTS.md:** State whether `<PROJECT_PATH>/AGENTS.md` was created or updated by the agentsmd-init skill.
+
+**Taste Setup:** State whether it was enabled or skipped. If enabled, include:
+- whether both `local.taste-setup` and `local.taste-developer` are installed.
 
 **Agent Memory:** State whether it was enabled or skipped. If enabled, include:
 - whether both `local.agent-memory` and `local.agent-memory-workflow` are installed,
