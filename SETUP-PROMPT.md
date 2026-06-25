@@ -251,9 +251,11 @@ When the sub-agent returns, show me what was installed.
 
 ---
 
-## Step 5: User Profile AGENTS.md
+## Step 5: User Profile AGENTS.md (user profile only)
 
-**Before setting up a project-local AGENTS.md**, ask whether the user wants a **user-level** `AGENTS.md` at `~/AGENTS.md`. This file applies baseline behavioral guidelines across all projects for this AI assistant, not just the current project.
+**This step only installs to `~/AGENTS.md` (user profile).** Baseline behavioral guidelines span across projects; they do NOT belong in a single project's AGENTS.md. Project-level AGENTS.md is handled separately in Step 6 via the agentsmd-init skill.
+
+Ask whether the user wants a **user-level** `AGENTS.md` at `~/AGENTS.md`. This file applies baseline behavioral guidelines across all projects for this AI assistant.
 
 ### 5a) Detect existing user profile (lightweight check)
 
@@ -272,9 +274,14 @@ Check if `~/AGENTS.md` already exists:
 If the user says **YES**:
 **Delegate to a sub-agent:**
 
-> Read `<REGISTRY_PATH>/instructions/local.baseline-agents/AGENTS.md`. Write the full content to `~/AGENTS.md`. Return "User profile AGENTS.md installed."
+> Follow the workflow in `<REGISTRY_PATH>/skills/local.baseline-agents/SKILL.md`:
+>
+> 1. Read `~/AGENTS.md` (treat as empty if it does not exist).
+> 2. Compare each rule section against the content of `~/AGENTS.md` using semantic equivalence.
+> 3. Append only the missing rule sections to `~/AGENTS.md`. Do not duplicate existing content.
+> 4. Return which sections were added, or "all rules already present — no changes made."
 
-Confirm: "User profile AGENTS.md installed at `~/AGENTS.md`."
+Confirm what was added (or that everything was already present).
 
 **If `~/AGENTS.md` DOES exist (re-run path):**
 
@@ -285,7 +292,7 @@ Lightweight check only — do not deep-compare content unless the user explicitl
 If the user says YES to review:
 **Delegate to a sub-agent:**
 
-> Read both `~/AGENTS.md` and `<REGISTRY_PATH>/instructions/local.baseline-agents/AGENTS.md`. Compare the two files and identify which baseline principles from the registry version are NOT already covered in the user's file (check for semantic equivalence, not just keywords). Return the list of missing sections.
+> Read both `~/AGENTS.md` and `<REGISTRY_PATH>/skills/local.baseline-agents/SKILL.md`. Compare the two files and identify which baseline principles from the registry version are NOT already covered in the user's file (check for semantic equivalence, not just keywords). Return the list of missing sections.
 
 Present the sub-agent's findings and propose appending only the missing sections at the end. Wait for approval before writing.
 **Delegate the write to a sub-agent** after approval.
@@ -347,20 +354,59 @@ If `TASTE_FULLY_INSTALLED` is `false`, ask exactly once:
 - If user says **NO**: set `TASTE_ENABLED = false` and go to Step 8.
 - If user says **YES**: set `TASTE_ENABLED = true` and continue.
 
-If `TASTE_FULLY_INSTALLED` is `true`, do not ask; set `TASTE_ENABLED = true` and continue.
+If `TASTE_FULLY_INSTALLED` is `true`, do not ask; set `TASTE_ENABLED = true` and set `TASTE_SCOPE = "both"` (already installed, preserve whatever scope was chosen) and skip to 7c.
 
-### 7b) Ensure both taste components are installed
+### 7a1) Ask where to install Taste
 
-When `TASTE_ENABLED = true`, install only missing items. **Delegate to a sub-agent:**
+When `TASTE_ENABLED = true` and `TASTE_FULLY_INSTALLED` is `false` (fresh install), ask exactly once:
 
-> Install taste components into `<PROJECT_PATH>`. Only install items that are missing from `.skills-lock.json`:
+> Where would you like to install Taste?
+> - **Project only** — Taste learns from your feedback in this project. Skills go into `<PROJECT_PATH>`.
+> - **User profile (global)** — Taste learns across all projects. Skills go into your home directory (`~/.claude/skills/`, etc.).
+> - **Both** (recommended) — install in both places.
+
+Set `TASTE_SCOPE` to `project`, `global`, or `both` based on the answer.
+
+### 7b) Ensure taste components are installed at the chosen scope
+
+When `TASTE_ENABLED = true`, install only missing items at the chosen scope. **Delegate to a sub-agent:**
+
+> Install taste components into the requested scope(s). Only install items that are missing from the respective lock files:
 >
+> **If scope includes project:**
 > ```bash
 > "<REGISTRY_PATH>/bin/skill" install local.taste-setup --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
 > "<REGISTRY_PATH>/bin/skill" install local.taste-developer --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
 > ```
+> Verify both appear in `<PROJECT_PATH>/.skills-lock.json`.
 >
-> After running commands, verify both `local.taste-setup` and `local.taste-developer` appear in `<PROJECT_PATH>/.skills-lock.json`. Return which items were installed (or "already installed" if both were present). If either is missing after install, report failure.
+> **If scope includes global:**
+> ```bash
+> "<REGISTRY_PATH>/bin/skill" install local.taste-setup --global --agent <AGENT_1> --agent <AGENT_2> --yes
+> "<REGISTRY_PATH>/bin/skill" install local.taste-developer --global --agent <AGENT_1> --agent <AGENT_2> --yes
+> ```
+> Verify both appear in `$HOME/.skills-lock.json` (or equivalent global lock path).
+>
+> 
+> 4. **Managed block — lightweight check (project scope only).** If scope includes project, check if the root instruction file already contains `<!-- BEGIN: local.taste-setup -->` and `<!-- END: local.taste-setup -->` markers. If both markers exist, report "taste managed block already present" and skip. Only create the block if it does not exist:
+> 
+> First, resolve the root instruction file (first existing wins): `AGENTS.md`, `.github/copilot-instructions.md`, `CLAUDE.md`. If none exist, create `<PROJECT_PATH>/AGENTS.md`.
+> 
+> Then read the installed taste-setup text from the first existing path:
+> - `<PROJECT_PATH>/.claude/skills/local.taste-setup/AGENTS.md`
+> - `<PROJECT_PATH>/.github/skills/local.taste-setup/AGENTS.md`
+> - `<PROJECT_PATH>/.agents/skills/local.taste-setup/AGENTS.md`
+> - `<PROJECT_PATH>/.windsurf/skills/local.taste-setup/AGENTS.md`
+> - `<PROJECT_PATH>/.roo/skills/local.taste-setup/AGENTS.md`
+> 
+> Append the managed block to the resolved root instruction file:
+> ```markdown
+> <!-- BEGIN: local.taste-setup -->
+> [taste-setup instruction content copied from the installed local.taste-setup/AGENTS.md]
+> <!-- END: local.taste-setup -->
+> ```
+> 
+> Return which items were installed at which scope, and whether the taste managed block was created or already present. If any install fails, report failure.
 
 If the sub-agent reports failure, stop and tell me.
 

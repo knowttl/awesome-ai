@@ -1,7 +1,8 @@
 name: local.baseline-agents
-type: instruction
+type: skill
 description: Behavioral guidelines to reduce common LLM coding mistakes. A baseline AGENTS.md for any project.
 tags:
+  - local
   - baseline
   - guidelines
   - agents
@@ -15,5 +16,5 @@ targets:
   - windsurf
   - roo-code
 files:
-  - AGENTS.md
+  - SKILL.md
 version: "1.0.0"
