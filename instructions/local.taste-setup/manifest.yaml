@@ -1,0 +1,21 @@
+name: local.taste-setup
+type: instruction
+description: "One-time setup prompt asking whether to enable the Taste Developer skill for adaptive preference learning."
+tags:
+  - taste
+  - setup
+  - optional
+  - learning
+  - adaptation
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - AGENTS.md
+version: "1.0.0"
