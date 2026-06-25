@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "installed": {
+      "version": "1.0.0",
+      "source": "local",
+      "sourceUrl": null,
+      "sourceCommit": null,
+      "installedAt": "2026-06-25T20:06:13Z",
+      "agents": ["", "Detected agents: claude-code", "github-copilot", "opencode", "codex", "", "  Install to claude-code? (detected) (y/n)   Install to cursor? (y/n)   Install to opencode? (detected) (y/n)   Install to windsurf? (y/n) "],
+      "profile": null
+    },
+    "github.awesome-copilot.prompt-builder": {
+      "type": "skill",
+      "version": "1.0.0",
+      "source": "local",
+      "sourceUrl": null,
+      "sourceCommit": null,
+      "installedAt": "2026-06-25T20:07:41Z",
+      "agents": ["opencode"],
+      "profile": null
+    }
+  }
+}
