@@ -7,7 +7,7 @@ description: "Use when writing, searching, or maintaining entries in the .ai/mem
 
 Detailed procedures for writing, searching, and maintaining the project's `.ai/memory/` vault.
 
-Goal: capture lessons that prevent repeated mistakes.
+Goal: capture high-signal lessons — gotchas, edge cases, and environment quirks — that prevent repeated mistakes and wasted cycles. Not every task produces a save-worthy lesson.
 
 ## When to Use
 
@@ -45,14 +45,15 @@ The agent owns this decision and must make it before saving.
 
 Run this checklist before writing or updating any entry:
 
-1. Can this be reframed as a reusable pattern?
-2. Is this tied to a critical/shared component?
-3. Does the component have unique logic that justifies specificity?
-4. If specific details are present, is there also a generic takeaway?
-5. Would another similar feature benefit from this entry as written?
+1. Is this a recurring pattern, or a one-off quirk of this specific task? (One-offs: skip.)
+2. Can this be reframed as a reusable pattern?
+3. Is this tied to a critical/shared component?
+4. Does the component have unique logic that justifies specificity?
+5. If specific details are present, is there also a generic takeaway?
+6. Would another similar feature benefit from this entry as written?
 
-If the entry cannot pass (1) or (5), generalize it further before saving. Record specifics only
-when (2) or (3) is true; otherwise leave the `Specific Context` section empty.
+If the entry cannot pass (2) or (6), generalize it further before saving — or skip it entirely.
+Record specifics only when (3) or (4) is true; otherwise leave the `Specific Context` section empty.
 
 ## Operations
 
@@ -102,9 +103,11 @@ If `.ai/memory/` does not exist, create it before writing the first entry.
 
 Triggered when the user approves a proposed memory entry.
 
-### Step 0: Run the Decision Gate
+### Step 0: Run the Decision Gate (and consider skipping)
 
-Before touching any file, run the Decision Gate (see the Generalization Rule above) and decide:
+Before touching any file, run the Decision Gate (see the Generalization Rule above) and decide
+whether this entry is worth saving at all. If it's a one-off or trivial, do not write it.
+Only proceed if it passes the gate.
 
 - Whether the lesson is stored generalized (default) or with justified specifics.
 - Whether to update an existing entry or create a new one.

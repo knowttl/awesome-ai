@@ -464,33 +464,19 @@ When `TASTE_ENABLED = true`, install only missing items at the chosen scope. **D
 > ```
 > Verify both appear in `$HOME/.skills-lock.json`.
 >
-> 3. **Managed block — lightweight check (project scope only).** If scope includes project, resolve the root instruction file (see Sub-Agent Discipline) and check if it already contains `<!-- BEGIN: local.taste-setup -->` and `<!-- END: local.taste-setup -->` markers. If both markers exist, report "taste managed block already present" and skip. Only create the block if it does not exist:
+> 3. **No managed block for taste-setup.** The user already opted in during this setup session. The full `local.taste-setup/AGENTS.md` is the opt-in prompt — it has no ongoing runtime value once the user has opted in. Do NOT create a managed block in the root instruction file. If a `<!-- BEGIN: local.taste-setup -->` block already exists from a previous run, leave it in place (removing it would break determinism on re-runs).
 >
-> Read the installed taste-setup text from the first existing path:
-> - `<PROJECT_PATH>/.claude/skills/local.taste-setup/AGENTS.md`
-> - `<PROJECT_PATH>/.github/skills/local.taste-setup/AGENTS.md`
-> - `<PROJECT_PATH>/.agents/skills/local.taste-setup/AGENTS.md`
-> - `<PROJECT_PATH>/.windsurf/skills/local.taste-setup/AGENTS.md`
-> - `<PROJECT_PATH>/.roo/skills/local.taste-setup/AGENTS.md`
->
-> Append the managed block to the resolved root instruction file:
-> ```markdown
-> <!-- BEGIN: local.taste-setup -->
-> [content from the installed local.taste-setup/AGENTS.md]
-> <!-- END: local.taste-setup -->
-> ```
->
-> Return: which items were installed at which scope, whether the managed block was created or already present. If any install fails, report the specific command and its error.
+> Return: which items were installed at which scope. If any install fails, report the specific command and its error.
 
 If the sub-agent reports failure, stop and tell me.
 
 ### 7c) Explain runtime behavior clearly
 
-When taste setup is enabled, explain:
-- The taste-setup instruction will prompt once on first project interaction (detected by absence of `.ai/taste/taste.md` and `.ai/taste/SKIP`).
-- If accepted, the Taste Developer skill begins learning preferences from user feedback.
-- If declined, a `.ai/taste/SKIP` file is written to suppress future prompts.
-- The user can manually enable later by saying "start taste" or "enable taste developer."
+When taste setup is enabled (opted in during this session), explain:
+- Taste Developer is already enabled. The agent will learn preferences from accepted/rejected/edited outputs over time.
+- A taste profile is maintained at `.ai/taste/taste.md`.
+- If taste was installed but declined earlier, the user can enable later by saying "start taste" or "enable taste developer."
+- The setup prompt (`local.taste-setup/AGENTS.md`) is NOT folded into the project's root instruction file — it has no ongoing value once opted in. The installation itself (skill files in agent directories) is sufficient for the "start taste" fallback path.
 
 ---
 

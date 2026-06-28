@@ -15,12 +15,22 @@ If `.ai/memory/index.md` does not exist, continue normally.
 
 ## Mandatory Post-Task Writeback Proposal
 
-After task completion, evaluate whether a memory should be proposed. Propose exactly one prompt when at least one is true:
+After task completion, evaluate whether a memory should be proposed. **Default: do not propose.**
+Only propose when you encountered a high-signal lesson that would genuinely prevent a future
+repeat failure or wasted cycle.
 
-- A non-obvious error required debugging or a workaround.
-- A project convention was discovered that is not documented elsewhere.
-- An environment-specific quirk changed expected behavior.
-- An architectural decision was made with durable rationale.
+Propose exactly one prompt when at least one is true:
+
+- A command or operation consistently fails in this project for a non-obvious reason (e.g., environment quirk, tool version mismatch, missing config) — save the root cause and the fix so future agents skip the trial-and-error.
+- A project gotcha or subtle edge case was discovered that is easy to miss or misunderstand on re-reading.
+- An environment-specific quirk (tool version, OS behavior, config requirement) caused issues and the fix is non-trivial or non-obvious.
+- An architectural decision was made with durable rationale that affects future work.
+
+**Do NOT propose memory for:**
+- One-off typos or trivial fixes that are obvious in hindsight.
+- Normal setup steps that only apply to this exact task.
+- Anything that could be easily rediscovered by re-reading the error message.
+- Details that won't matter to a future agent working on a different task.
 
 **Default to a generalized lesson.** Frame the summary as a reusable pattern, not a one-off
 incident. Strip transient debugging context, temporary paths, and one-time ticket details
@@ -36,13 +46,17 @@ Rules:
 - If approved, invoke `local.agent-memory-workflow` and follow its write/update procedure.
 - If declined, do not write files.
 
-## Generalization-First Rule
+## High-Signal Only + Generalization-First Rule
 
-Memory exists to help future, *similar* tasks — not to log this exact one. Before proposing
-or writing, decide whether the lesson should be generalized or kept specific. **You own this
-decision and must make it before saving.**
+**Most tasks should not produce a memory entry.** Memory exists to capture durable gotchas,
+edge cases, and environment quirks that would trip up a future agent — not to log every error
+or discovery. If the lesson is obvious, transient, or one-off, skip it.
 
-- **Default:** store a generalized, pattern-level entry.
+Before proposing or writing, decide whether the lesson is worth saving at all, and if so
+whether it should be generalized or kept specific. **You own this decision and must make it
+before saving.**
+
+- **Default:** skip, or store a generalized, pattern-level entry.
 - **Store specific details only when at least one is true:**
   1. The file/component is critical and broadly reused across the codebase.
   2. The file/component has unique design constraints or non-obvious logic that must be preserved.
@@ -56,13 +70,14 @@ decision and must make it before saving.**
 Run this checklist before writing any memory entry. The detailed write procedure lives in
 `local.agent-memory-workflow`, but the decision to generalize vs. keep specific happens here first.
 
-1. Can this be reframed as a reusable pattern?
-2. Is this tied to a critical/shared component?
-3. Does the component have unique logic that justifies specificity?
-4. If specific details are present, is there also a generic takeaway?
-5. Would another similar feature benefit from this entry as written?
+1. Is this a recurring pattern, or a one-off quirk of this specific task? (One-offs: skip.)
+2. Can this be reframed as a reusable pattern?
+3. Is this tied to a critical/shared component?
+4. Does the component have unique logic that justifies specificity?
+5. If specific details are present, is there also a generic takeaway?
+6. Would another similar feature benefit from this entry as written?
 
-If the entry cannot pass (1) or (5), generalize it further before saving.
+If the entry cannot pass (2) or (6), generalize it further before saving — or skip it entirely.
 
 ## Reinforcement Rule
 
