@@ -127,7 +127,7 @@ Search for an existing skills-registry clone by checking these locations in orde
 ```bash
 # Check common clone locations + current directory
 REGISTRY_FOUND=""
-for dir in ~/skills-registry ~/awesome-ai /tmp/skills-registry; do
+for dir in ~/skills-registry ~ ~/awesome-ai /tmp/skills-registry; do
   if [[ -f "$dir/bin/skill" ]] && [[ -f "$dir/registry.json" ]]; then
     REGISTRY_FOUND="$dir"
     break
