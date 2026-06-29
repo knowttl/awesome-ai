@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-25T20:19:54Z",
+  "generatedAt": "2026-06-29T23:00:58Z",
   "items": [
     {
       "name": "agents365-ai.drawio-skill.drawio-skill",
@@ -102,6 +102,17 @@
       "path": "skills/kunchenguid.chrome-devtools-axi.chrome-devtools-axi"
     },
     {
+      "name": "kunchenguid.lavish-axi.lavish",
+      "type": "skill",
+      "description": "Turn complex or visual agent responses into rich, reviewable HTML artifacts the user can annotate and send feedback on, using the lavish-axi CLI. Use when about to give a plan, comparison, diagram, table, code diff, report, or anything easier to grasp visually than as prose.",
+      "tags": ["kunchenguid","lavish","html","artifacts","visualization","review"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md"],
+      "dependencies": [],
+      "version": "0.1.32",
+      "path": "skills/kunchenguid.lavish-axi.lavish"
+    },
+    {
       "name": "local.agent-memory-workflow",
       "type": "skill",
       "description": "Use when writing, searching, or maintaining entries in the .ai/memory/ vault.",
@@ -122,6 +133,17 @@
       "dependencies": [],
       "version": "1.0.0",
       "path": "skills/local.agentsmd-init"
+    },
+    {
+      "name": "local.awesome-ai-usage",
+      "type": "skill",
+      "description": "Use when managing the awesome-ai skills-registry in any onboarded project — installing, uninstalling, updating, listing, searching, or syncing skills and instructions. Covers the full CLI, agent paths, lock file, profiles, and team sharing.",
+      "tags": ["local","skills-registry","cli","management","onboarding"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo"],
+      "files": ["SKILL.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/local.awesome-ai-usage"
     },
     {
       "name": "local.baseline-agents",

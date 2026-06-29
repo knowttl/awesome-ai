@@ -1,0 +1,23 @@
+name: kunchenguid.lavish-axi.lavish
+type: skill
+description: "Turn complex or visual agent responses into rich, reviewable HTML artifacts the user can annotate and send feedback on, using the lavish-axi CLI. Use when about to give a plan, comparison, diagram, table, code diff, report, or anything easier to grasp visually than as prose."
+tags:
+  - kunchenguid
+  - lavish
+  - html
+  - artifacts
+  - visualization
+  - review
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - SKILL.md
+version: "0.1.32"
+source: https://github.com/kunchenguid/lavish-axi
