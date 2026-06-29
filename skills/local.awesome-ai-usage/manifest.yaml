@@ -1,0 +1,21 @@
+name: local.awesome-ai-usage
+type: skill
+description: "Use when managing the awesome-ai skills-registry in any onboarded project — installing, uninstalling, updating, listing, searching, or syncing skills and instructions. Covers the full CLI, agent paths, lock file, profiles, and team sharing."
+tags:
+  - local
+  - skills-registry
+  - cli
+  - management
+  - onboarding
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo
+files:
+  - SKILL.md
+version: "1.0.0"
