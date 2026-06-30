@@ -1,0 +1,26 @@
+name: local.mind-clear
+type: skill
+description: >
+  Interviews the user to uncover the real goal behind a feature or project
+  and produces a copy-pasteable spec-generation prompt for a downstream AI
+  agent. Use whenever the user wants to plan a feature, design a spec, kick
+  off a project, or clarify requirements before implementation.
+tags:
+  - local
+  - planning
+  - spec
+  - requirements
+  - discovery
+  - architecture
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - SKILL.md
+version: "1.0.0"

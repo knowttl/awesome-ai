@@ -1,0 +1,132 @@
+{
+  "skill_name": "local.mind-clear",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I want to build a platform with user authentication, a dashboard with analytics, team management, billing with Stripe, email notifications, and a public API. Can you help me spec this out?",
+      "expected_output": "The skill should identify this as a monolith and immediately push back, breaking it into independent sub-problems. It should ask probing questions to discover which piece is the real first priority. It should NOT start speccing all of these at once. It should ask 1-2 focused questions to determine scope.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "monolith-pushback",
+          "description": "AI pushes back on the monolith instead of speccing all 6 features",
+          "check": "conversation.md must show the AI refusing to spec all features at once and explicitly suggesting decomposition or prioritization"
+        },
+        {
+          "id": "monolith-priority-question",
+          "description": "AI asks which feature to tackle first",
+          "check": "conversation.md must show the AI asking the user to identify the first/most important piece"
+        },
+        {
+          "id": "monolith-final-prompt-xml",
+          "description": "Generated prompt uses XML structural tags",
+          "check": "final_prompt.md must contain XML-style tags such as <context>, <task>, <constraints>, <components>"
+        },
+        {
+          "id": "monolith-final-prompt-persona",
+          "description": "Generated prompt assigns a concrete downstream agent persona",
+          "check": "final_prompt.md must include a persona line like 'You are a senior software architect'"
+        },
+        {
+          "id": "monolith-final-prompt-success-criteria",
+          "description": "Generated prompt includes testable success criteria section",
+          "check": "final_prompt.md must contain a success_criteria or equivalent section with testable conditions"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "I need to add a 'like' button to posts in my social app. It's simple — just increment a counter in the database when clicked.",
+      "expected_output": "The skill should probe deeper and surface the non-obvious complexity: race conditions (two users liking simultaneously), idempotency (double-click, network retry), the difference between a count and a user-specific 'did I like this' flag, undo behavior, and whether the count needs to be real-time. It should push back on 'it's simple' and uncover the real requirements.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "like-button-race-condition",
+          "description": "AI surfaces the race condition / concurrency concern",
+          "check": "conversation.md must mention race conditions, concurrent likes, or atomic operations"
+        },
+        {
+          "id": "like-button-idempotency",
+          "description": "AI asks about idempotency (double-click, duplicate likes, network retry)",
+          "check": "conversation.md must mention double-click, duplicate prevention, or idempotency"
+        },
+        {
+          "id": "like-button-undo",
+          "description": "AI asks about unlike / undo functionality",
+          "check": "conversation.md must ask whether users can undo/unlike, or mention undo/unlike behavior"
+        },
+        {
+          "id": "like-button-rejects-simple",
+          "description": "AI pushes back on 'it's simple' framing",
+          "check": "conversation.md must show the AI challenging the 'simple' assumption and revealing hidden complexity"
+        },
+        {
+          "id": "like-button-final-prompt-edge-cases",
+          "description": "Generated prompt includes edge cases section with specific decisions",
+          "check": "final_prompt.md must contain an edge_cases section with at least concurrency and idempotency addressed"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "We need to build something to help our team manage projects better.",
+      "expected_output": "The skill should recognize the extreme vagueness and use the 5 Whys to drill down to the actual problem. It should ask about what's going wrong TODAY, what the team does currently, who the primary frustrated user is. It should resist the urge to start speccing a project management tool and instead find the one core pain point worth solving first.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "vague-no-immediate-spec",
+          "description": "AI does NOT immediately start proposing a full project management tool",
+          "check": "The first AI response in conversation.md must ask a discovery question, not propose features or architecture"
+        },
+        {
+          "id": "vague-probes-real-problem",
+          "description": "AI asks what's going wrong today (5 Whys approach)",
+          "check": "conversation.md must show the AI asking about current pain points, what the team does today, or what's failing"
+        },
+        {
+          "id": "vague-narrows-scope",
+          "description": "AI helps user identify a minimal first iteration",
+          "check": "conversation.md must show the AI explicitly narrowing the scope to a single focused problem to solve first"
+        },
+        {
+          "id": "vague-final-prompt-focused",
+          "description": "Generated prompt is scoped to the specific minimal feature agreed upon, not a full PM platform",
+          "check": "final_prompt.md must describe a specific, narrow feature (task assignment or overdue tracking), not a full project management system"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I want to add a file upload feature to my web app. Users should be able to upload profile pictures and documents. The files get stored in S3 and we save the URL in our database.",
+      "expected_output": "The skill should probe: file type/size limits and who enforces them (client or server?), what happens when S3 upload succeeds but DB write fails, virus/malware scanning, whether URLs should be public or presigned, who can access whose files, what happens on re-upload. It should ask clarifying questions and build toward a clean compartmentalized spec with clear error handling decisions.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "upload-partial-failure",
+          "description": "AI surfaces the S3-success / DB-write-failure partial failure scenario",
+          "check": "conversation.md must raise what happens when S3 upload succeeds but the database write fails (partial failure / inconsistency)"
+        },
+        {
+          "id": "upload-access-control",
+          "description": "AI asks about who can access whose files",
+          "check": "conversation.md must ask about file access permissions, whether URLs are public or private/presigned, or who can view uploaded files"
+        },
+        {
+          "id": "upload-size-limits",
+          "description": "AI asks about file size and type limits",
+          "check": "conversation.md must ask about maximum file size, allowed file types, or server-side vs client-side validation of these limits"
+        },
+        {
+          "id": "upload-final-prompt-edge-cases",
+          "description": "Generated prompt includes edge cases with the partial failure scenario as a concrete decision",
+          "check": "final_prompt.md must specify how to handle the case where S3 upload succeeds but DB write fails (not leave it as a question)"
+        },
+        {
+          "id": "upload-final-prompt-components",
+          "description": "Generated prompt defines compartmentalized components",
+          "check": "final_prompt.md must define at least 2 separate components (e.g., upload handler, file metadata store) with their individual responsibilities"
+        }
+      ]
+    }
+  ]
+}

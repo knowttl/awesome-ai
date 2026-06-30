@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-29T23:00:58Z",
+  "generatedAt": "2026-06-30T03:49:41Z",
   "items": [
     {
       "name": "agents365-ai.drawio-skill.drawio-skill",
@@ -177,6 +177,17 @@
       "dependencies": [],
       "version": "1.0.0",
       "path": "skills/local.example-skill"
+    },
+    {
+      "name": "local.mind-clear",
+      "type": "skill",
+      "description": ">",
+      "tags": ["local","planning","spec","requirements","discovery","architecture"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/local.mind-clear"
     },
     {
       "name": "local.taste-developer",
