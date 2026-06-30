@@ -1,0 +1,35 @@
+{
+  "eval_id": 1,
+  "eval_name": "eval-1-like-button",
+  "configuration": "with_skill",
+  "expectations": [
+    {
+      "text": "AI surfaces the race condition / concurrency concern",
+      "passed": true,
+      "evidence": "AI explicitly stated: 'I'd push back on \"just increment a counter.\" That falls apart on retries, double-clicks, and undo.' Also addressed concurrency via unique constraint and transactional count update in the final prompt."
+    },
+    {
+      "text": "AI asks about idempotency (double-click, duplicate likes, network retry)",
+      "passed": true,
+      "evidence": "AI pushed back: 'That falls apart on retries, double-clicks, and undo.' Final prompt edge_cases: 'the system resolves the action idempotently so there is still at most one active like record and the count is not incremented twice.'"
+    },
+    {
+      "text": "AI asks whether users can undo/unlike",
+      "passed": true,
+      "evidence": "AI directly asked: 'Are you willing to make per-user like records the source of truth... and let users unlike a post?' User confirmed unlike support."
+    },
+    {
+      "text": "AI pushes back on the 'it's simple' framing",
+      "passed": true,
+      "evidence": "AI stated: 'I'd push back on \"just increment a counter.\" That falls apart on retries, double-clicks, and undo.' Explicitly challenged the framing before proposing the correct data model."
+    },
+    {
+      "text": "Generated prompt includes edge cases section with concurrency and idempotency addressed",
+      "passed": true,
+      "evidence": "final_prompt.md <edge_cases> section addresses: double-click idempotency, concurrent requests with one-active-like enforcement, post-deleted-before-click scenario, and persistence failure recovery."
+    }
+  ],
+  "pass_count": 5,
+  "total_count": 5,
+  "pass_rate": 1.0
+}

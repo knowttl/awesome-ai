@@ -1,0 +1,17 @@
+{
+  "eval_id": 2,
+  "eval_name": "eval-2-vague-project-mgmt",
+  "configuration": "with_skill",
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4
+  },
+  "expectations": [
+    {"text": "AI does NOT immediately start proposing a full project management tool", "passed": true, "evidence": "First response: 'That's still broad, so I'm going to slow this down before it turns into a vague six-month project. Who feels this pain most day-to-day?'"},
+    {"text": "AI asks what's going wrong today (5 Whys approach)", "passed": true, "evidence": "AI asked 'What breaks in the current process today, and why isn't the shared Google Sheet enough?'"},
+    {"text": "AI helps user identify a minimal first iteration", "passed": true, "evidence": "AI: '\"Manage projects better\" is actually several separate problems. If you could ship one useful piece in two weeks, what is it?'"},
+    {"text": "Generated prompt is scoped to the specific minimal feature agreed upon", "passed": true, "evidence": "final_prompt.md describes task ownership + due dates + overdue visibility for a 12-person startup — not a general PM platform."}
+  ]
+}

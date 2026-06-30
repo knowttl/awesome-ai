@@ -1,0 +1,18 @@
+{
+  "eval_id": 1,
+  "eval_name": "eval-1-like-button",
+  "configuration": "with_skill",
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  },
+  "expectations": [
+    {"text": "AI surfaces the race condition / concurrency concern", "passed": true, "evidence": "AI pushed back: 'That falls apart on retries, double-clicks, and undo.' Edge cases in final prompt address concurrency explicitly."},
+    {"text": "AI asks about idempotency (double-click, duplicate likes, network retry)", "passed": true, "evidence": "AI challenged the increment-counter approach and asked about idempotency. Final prompt edge_cases mandate idempotent resolution."},
+    {"text": "AI asks whether users can undo/unlike", "passed": true, "evidence": "AI directly asked: 'Are you willing to... let users unlike a post?' User confirmed unlike support."},
+    {"text": "AI pushes back on the 'it's simple' framing", "passed": true, "evidence": "AI: 'I'd push back on just increment a counter. That falls apart on retries, double-clicks, and undo.'"},
+    {"text": "Generated prompt includes edge cases section with concurrency and idempotency addressed", "passed": true, "evidence": "final_prompt.md <edge_cases> covers double-click idempotency, concurrent requests, post-deleted scenario, and persistence failure."}
+  ]
+}

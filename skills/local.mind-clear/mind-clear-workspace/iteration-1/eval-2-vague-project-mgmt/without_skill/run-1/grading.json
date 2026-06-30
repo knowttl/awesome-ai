@@ -1,0 +1,17 @@
+{
+  "eval_id": 2,
+  "eval_name": "eval-2-vague-project-mgmt",
+  "configuration": "without_skill",
+  "summary": {
+    "pass_rate": 0.0,
+    "passed": 0,
+    "failed": 4,
+    "total": 4
+  },
+  "expectations": [
+    {"text": "AI does NOT immediately start proposing a full project management tool", "passed": false, "evidence": "Baseline immediately listed 6 MVP features including 'Project dashboard, Team timeline/roadmap view, Notifications' before asking a single question."},
+    {"text": "AI asks what's going wrong today (5 Whys approach)", "passed": false, "evidence": "Asked 'what is currently breaking down most often' only as a trailing question AFTER proposing the full feature list."},
+    {"text": "AI helps user identify a minimal first iteration", "passed": false, "evidence": "Baseline suggested a 4-phase build covering dashboards, task tracking, roadmap, and reporting — no scope reduction."},
+    {"text": "Generated prompt is scoped to the specific minimal feature agreed upon", "passed": false, "evidence": "No structured handoff prompt generated. No interview to establish minimal scope."}
+  ]
+}

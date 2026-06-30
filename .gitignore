@@ -14,5 +14,10 @@ docs/
 .idea/
 *.swp
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
 # Generated (optionally track registry.json — it's regenerable)
 # registry.json

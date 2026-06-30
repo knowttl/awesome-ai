@@ -1,0 +1,35 @@
+{
+  "eval_id": 1,
+  "eval_name": "eval-1-like-button",
+  "configuration": "without_skill",
+  "expectations": [
+    {
+      "text": "AI surfaces the race condition / concurrency concern",
+      "passed": false,
+      "evidence": "Baseline immediately wrote SQL: 'UPDATE posts SET likes_count = likes_count + 1 WHERE id = ?' with JavaScript implementation. No mention of race conditions or concurrent access issues."
+    },
+    {
+      "text": "AI asks about idempotency (double-click, duplicate likes, network retry)",
+      "passed": false,
+      "evidence": "Baseline provided a straight counter-increment implementation with no discussion of idempotency, double-clicks, or retry handling."
+    },
+    {
+      "text": "AI asks whether users can undo/unlike",
+      "passed": false,
+      "evidence": "Baseline focused purely on incrementing a counter. No mention of unlike/undo capability or per-user like records."
+    },
+    {
+      "text": "AI pushes back on the 'it's simple' framing",
+      "passed": false,
+      "evidence": "Baseline treated it as simple: started immediately with 'A simple version is: 1. Add a likes_count column...' — validated the simple framing rather than challenging it."
+    },
+    {
+      "text": "Generated prompt includes edge cases section with concurrency and idempotency addressed",
+      "passed": false,
+      "evidence": "No structured handoff prompt with edge cases was generated. The output was direct implementation code."
+    }
+  ],
+  "pass_count": 0,
+  "total_count": 5,
+  "pass_rate": 0.0
+}

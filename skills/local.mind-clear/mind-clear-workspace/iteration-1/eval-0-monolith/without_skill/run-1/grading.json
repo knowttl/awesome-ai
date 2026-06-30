@@ -1,0 +1,18 @@
+{
+  "eval_id": 0,
+  "eval_name": "eval-0-monolith",
+  "configuration": "without_skill",
+  "summary": {
+    "pass_rate": 0.0,
+    "passed": 0,
+    "failed": 5,
+    "total": 5
+  },
+  "expectations": [
+    {"text": "AI pushes back on the monolith instead of speccing all 6 features", "passed": false, "evidence": "Baseline responded 'Absolutely — here's a solid product/technical spec' and immediately specced all 6 features."},
+    {"text": "AI asks which feature to tackle first", "passed": false, "evidence": "No prioritization question asked. All 6 features addressed simultaneously."},
+    {"text": "Generated prompt uses XML structural tags", "passed": false, "evidence": "No structured handoff prompt generated."},
+    {"text": "Generated prompt assigns a concrete downstream agent persona", "passed": false, "evidence": "No structured handoff prompt generated."},
+    {"text": "Generated prompt includes testable success criteria section", "passed": false, "evidence": "No structured handoff prompt with success criteria generated."}
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "eval_id": 3,
+  "eval_name": "eval-3-file-upload",
+  "configuration": "without_skill",
+  "expectations": [
+    {
+      "text": "AI surfaces the S3-success / DB-write-failure partial failure scenario",
+      "passed": false,
+      "evidence": "Baseline provided a clean happy-path implementation flow. Step 4 says 'S3 stores the file', Step 5 says 'backend saves the S3 file URL' with no mention of what happens when these two steps are not atomic."
+    },
+    {
+      "text": "AI asks about who can access whose files",
+      "passed": false,
+      "evidence": "Baseline used user-scoped S3 keys (e.g., 'profile-pictures/{userId}/...') as a pattern, but never asked who should be able to access which files or raised presigned vs public URL access control as a decision to make."
+    },
+    {
+      "text": "AI asks about file size and type limits",
+      "passed": true,
+      "evidence": "Baseline included file type and size validation in the happy-path flow: 'checks auth, validates category and MIME type' — though this was presented as implementation detail, not a probing question to the user."
+    },
+    {
+      "text": "Generated prompt includes edge cases with the partial failure scenario as a concrete decision",
+      "passed": false,
+      "evidence": "No structured handoff prompt generated. The baseline produced a how-to implementation guide with no structured edge case decisions."
+    },
+    {
+      "text": "Generated prompt defines compartmentalized components with individual responsibilities",
+      "passed": false,
+      "evidence": "No structured handoff prompt generated. Components were not explicitly defined with single responsibilities and interface contracts."
+    }
+  ],
+  "pass_count": 1,
+  "total_count": 5,
+  "pass_rate": 0.2
+}

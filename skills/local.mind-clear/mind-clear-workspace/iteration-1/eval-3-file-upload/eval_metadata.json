@@ -1,0 +1,6 @@
+{
+  "eval_id": 3,
+  "eval_name": "eval-3-file-upload",
+  "prompt": "I want to add a file upload feature to my web app. Users should be able to upload profile pictures and documents. The files get stored in S3 and we save the URL in our database.",
+  "assertions": []
+}

@@ -1,0 +1,35 @@
+{
+  "eval_id": 0,
+  "eval_name": "eval-0-monolith",
+  "configuration": "with_skill",
+  "expectations": [
+    {
+      "text": "AI pushes back on the monolith instead of speccing all 6 features",
+      "passed": true,
+      "evidence": "First AI response: 'You're describing six products, not one feature. That's exactly how teams end up with a vague spec and a stalled build.' — refused to spec anything, immediately challenged scope."
+    },
+    {
+      "text": "AI asks which feature to tackle first",
+      "passed": true,
+      "evidence": "AI drove the conversation toward identifying access management as the real first problem, then explicitly confirmed scope narrowing before proceeding."
+    },
+    {
+      "text": "Generated prompt uses XML structural tags",
+      "passed": true,
+      "evidence": "final_prompt.md contains <context>, <task>, <constraints>, <components>, <success_criteria>, <edge_cases>, <output_format> tags."
+    },
+    {
+      "text": "Generated prompt assigns a concrete downstream agent persona",
+      "passed": true,
+      "evidence": "final_prompt.md opens with: 'You are a senior software architect writing a detailed technical specification.'"
+    },
+    {
+      "text": "Generated prompt includes testable success criteria section",
+      "passed": true,
+      "evidence": "final_prompt.md has a <success_criteria> block with per-component, objectively verifiable conditions (e.g., 'given valid credentials for an active user, the system creates a valid authenticated session')."
+    }
+  ],
+  "pass_count": 5,
+  "total_count": 5,
+  "pass_rate": 1.0
+}

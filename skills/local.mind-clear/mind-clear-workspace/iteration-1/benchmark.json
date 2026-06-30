@@ -1,0 +1,400 @@
+{
+  "metadata": {
+    "skill_name": "local.mind-clear",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-06-30T03:17:42Z",
+    "evals_run": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 0.0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "AI pushes back on the monolith instead of speccing all 6 features",
+          "passed": true,
+          "evidence": "First AI response immediately challenged scope: 'You're describing six products, not one feature. That's exactly how teams end up with a vague spec and a stalled build.'"
+        },
+        {
+          "text": "AI asks which feature to tackle first",
+          "passed": true,
+          "evidence": "AI drove the conversation toward identifying access management as the real first problem, explicitly confirmed scope narrowing."
+        },
+        {
+          "text": "Generated prompt uses XML structural tags",
+          "passed": true,
+          "evidence": "final_prompt.md contains <context>, <task>, <constraints>, <components>, <success_criteria>, <edge_cases>, <output_format>."
+        },
+        {
+          "text": "Generated prompt assigns a concrete downstream agent persona",
+          "passed": true,
+          "evidence": "Prompt opens with 'You are a senior software architect writing a detailed technical specification.'"
+        },
+        {
+          "text": "Generated prompt includes testable success criteria section",
+          "passed": true,
+          "evidence": "<success_criteria> block has per-component, objectively verifiable conditions."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 0.0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "AI surfaces the race condition / concurrency concern",
+          "passed": true,
+          "evidence": "AI pushed back: 'That falls apart on retries, double-clicks, and undo.' Edge cases in final prompt address concurrency explicitly."
+        },
+        {
+          "text": "AI asks about idempotency (double-click, duplicate likes, network retry)",
+          "passed": true,
+          "evidence": "AI challenged the increment-counter approach and asked about idempotency. Final prompt edge_cases mandate idempotent resolution."
+        },
+        {
+          "text": "AI asks whether users can undo/unlike",
+          "passed": true,
+          "evidence": "AI directly asked: 'Are you willing to... let users unlike a post?' User confirmed unlike support."
+        },
+        {
+          "text": "AI pushes back on the 'it's simple' framing",
+          "passed": true,
+          "evidence": "AI: 'I'd push back on just increment a counter. That falls apart on retries, double-clicks, and undo.'"
+        },
+        {
+          "text": "Generated prompt includes edge cases section with concurrency and idempotency addressed",
+          "passed": true,
+          "evidence": "final_prompt.md <edge_cases> covers double-click idempotency, concurrent requests, post-deleted scenario, and persistence failure."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 0.0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "AI does NOT immediately start proposing a full project management tool",
+          "passed": true,
+          "evidence": "First response: 'That's still broad, so I'm going to slow this down before it turns into a vague six-month project. Who feels this pain most day-to-day?'"
+        },
+        {
+          "text": "AI asks what's going wrong today (5 Whys approach)",
+          "passed": true,
+          "evidence": "AI asked 'What breaks in the current process today, and why isn't the shared Google Sheet enough?'"
+        },
+        {
+          "text": "AI helps user identify a minimal first iteration",
+          "passed": true,
+          "evidence": "AI: '\"Manage projects better\" is actually several separate problems. If you could ship one useful piece in two weeks, what is it?'"
+        },
+        {
+          "text": "Generated prompt is scoped to the specific minimal feature agreed upon",
+          "passed": true,
+          "evidence": "final_prompt.md describes task ownership + due dates + overdue visibility for a 12-person startup \u2014 not a general PM platform."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 0.0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "AI surfaces the S3-success / DB-write-failure partial failure scenario",
+          "passed": true,
+          "evidence": "AI asked: 'what happens if S3 upload succeeds but the database write or finalization step fails?' \u2014 drove pending-record lifecycle design."
+        },
+        {
+          "text": "AI asks about who can access whose files",
+          "passed": true,
+          "evidence": "AI directly asked: 'who is allowed to see which files in v1?' \u2014 owner-only constraint embedded in final prompt."
+        },
+        {
+          "text": "AI asks about file size and type limits",
+          "passed": true,
+          "evidence": "AI asked 'What file types and size limits do you actually need in v1?' \u2014 user confirmed 50MB, JPEG/PNG, PDF."
+        },
+        {
+          "text": "Generated prompt includes edge cases with the partial failure scenario as a concrete decision",
+          "passed": true,
+          "evidence": "Constraints in final_prompt.md mandate the pending-record lifecycle: create record first, verify S3, then finalize."
+        },
+        {
+          "text": "Generated prompt defines compartmentalized components with individual responsibilities",
+          "passed": true,
+          "evidence": "5 components defined: Upload Initiation API, Client Upload Flow, Completion/Finalization API, Malware Scanning, File Access API."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.0,
+        "passed": 0,
+        "failed": 5,
+        "total": 5,
+        "time_seconds": 0.0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "AI pushes back on the monolith instead of speccing all 6 features",
+          "passed": false,
+          "evidence": "Baseline responded 'Absolutely \u2014 here's a solid product/technical spec' and immediately specced all 6 features."
+        },
+        {
+          "text": "AI asks which feature to tackle first",
+          "passed": false,
+          "evidence": "No prioritization question asked. All 6 features addressed simultaneously."
+        },
+        {
+          "text": "Generated prompt uses XML structural tags",
+          "passed": false,
+          "evidence": "No structured handoff prompt generated."
+        },
+        {
+          "text": "Generated prompt assigns a concrete downstream agent persona",
+          "passed": false,
+          "evidence": "No structured handoff prompt generated."
+        },
+        {
+          "text": "Generated prompt includes testable success criteria section",
+          "passed": false,
+          "evidence": "No structured handoff prompt with success criteria generated."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.0,
+        "passed": 0,
+        "failed": 5,
+        "total": 5,
+        "time_seconds": 0.0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "AI surfaces the race condition / concurrency concern",
+          "passed": false,
+          "evidence": "Baseline wrote SQL 'UPDATE posts SET likes_count = likes_count + 1' with no mention of race conditions."
+        },
+        {
+          "text": "AI asks about idempotency (double-click, duplicate likes, network retry)",
+          "passed": false,
+          "evidence": "Baseline provided a counter-increment implementation with no discussion of idempotency."
+        },
+        {
+          "text": "AI asks whether users can undo/unlike",
+          "passed": false,
+          "evidence": "Baseline focused purely on incrementing a counter. No mention of unlike/undo."
+        },
+        {
+          "text": "AI pushes back on the 'it's simple' framing",
+          "passed": false,
+          "evidence": "Baseline: 'A simple version is: 1. Add a likes_count column...' \u2014 validated the simple framing."
+        },
+        {
+          "text": "Generated prompt includes edge cases section with concurrency and idempotency addressed",
+          "passed": false,
+          "evidence": "No structured handoff prompt generated. Output was direct implementation code."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.0,
+        "passed": 0,
+        "failed": 4,
+        "total": 4,
+        "time_seconds": 0.0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "AI does NOT immediately start proposing a full project management tool",
+          "passed": false,
+          "evidence": "Baseline immediately listed 6 MVP features including 'Project dashboard, Team timeline/roadmap view, Notifications' before asking a single question."
+        },
+        {
+          "text": "AI asks what's going wrong today (5 Whys approach)",
+          "passed": false,
+          "evidence": "Asked 'what is currently breaking down most often' only as a trailing question AFTER proposing the full feature list."
+        },
+        {
+          "text": "AI helps user identify a minimal first iteration",
+          "passed": false,
+          "evidence": "Baseline suggested a 4-phase build covering dashboards, task tracking, roadmap, and reporting \u2014 no scope reduction."
+        },
+        {
+          "text": "Generated prompt is scoped to the specific minimal feature agreed upon",
+          "passed": false,
+          "evidence": "No structured handoff prompt generated. No interview to establish minimal scope."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.2,
+        "passed": 1,
+        "failed": 4,
+        "total": 5,
+        "time_seconds": 0.0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "AI surfaces the S3-success / DB-write-failure partial failure scenario",
+          "passed": false,
+          "evidence": "Baseline provided happy-path flow: 'S3 stores the file \u2192 backend saves the URL' with no mention of partial failure handling."
+        },
+        {
+          "text": "AI asks about who can access whose files",
+          "passed": false,
+          "evidence": "Used user-scoped S3 keys as a pattern but never asked about access control or public vs presigned URLs as a decision."
+        },
+        {
+          "text": "AI asks about file size and type limits",
+          "passed": true,
+          "evidence": "Included 'validates category and MIME type' in the implementation flow \u2014 though presented as implementation, not a question to user."
+        },
+        {
+          "text": "Generated prompt includes edge cases with the partial failure scenario as a concrete decision",
+          "passed": false,
+          "evidence": "No structured handoff prompt. Baseline produced an implementation how-to guide with no edge case decisions."
+        },
+        {
+          "text": "Generated prompt defines compartmentalized components with individual responsibilities",
+          "passed": false,
+          "evidence": "No structured handoff prompt with named components and interface contracts."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "tokens": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.05,
+        "stddev": 0.1,
+        "min": 0.0,
+        "max": 0.2
+      },
+      "time_seconds": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "tokens": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.95",
+      "time_seconds": "+0.0",
+      "tokens": "+0"
+    }
+  },
+  "notes": []
+}

@@ -1,0 +1,6 @@
+{
+  "eval_id": 0,
+  "eval_name": "eval-0-monolith",
+  "prompt": "I want to build a platform with user authentication, a dashboard with analytics, team management, billing with Stripe, email notifications, and a public API. Can you help me spec this out?",
+  "assertions": []
+}

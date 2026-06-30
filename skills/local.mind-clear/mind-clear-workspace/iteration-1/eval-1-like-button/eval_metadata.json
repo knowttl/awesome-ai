@@ -1,0 +1,6 @@
+{
+  "eval_id": 1,
+  "eval_name": "eval-1-like-button",
+  "prompt": "I need to add a 'like' button to posts in my social app. It's simple — just increment a counter in the database when clicked.",
+  "assertions": []
+}

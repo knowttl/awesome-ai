@@ -1,0 +1,18 @@
+{
+  "eval_id": 3,
+  "eval_name": "eval-3-file-upload",
+  "configuration": "with_skill",
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  },
+  "expectations": [
+    {"text": "AI surfaces the S3-success / DB-write-failure partial failure scenario", "passed": true, "evidence": "AI asked: 'what happens if S3 upload succeeds but the database write or finalization step fails?' — drove pending-record lifecycle design."},
+    {"text": "AI asks about who can access whose files", "passed": true, "evidence": "AI directly asked: 'who is allowed to see which files in v1?' — owner-only constraint embedded in final prompt."},
+    {"text": "AI asks about file size and type limits", "passed": true, "evidence": "AI asked 'What file types and size limits do you actually need in v1?' — user confirmed 50MB, JPEG/PNG, PDF."},
+    {"text": "Generated prompt includes edge cases with the partial failure scenario as a concrete decision", "passed": true, "evidence": "Constraints in final_prompt.md mandate the pending-record lifecycle: create record first, verify S3, then finalize."},
+    {"text": "Generated prompt defines compartmentalized components with individual responsibilities", "passed": true, "evidence": "5 components defined: Upload Initiation API, Client Upload Flow, Completion/Finalization API, Malware Scanning, File Access API."}
+  ]
+}
