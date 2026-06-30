@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-30T22:52:02Z",
+  "generatedAt": "2026-06-30T23:34:09Z",
   "items": [
     {
       "name": "agents365-ai.drawio-skill.drawio-skill",
@@ -166,6 +166,17 @@
       "dependencies": [],
       "version": "1.0.0",
       "path": "skills/local.context-sync"
+    },
+    {
+      "name": "local.design-system",
+      "type": "skill",
+      "description": "Generate a complete design system (design.md, design-guidelines.md, design-components.md) from any reference materials — images, PDFs, links, or descriptions.",
+      "tags": ["design-system","design","tokens","components","accessibility","documentation"],
+      "targets": ["claude-code","github-copilot"],
+      "files": ["SKILL.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/local.design-system"
     },
     {
       "name": "local.example-skill",
