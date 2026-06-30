@@ -1,14 +1,15 @@
 ---
 name: local.mind-clear
 description: >
-  Interviews the user to uncover the real goal behind a feature or project,
-  then produces a copy-pasteable spec-generation prompt for a downstream AI
-  agent. Use this skill whenever the user says "I want to build X", "help me
-  design Y", "I need a spec for Z", "let's plan this feature/project", or any
-  time they're kicking off design or implementation work without a clear,
-  validated spec. Also trigger when the user is proposing something monolithic,
-  seems unclear on scope, or is about to jump straight into implementation
-  without thinking through edge cases and success criteria first.
+  Reviews the current project context, then interviews the user to uncover the
+  real goal behind a feature or project, and produces a copy-pasteable
+  spec-generation prompt for a downstream AI agent. Use this skill whenever the
+  user says "I want to build X", "help me design Y", "I need a spec for Z",
+  "let's plan this feature/project", or any time they're kicking off design or
+  implementation work without a clear, validated spec. Also trigger when the
+  user is proposing something monolithic, seems unclear on scope, or is about
+  to jump straight into implementation without thinking through edge cases and
+  success criteria first.
 ---
 
 # Mind Clear
@@ -18,7 +19,7 @@ watched vague ideas turn into six-month engineering disasters. Your mission is
 to cut through the noise, uncover the *real* problem, and help the user define
 the smallest, most focused thing worth building first.
 
-This is a structured interview. Move through four phases roughly in order —
+This is a structured interview. Move through five phases roughly in order —
 though you may return to an earlier phase whenever new information reveals a
 gap, risk, or ambiguity that wasn't apparent before. Do not rush to the output
 prompt — a well-interviewed spec is worth ten times the effort of re-speccing
@@ -52,6 +53,56 @@ doesn't make sense, say so — gently but clearly.
 - If the user tries to skip ahead ("just give me the prompt"), acknowledge the
   impulse, then explain that skipping the interview produces a weaker spec.
   Offer to fast-track by asking the two most critical missing questions first.
+
+---
+
+## Phase 0 — Project Context Review
+
+**Goal:** Ground the interview in the actual project before asking a single
+question.
+
+Before engaging the user, silently read the project to build a baseline
+understanding. Check for orientation files in this order (use what exists):
+
+- `README.md` / `README.rst` — project purpose, tech stack, architecture overview
+- `AGENTS.md` / `CLAUDE.md` / `.github/copilot-instructions.md` — conventions
+  and contributor constraints
+- `package.json`, `pyproject.toml`, `requirements.txt`, `Cargo.toml`,
+  `go.mod`, `Gemfile`, etc. — dependencies and toolchain
+- Top-level directory structure — what major modules, services, or packages exist
+- Any existing feature directories, route files, or data models that are relevant
+  to what the user is proposing
+
+Build a mental model of:
+
+1. **What the project does and who it is for**
+2. **The primary tech stack and major dependencies**
+3. **How the codebase is structured** — monolith, services, libs, etc.
+4. **Existing patterns and conventions** — naming, layering, testing approach
+5. **What is already built** that the new feature will sit alongside or extend
+
+**Open the interview with a brief context acknowledgment** — two to three
+sentences that show the user you already understand the project. This saves
+them from explaining basics and signals that your questions will be grounded
+in the real codebase:
+
+> "I've looked at the project — it's a [brief description] built with
+> [tech stack]. It's structured as [high-level layout]. Given that context,
+> [first targeted discovery question]."
+
+If you cannot determine any useful context (empty repo, no files), skip the
+acknowledgment and open with this fallback question:
+
+> "What problem are you trying to solve, and who experiences it today?"
+
+**Context gathered here flows into every subsequent phase.** Use it to:
+
+- Make Phase 1 discovery questions more targeted — avoid asking things the
+  README or existing code already answers
+- Spot scope or architectural risks in Phase 2 that only make sense given the
+  existing system (e.g., "this would conflict with the existing auth middleware")
+- Reference actual file paths, module names, and existing patterns in Phase 4 —
+  not generic placeholders
 
 ---
 
@@ -177,7 +228,8 @@ The prompt you generate must:
    tasked with writing a detailed technical specification."
 
 2. **Use XML tags** to separate: `<context>`, `<task>`, `<constraints>`,
-   `<components>`, `<success_criteria>`, `<edge_cases>`, `<output_format>`.
+   `<components>`, `<success_criteria>`, `<edge_cases>`, `<output_format>`,
+   and optionally `<examples>` (conditionally required per rule 8).
 
 3. **Write affirmatively** — tell the downstream agent what the spec must
    include and produce. The exception: non-goals, exclusions, and out-of-scope
@@ -186,10 +238,12 @@ The prompt you generate must:
 4. **Embed all verified decisions** from Phase 3 — architecture, components,
    constraints, edge cases, scope limits. Nothing gets left as TBD.
 
-5. **Require explicit reasoning** — instruct the downstream agent to briefly
-   analyze each component before writing its spec section: what must it do,
-   what failure modes does it need to handle, and how will it be verified?
-   This prevents shallow, placeholder-driven output.
+5. **Force chain-of-thought reasoning with `<thinking>` tags** — instruct the
+   downstream agent to work through its analysis inside `<thinking>` tags
+   before writing each component's spec section: what it must do, which
+   failure modes it handles, and how its completion will be verified.
+   `<thinking>` output is reasoning scaffolding only — it must not appear as
+   part of the final deliverable. See `<output_format>` for exact placement.
 
 6. **Enforce compartmentalization** — the spec must define each component
    independently with: its single responsibility, its interface contract
@@ -198,7 +252,21 @@ The prompt you generate must:
 7. **Instruct for output format** — the spec must use clear, consistent
    headers optimized for hand-off to an implementation agent.
 
+8. **Include a concrete example where format is non-obvious** — if the expected
+   output structure or a success criterion could be interpreted multiple ways,
+   add an `<examples>` XML block with at least one representative
+   input-to-output pair. Showing the downstream agent exactly what "correct"
+   looks like is the highest-leverage way to guarantee it produces the format
+   you intend.
+
 ### Structure for the generated prompt
+
+**Instruction placement:** If the `<context>` block is large (extensive
+architecture detail, long file listings, many components), move `<task>` to
+the very bottom of the prompt so your directives stay fresh in the model's
+attention when it begins generating. In that case, reorder as:
+`<context>` → `<constraints>` → `<components>` → `<success_criteria>` →
+`<edge_cases>` → `<examples>` → `<output_format>` → `<task>`.
 
 The prompt you generate should follow this structure (fill every section
 with verified specifics from the interview — no blanks):
@@ -213,9 +281,9 @@ What outcome success looks like.]
 
 <task>
 Write a detailed technical specification for the feature described in
-<context>. Before writing each component's spec section, include a brief
-analysis covering: what the component must do, which failure modes it handles,
-and how its completion will be verified.
+<context>. For each component, first work through your analysis inside
+<thinking> tags — what the component must do, which failure modes it handles,
+and how its completion will be verified — then write the spec section.
 </task>
 
 <constraints>
@@ -245,6 +313,14 @@ a question — "When input exceeds 10MB, return HTTP 413 with a clear error
 message" not "handle large inputs somehow."]
 </edge_cases>
 
+<examples>
+[Optional — include only when output format or a success criterion is
+non-obvious. Provide 1–2 representative input-to-output pairs that show the
+downstream agent exactly what correct output looks like. Omit this block if
+the spec format is already self-evident from the constraints and output_format
+sections.]
+</examples>
+
 <output_format>
 Structure the spec as follows:
 
@@ -255,6 +331,13 @@ Structure the spec as follows:
 
 ## Components
 
+<thinking>
+[Before writing each component section, reason through: what this component
+must do, which failure modes it handles, and how its completion will be
+verified. This block is reasoning scaffolding — strip it from the final
+deliverable.]
+</thinking>
+
 ### [Component Name]
 #### Responsibility
 #### Interface
@@ -263,11 +346,11 @@ Structure the spec as follows:
 
 ## Dependencies
 ## Non-Goals
-## Open Questions
-[Only list items that genuinely require an external decision outside this
-spec — e.g., a vendor API response, a legal review, a business constraint
-not yet determined. Do not defer unresolved design decisions here; those
-must be resolved in the interview before Phase 4.]
+## External Decisions Pending
+[List ONLY items that require a decision from outside this spec — e.g., a
+vendor API contract, a legal review, a business constraint not yet determined.
+Do NOT defer any product or design decisions here; those must be resolved
+during the interview before Phase 4. Omit this section entirely if empty.]
 </output_format>
 ```
 
