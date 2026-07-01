@@ -87,6 +87,8 @@ Full per-file specs are disclosed reference — read the one you need at Workflo
 - [`references/preview-spec.md`](references/preview-spec.md) — `design-preview.html` structure, token→CSS mapping, and the theme toggle
 - [`references/remediation-spec.md`](references/remediation-spec.md) — `design-remediation.md` structure and severity scale (Codebase audit / Hybrid only)
 
+If it would help to see what a finished, realistic output looks like — depth of detail, tone, how the files cross-reference each other — read [`examples/nimbus/`](examples/nimbus/) (a complete worked example for a fictional web app). It's a calibration reference, not a template to copy values from.
+
 ## General Rules
 
 - Be specific: measurements in dp/sp/px, hex colors, CSS box-shadow values
