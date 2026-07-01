@@ -81,6 +81,15 @@ generate_synthetic_manifest() {
   [[ -z "$name" ]] && name="$(basename "$item_dir")"
   [[ -z "$description" ]] && description="Skill imported from external repository"
 
+  # Collect every file in the skill directory (recursively), so companion
+  # files referenced by SKILL.md (e.g. GLOSSARY.md, scripts/) aren't dropped.
+  local files_list=""
+  while IFS= read -r -d '' f; do
+    local rel="${f#"$item_dir"/}"
+    [[ "$rel" == "manifest.yaml" ]] && continue
+    files_list+="  - $rel"$'\n'
+  done < <(find "$item_dir" -type f -print0 | sort -z)
+
   # Write synthetic manifest
   cat > "$item_dir/manifest.yaml" <<EOF
 name: $name
@@ -91,7 +100,7 @@ targets:
   - claude-code
   - github-copilot
 files:
-  - SKILL.md
+$files_list
 version: "0.0.0"
 EOF
 }

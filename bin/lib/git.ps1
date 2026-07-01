@@ -98,6 +98,15 @@ function New-SyntheticManifest {
     if (-not $name) { $name = Split-Path $ItemDir -Leaf }
     if (-not $description) { $description = "Skill imported from external repository" }
 
+    # Collect every file in the skill directory (recursively), so companion
+    # files referenced by SKILL.md (e.g. GLOSSARY.md, scripts/) aren't dropped.
+    $filesList = (Get-ChildItem -Path $ItemDir -Recurse -File |
+        Where-Object { $_.Name -ne "manifest.yaml" } |
+        ForEach-Object {
+            $rel = $_.FullName.Substring($ItemDir.Length + 1) -replace '\\', '/'
+            "  - $rel"
+        }) -join "`n"
+
     @"
 name: $name
 type: skill
@@ -107,7 +116,7 @@ targets:
   - claude-code
   - github-copilot
 files:
-  - SKILL.md
+$filesList
 version: "0.0.0"
 "@ | Set-Content -Path $manifestPath -Encoding UTF8
     return $true

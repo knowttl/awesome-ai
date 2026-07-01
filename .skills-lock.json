@@ -18,6 +18,16 @@
       "installedAt": "2026-06-25T20:07:41Z",
       "agents": ["opencode"],
       "profile": null
+    },
+    "writing-great-skills": {
+      "type": "skill",
+      "version": "0.0.0",
+      "source": "remote",
+      "sourceUrl": "https://github.com/mattpocock/skills",
+      "sourceCommit": "0877403d1e867fd9d574117e9b34ade404f36d2a",
+      "installedAt": "2026-07-01T03:05:23Z",
+      "agents": ["opencode"],
+      "profile": null
     }
   }
 }
