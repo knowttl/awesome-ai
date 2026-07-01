@@ -6,7 +6,7 @@ Read this when executing the Workflow step "Update AGENTS.md".
 
 Check if it already contains a `## Design System` section.
 
-- **Section already exists:** Preserve all custom rules the user has written beneath it. Only update the file links at the top of the section (three links normally, four if a `DESIGN/design-remediation.md` exists — see below). Do not remove or replace any content below the links.
+- **Section already exists:** Preserve all custom rules the user has written beneath it. Only update the file links at the top of the section (four links normally, including the preview; five if a `DESIGN/design-remediation.md` exists — see below). Do not remove or replace any content below the links.
 - **Section does not exist:** Append the block below to the end of the file.
 
 ```markdown
@@ -17,6 +17,7 @@ All front-end work **must** follow the project design system. Before writing any
 - [`DESIGN/design.md`](DESIGN/design.md) — color, typography, spacing, elevation, motion, and layout tokens
 - [`DESIGN/design-guidelines.md`](DESIGN/design-guidelines.md) — accessibility requirements, interaction rules, content writing, and do's & don'ts
 - [`DESIGN/design-components.md`](DESIGN/design-components.md) — full component specs including variants, measurements, and states
+- [`DESIGN/design-preview.html`](DESIGN/design-preview.html) — open in a browser to see the system live before implementing new UI
 
 ### Rules for Front-End Work
 
@@ -25,6 +26,7 @@ All front-end work **must** follow the project design system. Before writing any
 - Match component variants, states, and measurements from `DESIGN/design-components.md` exactly
 - Do not introduce new visual patterns, ad-hoc spacing, or one-off color values not present in the design system
 - If a needed component or token is missing from the design system, flag it to the user before implementing a custom solution
+- If the user requests a visual change to the system itself, update `design.md` / `design-components.md` / `design-guidelines.md` first, then regenerate `DESIGN/design-preview.html` — never hand-edit the preview directly
 ```
 
 **If a `DESIGN/design-remediation.md` file was also generated** (codebase-audit or hybrid mode), add one more bullet to the file list and one more rule:

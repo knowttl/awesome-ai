@@ -1,6 +1,6 @@
 name: local.design-system
 type: skill
-description: Generate a design system (design.md, design-guidelines.md, design-components.md) from reference materials — images, PDFs, links, descriptions — or reverse-engineer one from an existing codebase and flag UI drift for remediation.
+description: Generate a design system (design.md, design-guidelines.md, design-components.md, design-preview.html) from reference materials — images, PDFs, links, descriptions — or reverse-engineer one from an existing codebase and flag UI drift for remediation.
 tags:
   - design-system
   - design
@@ -11,6 +11,8 @@ tags:
   - audit
   - remediation
   - codebase-analysis
+  - style-guide
+  - preview
 targets:
   - claude-code
   - github-copilot
@@ -19,6 +21,7 @@ files:
   - references/token-spec.md
   - references/guidelines-spec.md
   - references/components-spec.md
+  - references/preview-spec.md
   - references/remediation-spec.md
   - references/agentsmd-integration.md
-version: "1.1.0"
+version: "1.2.0"

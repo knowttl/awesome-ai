@@ -7,10 +7,10 @@ Read this when executing Workflow step "Generate all files" for `DESIGN/design-c
 # [System Name] Components
 
 > Full specifications for all [N] components. Grouped by workflow.
-> For tokens see [design.md](design.md). For rules & accessibility see [design-guidelines.md](design-guidelines.md).
+> For tokens see [design.md](design.md). For rules & accessibility see [design-guidelines.md](design-guidelines.md). For a live preview see [design-preview.html](design-preview.html).
 ```
 
-If a `DESIGN/design-remediation.md` file was also generated (Codebase audit / Hybrid mode), add a third link to it in the opening blockquote.
+If a `DESIGN/design-remediation.md` file was also generated (Codebase audit / Hybrid mode), add a fourth link to it in the opening blockquote.
 
 **Find ALL components** detectable from the source material — provided references, or component files found in a codebase scan. Do not limit to a fixed list.
 
