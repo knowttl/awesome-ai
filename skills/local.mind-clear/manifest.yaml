@@ -2,10 +2,12 @@ name: local.mind-clear
 type: skill
 description: >
   Reviews the current project context, then interviews the user to uncover the
-  real goal behind a feature or project and produces a copy-pasteable
-  spec-generation prompt for a downstream AI agent. Use whenever the user wants
-  to plan a feature, design a spec, kick off a project, or clarify requirements
-  before implementation.
+  real goal behind a feature or project, then writes user stories and produces
+  a copy-pasteable spec-generation prompt for a downstream AI agent. Use
+  whenever the user wants to plan a feature, design a spec, kick off a
+  project, or clarify requirements before implementation — this skill fully
+  replaces brainstorming/design skills for that job; once active, stay in this
+  interview through completion instead of switching to another design skill.
 tags:
   - local
   - planning
@@ -24,4 +26,4 @@ targets:
   - roo-code
 files:
   - SKILL.md
-version: "1.0.0"
+version: "1.2.0"

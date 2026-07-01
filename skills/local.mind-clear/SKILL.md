@@ -27,6 +27,18 @@ a misunderstood one. Never write code, scaffolding, or implementation during
 this skill. Your only deliverable is questions and, finally, a structured
 prompt.
 
+<HARD-GATE>
+Once this skill is active, it is the only design/discovery skill in play for
+this conversation. Do NOT invoke, switch to, or hand off to the brainstorming
+skill (or any other spec-writing or design skill) mid-interview — even if its
+trigger conditions appear to match what the user just said. Do NOT start
+writing a spec, design document, or code before Phase 4. If another skill
+auto-triggers, treat it as pre-empted by this one and resume the Mind Clear
+interview at the phase you were in. The only valid output of this skill is the
+structured interview and, at the very end, the single handoff prompt produced
+in Phase 4.
+</HARD-GATE>
+
 ---
 
 ## Your Mindset
@@ -187,12 +199,18 @@ Synthesize the conversation into a structured summary:
 1. **The Real Problem** — the underlying need being addressed
 2. **Target User** — who experiences the problem and how
 3. **Desired Outcome** — what success looks like from the user's perspective
-4. **Scope** — what is explicitly in, what is explicitly out
-5. **Architecture / Approach** — key technical decisions agreed upon
-6. **Components** — the compartmentalized pieces, each with a single
+4. **User Stories** — the confirmed scope rewritten as well-formed user
+   stories, one per distinct user action or capability, in the form:
+   "As a [specific user/role], I want to [action], so that [benefit]." Each
+   story must trace directly to something discussed in Phases 1–2 — no
+   invented behavior. Include acceptance criteria for each story where the
+   interview surfaced a concrete success criterion or edge case.
+5. **Scope** — what is explicitly in, what is explicitly out
+6. **Architecture / Approach** — key technical decisions agreed upon
+7. **Components** — the compartmentalized pieces, each with a single
    responsibility
-7. **Success Criteria** — how each component is tested or verified
-8. **Edge Cases & Constraints** — explicit handling for failure states,
+8. **Success Criteria** — how each component is tested or verified
+9. **Edge Cases & Constraints** — explicit handling for failure states,
    security concerns, limits, concurrency
 
 Only present this summary — and ask for Confirmation — once all critical
@@ -227,9 +245,10 @@ The prompt you generate must:
 1. **Assign a concrete persona** — e.g., "You are a senior software architect
    tasked with writing a detailed technical specification."
 
-2. **Use XML tags** to separate: `<context>`, `<task>`, `<constraints>`,
-   `<components>`, `<success_criteria>`, `<edge_cases>`, `<output_format>`,
-   and optionally `<examples>` (conditionally required per rule 8).
+2. **Use XML tags** to separate: `<context>`, `<user_stories>`, `<task>`,
+   `<constraints>`, `<components>`, `<success_criteria>`, `<edge_cases>`,
+   `<output_format>`, and optionally `<examples>` (conditionally required per
+   rule 8).
 
 3. **Write affirmatively** — tell the downstream agent what the spec must
    include and produce. The exception: non-goals, exclusions, and out-of-scope
@@ -259,14 +278,21 @@ The prompt you generate must:
    looks like is the highest-leverage way to guarantee it produces the format
    you intend.
 
+9. **Write proper user stories** — populate `<user_stories>` with the
+   confirmed user stories from Phase 3, each as "As a [role], I want to
+   [action], so that [benefit]," plus any acceptance criteria captured during
+   the interview. This gives the downstream agent an unambiguous, user-centric
+   view of intent that survives even if it skims past the technical sections.
+
 ### Structure for the generated prompt
 
 **Instruction placement:** If the `<context>` block is large (extensive
 architecture detail, long file listings, many components), move `<task>` to
 the very bottom of the prompt so your directives stay fresh in the model's
 attention when it begins generating. In that case, reorder as:
-`<context>` → `<constraints>` → `<components>` → `<success_criteria>` →
-`<edge_cases>` → `<examples>` → `<output_format>` → `<task>`.
+`<context>` → `<user_stories>` → `<constraints>` → `<components>` →
+`<success_criteria>` → `<edge_cases>` → `<examples>` → `<output_format>` →
+`<task>`.
 
 The prompt you generate should follow this structure (fill every section
 with verified specifics from the interview — no blanks):
@@ -279,11 +305,20 @@ You are a senior software architect writing a detailed technical specification.
 What outcome success looks like.]
 </context>
 
+<user_stories>
+[Every confirmed user story, one per line or bullet, in the form:
+"As a [specific user/role], I want to [action], so that [benefit]."
+Include acceptance criteria beneath any story where the interview surfaced
+a concrete, testable success criterion or edge case. No invented stories —
+only what was confirmed in the interview.]
+</user_stories>
+
 <task>
 Write a detailed technical specification for the feature described in
-<context>. For each component, first work through your analysis inside
-<thinking> tags — what the component must do, which failure modes it handles,
-and how its completion will be verified — then write the spec section.
+<context> and <user_stories>. For each component, first work through your
+analysis inside <thinking> tags — what the component must do, which failure
+modes it handles, and how its completion will be verified — then write the
+spec section.
 </task>
 
 <constraints>
@@ -353,6 +388,25 @@ Do NOT defer any product or design decisions here; those must be resolved
 during the interview before Phase 4. Omit this section entirely if empty.]
 </output_format>
 ```
+
+### Offer to Save the Prompt
+
+After presenting the fenced prompt, ask the user whether they'd like it saved
+to a file:
+
+> "Would you like me to also save this prompt to `docs/prompts/`?"
+
+- If the user declines, do nothing further — the fenced code block is the
+  deliverable.
+- If the user accepts:
+  1. Create the `docs/prompts/` directory at the project root if it does not
+     already exist.
+  2. Save the prompt to `docs/prompts/YYYY-MM-DD-<kebab-case-topic>-prompt.md`,
+     using today's date and a short kebab-case slug derived from the feature
+     name confirmed in Phase 3 (e.g., `docs/prompts/2026-06-30-file-upload-prompt.md`).
+  3. Write the fenced prompt exactly as presented — no additional commentary,
+     wrapping, or modification — as the file's sole content.
+  4. Confirm the file path back to the user once written.
 
 ---
 

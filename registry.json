@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-30T23:34:09Z",
+  "generatedAt": "2026-07-01T04:38:39Z",
   "items": [
     {
       "name": "agents365-ai.drawio-skill.drawio-skill",
@@ -197,7 +197,7 @@
       "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
       "files": ["SKILL.md"],
       "dependencies": [],
-      "version": "1.0.0",
+      "version": "1.2.0",
       "path": "skills/local.mind-clear"
     },
     {
