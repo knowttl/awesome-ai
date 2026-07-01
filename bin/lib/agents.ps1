@@ -2,7 +2,7 @@
 
 $script:AgentTable = @(
     @{ Name="claude-code";     ProjectPath=".claude/skills";            GlobalSuffix=".claude/skills";               DetectDirs=@(".claude");             DetectBins=@("claude") }
-    @{ Name="github-copilot";  ProjectPath=".github/skills";          GlobalSuffix=".copilot/skills";              DetectDirs=@(".copilot",".github");  DetectBins=@("copilot") }
+    @{ Name="github-copilot";  ProjectPath=".agents/skills";          GlobalSuffix=".copilot/skills";              DetectDirs=@(".copilot",".github");  DetectBins=@("copilot") }
     @{ Name="cursor";          ProjectPath=".agents/skills";            GlobalSuffix=".cursor/skills";               DetectDirs=@(".cursor");             DetectBins=@("cursor") }
     @{ Name="cline";           ProjectPath=".agents/skills";            GlobalSuffix=".agents/skills";               DetectDirs=@(".cline");              DetectBins=@("cline") }
     @{ Name="opencode";        ProjectPath=".agents/skills";            GlobalSuffix=".config/opencode/skills";      DetectDirs=@(".config/opencode");    DetectBins=@("opencode") }
@@ -52,13 +52,12 @@ function Find-InstalledAgents {
     return $found
 }
 
-# Deduplicate agents: github-copilot, opencode, and codex all read from
-# .claude/skills, so when claude-code is selected, skip them.
+# Deduplication: .agents/skills/ is the source of truth for all agents that
+# support it (github-copilot, opencode, codex, cursor, cline). The install loop
+# handles idempotent copies, so no agent removal is needed here.
+# claude-code uses symlinks to .agents/skills/ at the project level.
 function Remove-DuplicateAgents {
     param([string[]]$Agents)
-    if ($Agents -contains "claude-code") {
-        return $Agents | Where-Object { $_ -notin @("github-copilot", "opencode", "codex") }
-    }
     return $Agents
 }
 

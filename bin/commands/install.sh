@@ -230,6 +230,8 @@ while IFS= read -r agent; do
 
   if [[ "$GLOBAL_INSTALL" == "true" ]]; then
     base_path="$path_suffix"
+  elif [[ "$agent" == "claude-code" ]]; then
+    base_path="$TARGET_DIR/.agents/skills"
   else
     base_path="$TARGET_DIR/$path_suffix"
   fi
@@ -268,7 +270,11 @@ while IFS= read -r agent; do
   done <<< "$ITEM_FILES"
 
   # Print per-agent result
-  if [[ "$GLOBAL_INSTALL" == "true" ]]; then
+  if [[ "$agent" == "claude-code" ]] && [[ "$GLOBAL_INSTALL" != "true" ]]; then
+    mkdir -p "$TARGET_DIR/.claude/skills"
+    ln -sfn "../../.agents/skills/$ITEM_NAME" "$TARGET_DIR/.claude/skills/$ITEM_NAME"
+    echo "  → claude-code: .claude/skills/$ITEM_NAME → .agents/skills/$ITEM_NAME"
+  elif [[ "$GLOBAL_INSTALL" == "true" ]]; then
     echo "  → $agent: $dest_dir"
   else
     echo "  → $agent: ${dest_dir#$TARGET_DIR/}"

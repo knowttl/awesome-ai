@@ -43,7 +43,7 @@ if ($AgentArgs.Count -gt 0) {
 
 $removed = $false
 foreach ($agent in $removeAgents) {
-    $basePath = if ($GlobalInstall) { Get-GlobalPath $agent } else { Join-Path $TargetDir (Get-ProjectPath $agent) }
+    $basePath = if ($GlobalInstall) { Get-GlobalPath $agent } elseif ($agent -eq "claude-code") { Join-Path $TargetDir ".agents/skills" } else { Join-Path $TargetDir (Get-ProjectPath $agent) }
     if (-not $basePath) { continue }
 
     $skillDir = Join-Path $basePath $Name
@@ -53,6 +53,21 @@ foreach ($agent in $removeAgents) {
             $relPath = if ($GlobalInstall) { $skillDir } else { $skillDir.Replace("$TargetDir\","").Replace("\","/") }
             Write-Host "  -> Removed: $relPath"
             $removed = $true
+
+            # Also remove claude-code symlink
+            $claudeLink = Join-Path $TargetDir ".claude/skills/$Name"
+            if ((Test-Path $claudeLink) -and (-not $GlobalInstall)) {
+                Remove-Item -Force $claudeLink -ErrorAction SilentlyContinue
+            }
+        }
+    } elseif (($agent -eq "claude-code") -and (-not $GlobalInstall)) {
+        $claudeLink = Join-Path $TargetDir ".claude/skills/$Name"
+        if (Test-Path $claudeLink) {
+            if (Confirm-Prompt "Remove $claudeLink?") {
+                Remove-Item -Force $claudeLink
+                Write-Host "  -> Removed: .claude/skills/$Name"
+                $removed = $true
+            }
         }
     }
 }

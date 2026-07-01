@@ -5,7 +5,7 @@
 # global_suffix is appended to $HOME
 AGENT_TABLE=(
   "claude-code|.claude/skills|.claude/skills|.claude|claude"
-  "github-copilot|.github/skills|.copilot/skills|.copilot,.github|copilot"
+  "github-copilot|.agents/skills|.copilot/skills|.copilot,.github|copilot"
   "cursor|.agents/skills|.cursor/skills|.cursor|cursor"
   "cline|.agents/skills|.agents/skills|.cline|cline"
   "opencode|.agents/skills|.config/opencode/skills|.config/opencode|opencode"
@@ -65,22 +65,12 @@ detect_agents() {
   done
 }
 
-# Deduplicate agents: github-copilot, opencode, and codex all read from
-# .claude/skills, so when claude-code is selected, skip them.
+# Deduplication: .agents/skills/ is the source of truth for all agents that
+# support it (github-copilot, opencode, codex, cursor, cline). The install loop
+# handles idempotent copies, so no agent removal is needed here.
+# claude-code uses symlinks to .agents/skills/ at the project level.
 dedupe_agents() {
-  local agents_input="$1"
-  local has_claude=false
-
-  while IFS= read -r agent; do
-    [[ -z "$agent" ]] && continue
-    [[ "$agent" == "claude-code" ]] && has_claude=true
-  done <<< "$agents_input"
-
-  if [[ "$has_claude" == "true" ]]; then
-    echo "$agents_input" | grep -v '^github-copilot$' | grep -v '^opencode$' | grep -v '^codex$'
-  else
-    echo "$agents_input"
-  fi
+  echo "$1"
 }
 
 select_agents() {

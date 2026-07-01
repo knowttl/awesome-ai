@@ -52,6 +52,8 @@ for agent in "${REMOVE_AGENTS[@]}"; do
   base_path=""
   if [[ "$GLOBAL_INSTALL" == "true" ]]; then
     base_path="$(get_global_path "$agent")"
+  elif [[ "$agent" == "claude-code" ]]; then
+    base_path="$TARGET_DIR/.agents/skills"
   else
     base_path="$TARGET_DIR/$(get_project_path "$agent")"
   fi
@@ -65,10 +67,35 @@ for agent in "${REMOVE_AGENTS[@]}"; do
       echo "  → Removed: ${skill_dir#$TARGET_DIR/}"
       REMOVED=true
 
+      # Also remove claude-code symlink if we're removing from .agents/skills/
+      if [[ "$GLOBAL_INSTALL" != "true" ]]; then
+        claude_link="$TARGET_DIR/.claude/skills/$NAME"
+        if [[ -L "$claude_link" ]]; then
+          rm -f "$claude_link"
+        fi
+      fi
+
       # Clean up empty parent dirs
       parent="$(dirname "$skill_dir")"
       if [[ -d "$parent" ]] && [[ -z "$(ls -A "$parent" 2>/dev/null)" ]]; then
         rmdir "$parent" 2>/dev/null || true
+      fi
+      # Also clean up empty .claude/skills parent dir
+      if [[ -d "$TARGET_DIR/.claude/skills" ]] && [[ -z "$(ls -A "$TARGET_DIR/.claude/skills" 2>/dev/null)" ]]; then
+        rmdir "$TARGET_DIR/.claude/skills" 2>/dev/null || true
+      fi
+    fi
+  elif [[ "$agent" == "claude-code" ]] && [[ "$GLOBAL_INSTALL" != "true" ]]; then
+    # claude-code symlink might exist even if .agents/skills/ dir was already removed
+    claude_link="$TARGET_DIR/.claude/skills/$NAME"
+    if [[ -L "$claude_link" ]] || [[ -d "$claude_link" ]]; then
+      if prompt_yn "  Remove $claude_link?"; then
+        rm -rf "$claude_link"
+        echo "  → Removed: .claude/skills/$NAME"
+        REMOVED=true
+        if [[ -d "$TARGET_DIR/.claude/skills" ]] && [[ -z "$(ls -A "$TARGET_DIR/.claude/skills" 2>/dev/null)" ]]; then
+          rmdir "$TARGET_DIR/.claude/skills" 2>/dev/null || true
+        fi
       fi
     fi
   fi

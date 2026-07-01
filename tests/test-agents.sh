@@ -25,7 +25,7 @@ echo "=== test-agents.sh ==="
 
 # Test get_project_path
 assert_eq "claude-code project path" ".claude/skills" "$(get_project_path claude-code)"
-assert_eq "github-copilot project path" ".github/skills" "$(get_project_path github-copilot)"
+assert_eq "github-copilot project path" ".agents/skills" "$(get_project_path github-copilot)"
 assert_eq "cursor project path" ".agents/skills" "$(get_project_path cursor)"
 assert_eq "unknown agent returns empty" "" "$(get_project_path unknown-agent)"
 
@@ -46,7 +46,7 @@ assert_eq "known agents includes cursor" "0" "$(echo "$KNOWN" | grep -q 'cursor'
 BOTH=$'claude-code\ngithub-copilot\ncursor'
 DEDUPED="$(dedupe_agents "$BOTH")"
 assert_eq "dedupe: claude-code preserved" "0" "$(echo "$DEDUPED" | grep -q '^claude-code$' && echo 0 || echo 1)"
-assert_eq "dedupe: github-copilot removed" "1" "$(echo "$DEDUPED" | grep -q '^github-copilot$' && echo 0 || echo 1)"
+assert_eq "dedupe: github-copilot preserved (no-op)" "0" "$(echo "$DEDUPED" | grep -q '^github-copilot$' && echo 0 || echo 1)"
 assert_eq "dedupe: cursor preserved" "0" "$(echo "$DEDUPED" | grep -q '^cursor$' && echo 0 || echo 1)"
 
 # Test dedupe_agents: github-copilot kept when claude-code is not present

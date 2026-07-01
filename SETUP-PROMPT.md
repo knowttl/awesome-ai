@@ -304,7 +304,7 @@ Based on my selections, generate the install commands. **Skip any items that are
 
 **Determine the correct `--agent` flag values.** Use the Agent Name Reference table above to map each user-facing agent name to its `--agent` flag. Cross-reference with the `AGENT_TABLE` from Step 2 for confirmation. Build the flags as `--agent <name>` repeated for each assistant.
 
-**Deduplication note:** When both `claude-code` and `github-copilot` are selected, pass `--agent claude-code --agent github-copilot` — the CLI handles dedup internally (installs only to `.claude/skills/`). If `github-copilot` is selected alone, it installs to `.github/skills/`.
+**Deduplication note:** `.agents/skills/` is the canonical source of truth. `github-copilot`, `cursor`, `cline`, `opencode`, and `codex` all install directly there. `claude-code` installs to `.agents/skills/` and creates a symlink `.claude/skills/<name>` → `.agents/skills/<name>`. `windsurf` and `roo` install to their own directories.
 
 **Delegate the install execution to a sub-agent.** Run the sub-agent with these instructions:
 

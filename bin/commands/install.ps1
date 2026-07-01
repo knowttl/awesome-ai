@@ -161,7 +161,7 @@ $lockPath = if ($GlobalInstall) { Join-Path $HOME ".skills-lock.json" } else { J
 foreach ($agent in $Selected) {
     $pathSuffix = if ($GlobalInstall) { Get-GlobalPath $agent } else { Get-ProjectPath $agent }
     if (-not $pathSuffix) { Write-Warn "Unknown agent: $agent"; continue }
-    $basePath = if ($GlobalInstall) { $pathSuffix } else { Join-Path $TargetDir $pathSuffix }
+    $basePath = if ($GlobalInstall) { $pathSuffix } elseif ($agent -eq "claude-code") { Join-Path $TargetDir ".agents/skills" } else { Join-Path $TargetDir $pathSuffix }
 
     $destDir = Join-Path $basePath $ItemName
     New-Item -ItemType Directory -Path $destDir -Force | Out-Null
@@ -186,8 +186,18 @@ foreach ($agent in $Selected) {
         }
     }
 
-    $relDest = if ($GlobalInstall) { $destDir } else { $destDir.Replace("$TargetDir\", "").Replace("\", "/") }
-    Write-Host "  -> ${agent}: $relDest"
+    if ($agent -eq "claude-code" -and -not $GlobalInstall) {
+        $claudeSkillsDir = Join-Path $TargetDir ".claude/skills"
+        $symlinkTarget = "../../.agents/skills/$ItemName"
+        New-Item -ItemType Directory -Path $claudeSkillsDir -Force | Out-Null
+        $symlinkPath = Join-Path $claudeSkillsDir $ItemName
+        if (Test-Path $symlinkPath) { Remove-Item $symlinkPath -Force }
+        New-Item -ItemType SymbolicLink -Path $symlinkPath -Target $symlinkTarget -Force | Out-Null
+        Write-Host "  -> claude-code: .claude/skills/$ItemName -> .agents/skills/$ItemName"
+    } else {
+        $relDest = if ($GlobalInstall) { $destDir } else { $destDir.Replace("$TargetDir\", "").Replace("\", "/") }
+        Write-Host "  -> ${agent}: $relDest"
+    }
 }
 
 # Update lock

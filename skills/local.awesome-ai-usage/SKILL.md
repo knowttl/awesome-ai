@@ -186,7 +186,7 @@ $REGISTRY_PATH/bin/skill install --target "$PROJECT" --yes
 
 **Important — always use the full dotted name.** For example, the brainstorming skill is `obra.superpowers.brainstorming`, not `brainstorming`. You can discover the full name from `bin/skill list` or `bin/skill search`.
 
-**Deduplication:** When `claude-code` is selected, `github-copilot`, `opencode`, and `codex` are automatically omitted because all four read from `.claude/skills/`. Files install only once to `.claude/skills/<name>/`. When `claude-code` is NOT selected but `github-copilot` is, files go to `.github/skills/<name>/`. `cursor` and `cline` always install to `.agents/skills/<name>/` independently.
+**Deduplication:** `.agents/skills/` is the canonical source of truth. `github-copilot`, `cursor`, `cline`, `opencode`, and `codex` all install directly to `.agents/skills/<name>/` — the install loop copies files once (subsequent agents see files already exist and skip). `claude-code` installs to `.agents/skills/<name>/` and creates a symlink `.claude/skills/<name>` → `.agents/skills/<name>`. `windsurf` and `roo` install to their own directories.
 
 ### `uninstall` — Remove Installed Items
 
@@ -248,8 +248,8 @@ Each AI assistant reads skills from a specific directory. The CLI places files a
 
 | Agent flag | Project path | Global path (`--global`) |
 |------------|-------------|--------------------------|
-| `claude-code` | `.claude/skills/<name>/` | `~/.claude/skills/<name>/` |
-| `github-copilot` | `.github/skills/<name>/` | `~/.copilot/skills/<name>/` |
+| `claude-code` | `.claude/skills/<name>/` → `.agents/skills/<name>/` | `~/.claude/skills/<name>/` |
+| `github-copilot` | `.agents/skills/<name>/` | `~/.copilot/skills/<name>/` |
 | `cursor` | `.agents/skills/<name>/` | `~/.cursor/skills/<name>/` |
 | `cline` | `.agents/skills/<name>/` | `~/.agents/skills/<name>/` |
 | `opencode` | `.agents/skills/<name>/` | `~/.config/opencode/skills/<name>/` |
@@ -257,9 +257,7 @@ Each AI assistant reads skills from a specific directory. The CLI places files a
 | `windsurf` | `.windsurf/skills/<name>/` | `~/.codeium/windsurf/skills/<name>/` |
 | `roo` | `.roo/skills/<name>/` | `~/.roo/skills/<name>/` |
 
-Note that `cursor`, `cline`, `opencode`, and `codex` all share `.agents/skills/` as their project path — skills installed for any of them at the project level are visible to all of them.
-
-Additionally, `github-copilot`, `opencode`, and `codex` can also read from `.claude/skills/`. When `claude-code` is among the selected agents, the CLI deduplicates — installing only to `.claude/skills/` and skipping `github-copilot`, `opencode`, and `codex` to avoid redundant copies.
+`.agents/skills/` is the source of truth: `github-copilot`, `cursor`, `cline`, `opencode`, and `codex` all install directly there. `claude-code` installs to `.agents/skills/` and creates a relative symlink `.claude/skills/<name>` → `../../.agents/skills/<name>`. `windsurf` and `roo` install to their own directories and do not read from `.agents/skills/`.
 
 ## Lock File & Team Sharing
 
