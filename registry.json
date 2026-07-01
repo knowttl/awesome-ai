@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-01T04:54:16Z",
+  "generatedAt": "2026-07-01T05:10:37Z",
   "items": [
     {
       "name": "agents365-ai.drawio-skill.drawio-skill",
@@ -166,6 +166,17 @@
       "dependencies": [],
       "version": "1.0.0",
       "path": "skills/local.context-sync"
+    },
+    {
+      "name": "local.create-glossary",
+      "type": "skill",
+      "description": "Create or update GLOSSARY.md at the project root to document project-specific terms and jargon, and wire AGENTS.md to point agents at it. Use when the user wants to create a glossary, update an existing one, or just implemented a feature that introduces new domain vocabulary worth capturing.",
+      "tags": ["local","documentation","onboarding","context"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/local.create-glossary"
     },
     {
       "name": "local.design-system",
