@@ -65,21 +65,19 @@ detect_agents() {
   done
 }
 
-# Deduplicate agents: github-copilot reads from .claude/skills, so if both
-# claude-code and github-copilot are selected, only install to claude-code.
+# Deduplicate agents: github-copilot, opencode, and codex all read from
+# .claude/skills, so when claude-code is selected, skip them.
 dedupe_agents() {
   local agents_input="$1"
   local has_claude=false
-  local has_copilot=false
 
   while IFS= read -r agent; do
     [[ -z "$agent" ]] && continue
     [[ "$agent" == "claude-code" ]] && has_claude=true
-    [[ "$agent" == "github-copilot" ]] && has_copilot=true
   done <<< "$agents_input"
 
-  if [[ "$has_claude" == "true" ]] && [[ "$has_copilot" == "true" ]]; then
-    echo "$agents_input" | grep -v '^github-copilot$'
+  if [[ "$has_claude" == "true" ]]; then
+    echo "$agents_input" | grep -v '^github-copilot$' | grep -v '^opencode$' | grep -v '^codex$'
   else
     echo "$agents_input"
   fi
@@ -90,8 +88,8 @@ select_agents() {
   local detected
   detected="$(detect_agents)"
 
-  echo -e "\n${BOLD}Detected agents:${RESET} $(echo "$detected" | tr '\n' ', ' | sed 's/,$//')"
-  echo ""
+  echo -e "\n${BOLD}Detected agents:${RESET} $(echo "$detected" | tr '\n' ', ' | sed 's/,$//')" >&2
+  echo "" >&2
 
   local selected=()
   while IFS= read -r agent; do

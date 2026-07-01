@@ -159,8 +159,9 @@ if ($Selected.Count -eq 0) {
 $lockPath = if ($GlobalInstall) { Join-Path $HOME ".skills-lock.json" } else { Join-Path $TargetDir ".skills-lock.json" }
 
 foreach ($agent in $Selected) {
-    $basePath = if ($GlobalInstall) { Get-GlobalPath $agent } else { Join-Path $TargetDir (Get-ProjectPath $agent) }
-    if (-not $basePath) { Write-Warn "Unknown agent: $agent"; continue }
+    $pathSuffix = if ($GlobalInstall) { Get-GlobalPath $agent } else { Get-ProjectPath $agent }
+    if (-not $pathSuffix) { Write-Warn "Unknown agent: $agent"; continue }
+    $basePath = if ($GlobalInstall) { $pathSuffix } else { Join-Path $TargetDir $pathSuffix }
 
     $destDir = Join-Path $basePath $ItemName
     New-Item -ItemType Directory -Path $destDir -Force | Out-Null

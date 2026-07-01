@@ -1,14 +1,6 @@
 {
   "version": 1,
   "installed": {
-      "version": "1.0.0",
-      "source": "local",
-      "sourceUrl": null,
-      "sourceCommit": null,
-      "installedAt": "2026-06-25T20:06:13Z",
-      "agents": ["", "Detected agents: claude-code", "github-copilot", "opencode", "codex", "", "  Install to claude-code? (detected) (y/n)   Install to cursor? (y/n)   Install to opencode? (detected) (y/n)   Install to windsurf? (y/n) "],
-      "profile": null
-    },
     "github.awesome-copilot.prompt-builder": {
       "type": "skill",
       "version": "1.0.0",
@@ -36,7 +28,17 @@
       "sourceUrl": null,
       "sourceCommit": null,
       "installedAt": "2026-07-01T04:46:13Z",
-      "agents": ["", "Detected agents: claude-code", "github-copilot", "opencode", "codex", "", "claude-code", "opencode", "codex"],
+      "agents": ["opencode"],
+      "profile": null
+    },
+    "skill-creator": {
+      "type": "skill",
+      "version": "1.0.0",
+      "source": "remote",
+      "sourceUrl": "https://github.com/anthropics/skills",
+      "sourceCommit": null,
+      "installedAt": "2026-07-01T05:00:00Z",
+      "agents": ["opencode"],
       "profile": null
     }
   }

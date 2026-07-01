@@ -216,16 +216,22 @@ fi
 while IFS= read -r agent; do
   [[ -z "$agent" ]] && continue
 
-  base_path=""
+  path_suffix=""
   if [[ "$GLOBAL_INSTALL" == "true" ]]; then
-    base_path="$(get_global_path "$agent")"
+    path_suffix="$(get_global_path "$agent")"
   else
-    base_path="$TARGET_DIR/$(get_project_path "$agent")"
+    path_suffix="$(get_project_path "$agent")"
   fi
 
-  if [[ -z "$base_path" ]]; then
+  if [[ -z "$path_suffix" ]]; then
     warn "Unknown agent: $agent — skipping"
     continue
+  fi
+
+  if [[ "$GLOBAL_INSTALL" == "true" ]]; then
+    base_path="$path_suffix"
+  else
+    base_path="$TARGET_DIR/$path_suffix"
   fi
 
   dest_dir="$base_path/$ITEM_NAME"

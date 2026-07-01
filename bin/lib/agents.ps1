@@ -52,12 +52,12 @@ function Find-InstalledAgents {
     return $found
 }
 
-# Deduplicate agents: github-copilot reads from .claude/skills, so if both
-# claude-code and github-copilot are selected, only install to claude-code.
+# Deduplicate agents: github-copilot, opencode, and codex all read from
+# .claude/skills, so when claude-code is selected, skip them.
 function Remove-DuplicateAgents {
     param([string[]]$Agents)
-    if (($Agents -contains "claude-code") -and ($Agents -contains "github-copilot")) {
-        return $Agents | Where-Object { $_ -ne "github-copilot" }
+    if ($Agents -contains "claude-code") {
+        return $Agents | Where-Object { $_ -notin @("github-copilot", "opencode", "codex") }
     }
     return $Agents
 }

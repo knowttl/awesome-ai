@@ -91,6 +91,33 @@ done
 
 This tells you what's installed without reading the full lock file. Use it when the user asks "what skills do I have?" or you need context about the project's setup.
 
+## Project Files Setup
+
+Every project should have an `AGENTS.md` file as the canonical source of project-level AI instructions. Some tools read from different filenames — create symlinks so they all consume the same content.
+
+```bash
+# Ensure AGENTS.md exists (create an empty one as a starting point)
+if [ ! -f "$PROJECT/AGENTS.md" ]; then
+  echo "# $(basename "$PROJECT")" > "$PROJECT/AGENTS.md"
+  echo "Created AGENTS.md for this project."
+fi
+
+# Create symlinks for tools that use different filenames
+# Claude Code looks for CLAUDE.md
+if [ ! -e "$PROJECT/CLAUDE.md" ]; then
+  ln -s AGENTS.md "$PROJECT/CLAUDE.md"
+  echo "Linked CLAUDE.md -> AGENTS.md"
+fi
+
+# Cursor looks for .cursorrules
+if [ ! -e "$PROJECT/.cursorrules" ]; then
+  ln -s AGENTS.md "$PROJECT/.cursorrules"
+  echo "Linked .cursorrules -> AGENTS.md"
+fi
+```
+
+**Always do this when onboarding a new project.** Check for existing files first — if `CLAUDE.md` or `.cursorrules` already exist as regular files (not symlinks), don't overwrite without asking. Offer to consolidate their content into `AGENTS.md` and then replace them with symlinks.
+
 ## CLI Command Reference
 
 ### `list` — Browse Available Items
@@ -129,13 +156,13 @@ The most important command. Multiple invocation modes:
 
 ```bash
 # From local registry (most common)
-$REGISTRY_PATH/bin/skill install <full-item-name> --target "$PROJECT" --yes
+$REGISTRY_PATH/bin/skill install <full-item-name> --target "$PROJECT" --agent <agent> --yes
 
 # From GitHub shorthand
-$REGISTRY_PATH/bin/skill install <owner/repo> --skill <name> --target "$PROJECT" --yes
+$REGISTRY_PATH/bin/skill install <owner/repo> --skill <name> --target "$PROJECT" --agent <agent> --yes
 
 # From any Git URL
-$REGISTRY_PATH/bin/skill install <url> --skill <name> --target "$PROJECT" --yes
+$REGISTRY_PATH/bin/skill install <url> --skill <name> --target "$PROJECT" --agent <agent> --yes
 
 # Profile (bundle of skills)
 $REGISTRY_PATH/bin/skill install --profile <name> --target "$PROJECT" --yes
@@ -143,6 +170,7 @@ $REGISTRY_PATH/bin/skill install --profile <name> --target "$PROJECT" --yes
 # Restore from lock file (team sharing)
 $REGISTRY_PATH/bin/skill install --target "$PROJECT" --yes
 ```
+**[Critical] Always pass `--agent` explicitly.** Do not rely on auto-detection. Omitting `--agent` triggers `select_agents()`, which currently writes interactive prompt text into the agent list and causes files to install into the project root instead of the agent directory. This is a known bug.
 
 **Key flags:**
 
@@ -154,11 +182,11 @@ $REGISTRY_PATH/bin/skill install --target "$PROJECT" --yes
 | `--yes`, `-y` | Skip confirmation prompts. Always use this when running on the user's behalf — they already told you what they want. |
 | `--ref <commit>` | Pin a remote install to a specific commit/tag/branch |
 
-**Choosing `--agent` flags:** When you know which AI assistants the user uses, pass them explicitly. The agent flag values are: `claude-code`, `github-copilot`, `cursor`, `cline`, `opencode`, `codex`, `windsurf`, `roo`. If you're unsure, omit `--agent` and the CLI will auto-detect and prompt — but since the user told you what to install, prefer `--yes` with explicit `--agent` flags to avoid interactive prompts.
+**Choosing `--agent` flags:** Always pass `--agent` explicitly. The agent flag values are: `claude-code`, `github-copilot`, `cursor`, `cline`, `opencode`, `codex`, `windsurf`, `roo`. Never rely on auto-detection — omitting `--agent` triggers `select_agents()` which currently has a known bug that corridors interactive prompt text into the agent list, causing files to install into the project root instead of proper agent directories.
 
 **Important — always use the full dotted name.** For example, the brainstorming skill is `obra.superpowers.brainstorming`, not `brainstorming`. You can discover the full name from `bin/skill list` or `bin/skill search`.
 
-**Deduplication:** The CLI handles this automatically. When both `claude-code` and `github-copilot` are selected, files go only to `.claude/skills/` (since Copilot also reads from there). If only Copilot is selected, files go to `.github/skills/`.
+**Deduplication:** When `claude-code` is selected, `github-copilot`, `opencode`, and `codex` are automatically omitted because all four read from `.claude/skills/`. Files install only once to `.claude/skills/<name>/`. When `claude-code` is NOT selected but `github-copilot` is, files go to `.github/skills/<name>/`. `cursor` and `cline` always install to `.agents/skills/<name>/` independently.
 
 ### `uninstall` — Remove Installed Items
 
@@ -192,7 +220,7 @@ After running `update`, always follow up with `bin/skill sync` to regenerate the
 ```bash
 $REGISTRY_PATH/bin/skill update --yes && $REGISTRY_PATH/bin/skill sync
 # Then for each project that uses these skills:
-$REGISTRY_PATH/bin/skill install <item-name> --target "$PROJECT" --yes
+$REGISTRY_PATH/bin/skill install <item-name> --target "$PROJECT" --agent <agent> --yes
 ```
 
 Or, if many items were updated, restore everything from the lock file (which re-copies all files at their current registry versions):
@@ -230,6 +258,8 @@ Each AI assistant reads skills from a specific directory. The CLI places files a
 | `roo` | `.roo/skills/<name>/` | `~/.roo/skills/<name>/` |
 
 Note that `cursor`, `cline`, `opencode`, and `codex` all share `.agents/skills/` as their project path — skills installed for any of them at the project level are visible to all of them.
+
+Additionally, `github-copilot`, `opencode`, and `codex` can also read from `.claude/skills/`. When `claude-code` is among the selected agents, the CLI deduplicates — installing only to `.claude/skills/` and skipping `github-copilot`, `opencode`, and `codex` to avoid redundant copies.
 
 ## Lock File & Team Sharing
 
@@ -313,7 +343,7 @@ Present the output as a table. If they want to filter, add `--type`, `--tag`, or
 # First confirm the full name
 $REGISTRY_PATH/bin/skill search brainstorming
 # Then install
-$REGISTRY_PATH/bin/skill install obra.superpowers.brainstorming --target "$PROJECT" --yes
+$REGISTRY_PATH/bin/skill install obra.superpowers.brainstorming --target "$PROJECT" --agent <agent> --yes
 ```
 
 ### User asks "remove the context-sync skill"
@@ -383,7 +413,7 @@ done | sort -u
 Then re-install each discovered item (the CLI will re-add them to the lock file):
 
 ```bash
-$REGISTRY_PATH/bin/skill install <item-name> --target "$PROJECT" --yes
+$REGISTRY_PATH/bin/skill install <item-name> --target "$PROJECT" --agent <agent> --yes
 ```
 
 ### An item is partially installed (some agents have it, others don't)
@@ -399,8 +429,8 @@ $REGISTRY_PATH/bin/skill install <item-name> --target "$PROJECT" --agent <missin
 The memory vault (`.ai/memory/`) is separate from the memory instruction items (`local.agent-memory` and `local.agent-memory-workflow`). If the vault exists but the items aren't in the lock file, the agent won't know to check memory. Install the memory items to connect them:
 
 ```bash
-$REGISTRY_PATH/bin/skill install local.agent-memory --target "$PROJECT" --yes
-$REGISTRY_PATH/bin/skill install local.agent-memory-workflow --target "$PROJECT" --yes
+$REGISTRY_PATH/bin/skill install local.agent-memory --target "$PROJECT" --agent <agent> --yes
+$REGISTRY_PATH/bin/skill install local.agent-memory-workflow --target "$PROJECT" --agent <agent> --yes
 ```
 
 ## Safety Rules
