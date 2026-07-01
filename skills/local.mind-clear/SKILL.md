@@ -3,7 +3,8 @@ name: local.mind-clear
 description: >
   Reviews the current project context, then interviews the user to uncover the
   real goal behind a feature or project, and produces a copy-pasteable
-  spec-generation prompt for a downstream AI agent. Use this skill whenever the
+  spec-generation prompt designed to capture the user's intent so clearly
+  that any downstream AI agent reading it knows exactly what to build. Use this skill whenever the
   user says "I want to build X", "help me design Y", "I need a spec for Z",
   "let's plan this feature/project", or any time they're kicking off design or
   implementation work without a clear, validated spec. Also trigger when the
@@ -232,8 +233,11 @@ they confirm.
 
 ## Phase 4 — Handoff Generation
 
-**Goal:** Produce a production-grade, copy-pasteable prompt for a downstream
-AI agent to write a detailed technical spec.
+**Goal:** Produce a production-grade, copy-pasteable prompt that captures the
+user's request with enough clarity that any downstream AI agent — regardless of
+its default persona or model — knows exactly what the user wants. The prompt
+must be self-contained and unambiguous: no prior conversation context, no
+implicit domain knowledge, no guesswork needed.
 
 Output the prompt inside a single fenced code block. The prompt must be
 immediately usable — no placeholders, no "fill this in later."
@@ -242,8 +246,10 @@ immediately usable — no placeholders, no "fill this in later."
 
 The prompt you generate must:
 
-1. **Assign a concrete persona** — e.g., "You are a senior software architect
-   tasked with writing a detailed technical specification."
+1. **Begin with a clear, generic instruction** — tell the downstream agent to
+   write a detailed technical specification. Do not assign a role-specific
+   persona (no "You are a senior software architect", etc.) — the instruction
+   should be task-focused and neutral.
 
 2. **Use XML tags** to separate: `<context>`, `<user_stories>`, `<task>`,
    `<constraints>`, `<components>`, `<success_criteria>`, `<edge_cases>`,
@@ -298,7 +304,7 @@ The prompt you generate should follow this structure (fill every section
 with verified specifics from the interview — no blanks):
 
 ```
-You are a senior software architect writing a detailed technical specification.
+Write a detailed technical specification for the feature described below.
 
 <context>
 [The real problem being solved. Who experiences it. What the current state is.
