@@ -1,11 +1,21 @@
 ---
 name: design-system
-description: Generate a complete design system (design.md, design-guidelines.md, design-components.md) from any reference materials — images, PDFs, links, or descriptions.
+description: Generate a design system (design.md, design-guidelines.md, design-components.md) from reference materials — images, PDFs, links, descriptions — or reverse-engineer one from an existing codebase and flag UI drift for remediation.
 ---
 
 # Design System Generator
 
-Analyze the user's provided design references (images, screenshots, PDFs, links, text descriptions, or existing code) and generate a comprehensive 3-file design system documentation.
+Analyze the user's design references, an existing codebase, or both, and produce design system documentation another agent or developer can build against.
+
+## Modes
+
+| Mode | Trigger | Output |
+|------|---------|--------|
+| **Reference-based** | User supplies images, PDFs, links, text descriptions, or existing code as the source of truth | `design.md`, `design-guidelines.md`, `design-components.md` |
+| **Codebase audit** | User asks to derive/document a design system *from* their existing project, with no other references given | Same 3 files, derived from dominant patterns in the code, **plus** `design-remediation.md` flagging drift |
+| **Hybrid** | User supplies references (or already has the 3 files) *and* wants the existing codebase checked against them | The 3 files (from references) **plus** `design-remediation.md` auditing the codebase against them |
+
+If the user's request is ambiguous about which mode, ask.
 
 ## Inputs
 
@@ -14,33 +24,42 @@ Accept ANY combination of:
 - **PDFs**: Brand guidelines, style guides, design specs
 - **Links**: URLs to design system documentation, component libraries, or live websites
 - **Text descriptions**: Written descriptions of the design language
-- **Existing code**: CSS files, theme configs, Tailwind configs, design tokens
+- **Existing code**: CSS files, theme configs, Tailwind configs, design tokens, component source — as a direct reference (Reference-based) or as the scan target (Codebase audit / Hybrid)
 
 If the user provides a link, use WebFetch to retrieve the content. If they provide a file path, read the file.
 
 ## Output
 
-Generate exactly 3 markdown files inside a `DESIGN/` folder at the project root. Create the folder if it does not exist.
+Generate markdown files inside a `DESIGN/` folder at the project root. Create the folder if it does not exist.
 
 1. **DESIGN/design.md** — Token Reference
 2. **DESIGN/design-guidelines.md** — Accessibility & Do's/Don'ts
 3. **DESIGN/design-components.md** — Component Specs
+4. **DESIGN/design-remediation.md** — Drift Report (Codebase audit / Hybrid mode only)
 
 ## Workflow
 
-1. **Gather references** — Collect all materials from the user (read files, fetch URLs).
-2. **Clarify unknowns** — Identify critical gaps using the Clarification Step below. Ask before generating. Do not skip.
-3. **Detect platform context** — Determine target platform (web, mobile, or both) from references. This governs which sections to include (gestures vs. pointer interaction, dp vs. px/rem, touch targets).
-4. **Check for existing files** — If `DESIGN/design.md`, `DESIGN/design-guidelines.md`, or `DESIGN/design-components.md` already exist, ask the user whether to overwrite or skip each conflicting file individually. Do not silently overwrite.
-5. **Generate all 3 files** — Follow the File Specifications below.
-6. **Confirm before writing** — Present a brief pre-write summary: file names, output paths, and section count for each file. Ask the user to confirm before saving anything to disk.
-7. **Write confirmed files** to the specified directory.
-8. **Update AGENTS.md** if it exists (see AGENTS.md Integration section).
-9. **Summarize** — Report: system name, token count, component count, files written, whether AGENTS.md was updated. If no `AGENTS.md` was found, note it and tell the user they can add the design system rules manually.
+1. **Determine mode** — Reference-based, Codebase audit, or Hybrid (see Modes above). This governs every step below.
+2. **Gather source material**:
+   - *Reference-based*: Collect all materials from the user (read files, fetch URLs). If `DESIGN/design.md` etc. already exist and the user is updating rather than starting fresh, read those as references too.
+   - *Codebase audit / Hybrid*: Glob the project for style sources — CSS/SCSS/LESS, Tailwind/PostCSS config, CSS-in-JS (styled-components, Emotion), CSS custom properties, component files, and any existing token files (JSON/YAML). Read every match. If the user hasn't scoped it, scan the whole repo excluding `node_modules`, build output, and vendored code.
+3. **Derive or confirm the system**:
+   - *Reference-based*: the provided references are the system.
+   - *Codebase audit*: for every category in [`references/token-spec.md`](references/token-spec.md) (colors, typography, spacing, shape, elevation, motion), tally every distinct value found and its occurrence count. The most-frequent value per category becomes the canonical token; note its frequency so the choice is auditable.
+   - *Hybrid*: the references define the canonical system regardless of what's more common in the code — the codebase tally is used only for drift comparison in the next step, never to override a reference-defined token.
+4. **Detect drift** (Codebase audit / Hybrid only): any category or component where more than one value serves the same semantic purpose is drift. Compare every non-canonical value against the token it should map to. Follow [`references/remediation-spec.md`](references/remediation-spec.md) for how to size severity and write this up.
+5. **Clarify unknowns** — Identify critical gaps using the Clarification Step below. Ask before generating. Skip questions you can confidently infer (see step 3) — note "(inferred)" instead.
+6. **Detect platform context** — Determine target platform (web, mobile, or both). This governs which sections to include (gestures vs. pointer interaction, dp vs. px/rem, touch targets).
+7. **Check for existing files** — If any of the `DESIGN/*.md` output files already exist, ask the user whether to overwrite or skip each conflicting file individually. Do not silently overwrite.
+8. **Generate all files** — Follow [`references/token-spec.md`](references/token-spec.md), [`references/guidelines-spec.md`](references/guidelines-spec.md), [`references/components-spec.md`](references/components-spec.md), and, in Codebase audit / Hybrid mode, [`references/remediation-spec.md`](references/remediation-spec.md).
+9. **Confirm before writing** — Present a brief pre-write summary: file names, output paths, section count per file, and (if applicable) drift-issue count. Ask the user to confirm before saving anything to disk.
+10. **Write confirmed files** to the specified directory.
+11. **Update AGENTS.md** if it exists — see [`references/agentsmd-integration.md`](references/agentsmd-integration.md).
+12. **Summarize** — Report: system name, token count, component count, files written, drift-issue count by severity (if a remediation file was generated), whether AGENTS.md was updated. If no `AGENTS.md` was found, note it and tell the user they can add the design system rules manually.
 
 ## Clarification Step
 
-Before generating, scan the references for the following. If any are missing or ambiguous, ask the user. If a value can be confidently inferred, use it and note "(inferred)" — do not ask unnecessarily.
+Before generating, scan the references/codebase for the following. If any are missing or ambiguous, ask the user. If a value can be confidently inferred, use it and note "(inferred)" — do not ask unnecessarily.
 
 | Unknown | Question to ask |
 |---------|----------------|
@@ -49,237 +68,32 @@ Before generating, scan the references for the following. If any are missing or 
 | Target platform | "Is this for web, mobile (iOS/Android), or both?" |
 | Unit system | "Should measurements use dp/sp (mobile) or px/rem (web)?" |
 | Dark mode support | "Does this design system support dark mode?" |
+| Scan scope (Codebase audit / Hybrid only) | "Which directories or file types should I scan for existing design patterns? Default: the whole repo, excluding `node_modules` and build output." |
 
 ## File Specifications
 
 Each generated file must begin with a metadata comment on line 1:
 
 ```
-<!-- Generated by design-system skill | [YYYY-MM-DD] | Sources: [comma-separated filenames/URLs] -->
+<!-- Generated by design-system skill | [YYYY-MM-DD] | Sources: [comma-separated filenames/URLs, or "codebase scan"] -->
 ```
 
----
+Full per-file specs are disclosed reference — read the one you need at Workflow step 8, not before:
 
-### design.md — Token Reference
-
-```markdown
-<!-- Generated by design-system skill | [YYYY-MM-DD] | Sources: [...] -->
-# [System Name] Design System — Token Reference
-
-> Always read this file first. For component specs see [design-components.md](design-components.md). For accessibility and do's/don'ts see [design-guidelines.md](design-guidelines.md).
-
-[1-2 sentence intro: design language, core architecture, primary typeface, base spacing unit, platform coverage]
-```
-
-**Required sections:**
-
-#### Colors
-Group by semantic role using H3 subsections (e.g., ### Accent — Primary, ### Surface & Neutral, ### Semantic/Status).
-
-| Role | Light Hex | Dark Hex | Usage |
-|------|-----------|----------|-------|
-| primary | `#6442d6` | `#cbb8ff` | High-emphasis fills, text, icons |
-| on-primary | `#ffffff` | `#31008c` | Text/icons on primary |
-
-If dark mode is not supported, omit the Dark Hex column.
-
-#### Dark Mode / Theming
-Include this section only if the design supports dark mode or theming. Describe the theming strategy: CSS custom properties, `data-theme` attribute, `prefers-color-scheme` media query, or class-based toggling. List all surface and background token swaps between light and dark.
-
-| Token | Light | Dark |
-|-------|-------|------|
-| surface | `#ffffff` | `#1c1b1f` |
-| on-surface | `#1c1b1f` | `#e6e1e5` |
-
-#### Typography
-Default font family + fallback chain.
-
-| Style | Size | Weight | Line Height | Spacing |
-|-------|------|--------|-------------|---------|
-| Display Large | 57sp | 400 | 64sp | -0.25sp |
-| Body Medium | 14sp | 400 | 20sp | 0.25sp |
-
-List all scale levels (Display, Headline, Title, Body, Label or equivalent).
-
-#### Spacing
-State the base unit explicitly (e.g., "Base unit: 4px — all spacing is a multiple of 4"). Use the unit system appropriate to the target platform (px/rem for web, dp for mobile).
-
-| Token | Value | Usage |
-|-------|-------|-------|
-| space-1 | 4px | Inline gap, icon padding |
-| space-2 | 8px | Component internal padding |
-| space-4 | 16px | Card padding, section gap |
-| space-8 | 32px | Section separation |
-
-#### Shape
-
-| Token | Radius | Components |
-|-------|--------|------------|
-| Small | 8dp | Chips, snackbars |
-| Medium | 12dp | Cards |
-| Full | 50% | Buttons, search bars |
-
-#### Elevation
-
-| Level | dp | CSS Shadow | Usage |
-|-------|-----|-----------|-------|
-| 0 | 0 | none | Base surface |
-| 1 | 1 | `0 1px 2px rgb(0 0 0/.3), 0 1px 3px 1px rgb(0 0 0/.15)` | Cards |
-
-#### Interaction States
-
-| State | Layer Opacity | Notes |
-|-------|-------------|-------|
-| Enabled | 0% | Resting |
-| Hover | 8% | Cursor over |
-| Focus | 10% | Keyboard focus |
-| Pressed | 10% | Tap/click |
-| Disabled | 38% content, 12% container | Inoperable |
-
-#### Layout
-
-| Class | Width | Panes | Navigation |
-|-------|-------|-------|------------|
-| Compact | < 600dp | 1 | Nav bar |
-| Medium | 600–839dp | 1–2 | Nav rail or bar |
-| Expanded | 840–1199dp | 1–2 | Nav rail or drawer |
-
-#### Motion
-Easing curves (CSS cubic-bezier values), duration tokens (short/medium/long), transition types.
-
-#### Icons
-Icon system specs: style, sizes, grid, stroke weight. Omit if not detectable.
-
-#### Design Tokens
-Document the naming convention AND list all tokens in a table grouped by category. Include the full token name, its resolved value, and what it maps to semantically. Use the naming pattern from the reference materials. If none is present, default to kebab-case (`category.token-name`).
-
-| Token Name | Value | Semantic Meaning |
-|------------|-------|-----------------|
-| `color.primary` | `#6442d6` | Primary brand accent |
-| `space.4` | `16px` | Standard component padding |
-| `radius.medium` | `12px` | Card corner radius |
-
----
-
-### design-guidelines.md — Accessibility & Do's/Don'ts
-
-```markdown
-<!-- Generated by design-system skill | [YYYY-MM-DD] | Sources: [...] -->
-# [System Name] Guidelines — Accessibility & Do's/Don'ts
-
-> See [design.md](design.md) for token values. See [design-components.md](design-components.md) for component specs.
-```
-
-**Required sections:**
-
-#### Accessibility
-- **Contrast Requirements**: Table with Requirement | Ratio, then Component | 3:1 Against
-- **Touch Targets** (mobile or cross-platform only): Minimum sizes, spacing rules, density constraints. Omit for web-only projects.
-- **Keyboard Navigation**: Table with Key | Action
-- **Assistive Technology**: Screen reader rules, labels, roles
-
-#### Gestures / Pointer Interaction
-**Mobile or cross-platform:** Include a Gestures table with Gesture | Use (Tap, Double tap, Long press, Scroll, Swipe, Drag, Pinch).
-
-**Web-only:** Replace with a **Pointer & Interaction** section covering hover states, focus rings, cursor types (pointer, default, text, grab), and scroll behavior.
-
-#### Content Design
-Writing rules: tone, capitalization, line length, label constraints.
-
-#### Do's and Don'ts
-Organize by category with H3 subsections: Color, Shape, Elevation, Interaction, Layout, Typography, Motion, Components.
-
-Format:
-- **Do** use primary for the single most important action
-- **Don't** apply primary fill to multiple buttons in a group
-
----
-
-### design-components.md — Component Specs
-
-```markdown
-<!-- Generated by design-system skill | [YYYY-MM-DD] | Sources: [...] -->
-# [System Name] Components
-
-> Full specifications for all [N] components. Grouped by workflow.
-> For tokens see [design.md](design.md). For rules & accessibility see [design-guidelines.md](design-guidelines.md).
-```
-
-**Find ALL components** detectable from the provided references. Do not limit to a fixed list.
-
-**Organize by workflow category using H2 headings:**
-- ## Actions
-- ## Input
-- ## Navigation
-- ## Containment
-- ## Data Display
-- ## Feedback
-
-**Each component as an H3 section:**
-
-```markdown
-### Button
-
-**Types:** Filled (primary) > Tonal (secondary) > Elevated > Outlined > Text.
-Height 40dp. Target 48dp. Label: 14sp/500. Sentence case.
-
-| Property | Value |
-|---|---|
-| Contrast | 4.5:1 text, 3:1 icons/borders |
-| States | Rest, Hover, Pressed, Focus, Disabled |
-| Touch target | 48x48dp min |
-
-**Do:** Use sentence case; keep labels concise (1-3 words).
-**Don't:** Use "Click here"; end with punctuation.
-
----
-```
-
-**Typical components to cover:**
-- **Actions:** Button, Icon Button, FAB, Toolbar, Link
-- **Input:** Text Field, Checkbox, Radio, Switch, Slider, Dropdown/Select, Combobox, Picker, Textarea
-- **Navigation:** Navigation Bar/Rail/Drawer, Tabs, Breadcrumb, Menu, Search, App Bar
-- **Containment:** Card, Dialog, Bottom Sheet, Drawer, Popover, Accordion, Divider
-- **Data Display:** Avatar, Badge, List, Carousel, Icon, Image, Tag/Chip, Skeleton, Tooltip
-- **Feedback:** Progress Indicator, Spinner, Snackbar/Toast, Message Bar
+- [`references/token-spec.md`](references/token-spec.md) — `design.md` sections, tables, and required token categories
+- [`references/guidelines-spec.md`](references/guidelines-spec.md) — `design-guidelines.md` sections (accessibility, gestures/pointer, content, do's/don'ts)
+- [`references/components-spec.md`](references/components-spec.md) — `design-components.md` structure and the full component checklist
+- [`references/remediation-spec.md`](references/remediation-spec.md) — `design-remediation.md` structure and severity scale (Codebase audit / Hybrid only)
 
 ## General Rules
 
 - Be specific: measurements in dp/sp/px, hex colors, CSS box-shadow values
-- If a value cannot be determined from references, make a reasonable inference based on the design language and note it with "(inferred)"
+- If a value cannot be determined from the source material (references or codebase scan), make a reasonable inference based on the design language and note it with "(inferred)"
 - Use tables over prose — keep scannable
 - Prioritize completeness over brevity — do not truncate sections to meet an arbitrary line count; files may exceed 400 lines for complex design systems
-- Each file must cross-reference the other two in its opening blockquote
+- Each file must cross-reference the others in its opening blockquote
 - Separate components with horizontal rules (`---`)
-- Use consistent markdown formatting throughout
 
 ## AGENTS.md Integration
 
-After writing the 3 design files, check whether an `AGENTS.md` file exists in the project root.
-
-**If `AGENTS.md` exists:**
-
-Check if it already contains a `## Design System` section.
-
-- **Section already exists:** Preserve all custom rules the user has written beneath it. Only update the three file links at the top of the section to point to `DESIGN/design.md`, `DESIGN/design-guidelines.md`, and `DESIGN/design-components.md`. Do not remove or replace any content below the links.
-- **Section does not exist:** Append the block below to the end of the file.
-
-```markdown
-## Design System
-
-All front-end work **must** follow the project design system. Before writing any UI code, read these files:
-
-- [`DESIGN/design.md`](DESIGN/design.md) — color, typography, spacing, elevation, motion, and layout tokens
-- [`DESIGN/design-guidelines.md`](DESIGN/design-guidelines.md) — accessibility requirements, interaction rules, content writing, and do's & don'ts
-- [`DESIGN/design-components.md`](DESIGN/design-components.md) — full component specs including variants, measurements, and states
-
-### Rules for Front-End Work
-
-- Use only colors, type scales, spacing values, and shape tokens defined in `DESIGN/design.md`
-- Follow the accessibility contrast ratios and touch target sizes in `DESIGN/design-guidelines.md`
-- Match component variants, states, and measurements from `DESIGN/design-components.md` exactly
-- Do not introduce new visual patterns, ad-hoc spacing, or one-off color values not present in the design system
-- If a needed component or token is missing from the design system, flag it to the user before implementing a custom solution
-```
-
-**If `AGENTS.md` does not exist:** do not create it. Note in the summary that no `AGENTS.md` was found, and tell the user they can add the block above manually if needed.
+See [`references/agentsmd-integration.md`](references/agentsmd-integration.md) for the full procedure — updating an existing `## Design System` section, appending a new one, and the case where `AGENTS.md` doesn't exist.
