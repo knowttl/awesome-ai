@@ -28,6 +28,16 @@
       "installedAt": "2026-07-01T03:05:23Z",
       "agents": ["opencode"],
       "profile": null
+    },
+    "local.mind-clear": {
+      "type": "skill",
+      "version": "1.2.0",
+      "source": "local",
+      "sourceUrl": null,
+      "sourceCommit": null,
+      "installedAt": "2026-07-01T04:46:13Z",
+      "agents": ["", "Detected agents: claude-code", "github-copilot", "opencode", "codex", "", "claude-code", "opencode", "codex"],
+      "profile": null
     }
   }
 }
