@@ -239,17 +239,34 @@ its default persona or model — knows exactly what the user wants. The prompt
 must be self-contained and unambiguous: no prior conversation context, no
 implicit domain knowledge, no guesswork needed.
 
-Output the prompt inside a single fenced code block. The prompt must be
-immediately usable — no placeholders, no "fill this in later."
+The prompt must be immediately usable — no placeholders, no "fill this in
+later."
+
+**Before generating the prompt, ask the user where they want it delivered.**
+The prompt is large; printing it to the chat *and* writing it to a file
+doubles the token cost for no benefit. So deliver it to exactly one
+destination — never both. Ask:
+
+> "Where would you like the handoff prompt? (1) directly in the chat, or
+> (2) saved to a file. I'll deliver it to just one to avoid duplicating it."
+
+Then follow the matching branch under **Delivering the Prompt** below. Compose
+the prompt to the requirements and structure that follow.
 
 ### Requirements for the generated prompt
 
 The prompt you generate must:
 
-1. **Begin with a clear, generic instruction** — tell the downstream agent to
-   write a detailed technical specification. Do not assign a role-specific
-   persona (no "You are a senior software architect", etc.) — the instruction
-   should be task-focused and neutral.
+1. **Begin with a clear, generic, task-focused instruction** — tell the
+   downstream agent to write a detailed technical specification. NEVER assign a
+   role or persona to the downstream agent. The generated prompt MUST NOT
+   contain any "You are a …" or "Act as …" line anywhere — not at the top and
+   not buried inside a section (no "You are a senior software architect", no
+   "You are a senior software developer", no "You are an experienced
+   engineer", etc.). The very first line must be a neutral task instruction,
+   exactly like: "Write a detailed technical specification for the feature
+   described below." Before emitting the prompt, scan it and strip any persona
+   line that slipped in.
 
 2. **Use XML tags** to separate: `<context>`, `<user_stories>`, `<task>`,
    `<constraints>`, `<components>`, `<success_criteria>`, `<edge_cases>`,
@@ -395,24 +412,30 @@ during the interview before Phase 4. Omit this section entirely if empty.]
 </output_format>
 ```
 
-### Offer to Save the Prompt
+### Delivering the Prompt
 
-After presenting the fenced prompt, ask the user whether they'd like it saved
-to a file:
+Deliver the prompt to the **single** destination the user chose. Do not print
+it to the chat and also save it — that duplicates a large payload and doubles
+the token cost.
 
-> "Would you like me to also save this prompt to `docs/prompts/`?"
+**If the user chose the chat (option 1):**
 
-- If the user declines, do nothing further — the fenced code block is the
-  deliverable.
-- If the user accepts:
-  1. Create the `docs/prompts/` directory at the project root if it does not
-     already exist.
-  2. Save the prompt to `docs/prompts/YYYY-MM-DD-<kebab-case-topic>-prompt.md`,
-     using today's date and a short kebab-case slug derived from the feature
-     name confirmed in Phase 3 (e.g., `docs/prompts/2026-06-30-file-upload-prompt.md`).
-  3. Write the fenced prompt exactly as presented — no additional commentary,
-     wrapping, or modification — as the file's sole content.
-  4. Confirm the file path back to the user once written.
+- Output the prompt inside a single fenced code block, ready to copy.
+- Do not also write it to a file. If they later want a file too, that's a
+  separate request.
+
+**If the user chose a file (option 2):**
+
+1. Create the `docs/prompts/` directory at the project root if it does not
+   already exist.
+2. Save the prompt to `docs/prompts/YYYY-MM-DD-<kebab-case-topic>-prompt.md`,
+   using today's date and a short kebab-case slug derived from the feature
+   name confirmed in Phase 3 (e.g., `docs/prompts/2026-06-30-file-upload-prompt.md`).
+3. Write the prompt exactly as composed — no additional commentary, wrapping,
+   or modification — as the file's sole content.
+4. **Do not echo the prompt body into the chat.** Confirm only the file path
+   and a one-line summary of what was saved, so the full prompt appears once,
+   in the file, and not again in the conversation.
 
 ---
 
