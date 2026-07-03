@@ -13,7 +13,7 @@ This prompt guides you through an interactive setup process with your AI coding 
 5. **User profile AGENTS.md** — optionally installs baseline behavioral guidelines to `~/AGENTS.md` for use across all projects
 6. **Project AGENTS.md** — uses the agentsmd-init skill to generate or update a project-specific `AGENTS.md`
 7. **Taste setup (optional)** — optionally installs the Taste Developer opt-in prompt for adaptive preference learning
-8. **Agent memory** — optionally installs a persistent memory system so your AI learns from past mistakes
+8. **Beads (issue tracking + memory)** — optionally sets up beads (`bd`) so your AI tracks features/bugs as a dependency graph and learns from past mistakes via `bd remember`
 9. **OpenSrc source context (optional)** — optionally adds guidance for using `opensrc` to inspect dependency internals
 10. **Summary** — confirms what was installed and provides maintenance commands
 
@@ -195,8 +195,9 @@ done
 # Also check for .cursor/rules/ directory
 [[ -d "<PROJECT_PATH>/.cursor/rules" ]] && echo "Found: .cursor/rules/"
 
-# Check for agent memory
-[[ -d "<PROJECT_PATH>/.ai/memory" ]] && echo "Agent memory vault found"
+# Check for beads
+[[ -d "<PROJECT_PATH>/.beads" ]] && echo "Beads database found"
+command -v bd >/dev/null 2>&1 && echo "bd CLI available on PATH"
 ```
 
 Present a summary of findings:
@@ -206,7 +207,7 @@ Present a summary of findings:
 > - Registry: `~/skills-registry`
 > - Installed skills: 5 items (from `.skills-lock.json`)
 > - AGENTS.md: found
-> - Agent Memory: not installed
+> - Beads: not installed
 >
 > "Does this look right? Anything to correct?"
 
@@ -271,7 +272,7 @@ If I ask for more detail on a specific skill, delegate a separate sub-agent to r
 
 Then ask: "Would you like to install any of the items that aren't installed yet, or are you happy with your current setup?"
 
-If I say I'm happy, proceed to Step 5 (User Profile AGENTS.md) — continue through all remaining steps for anything not yet configured. **The Agent Memory question in Step 8 MUST always be asked** unless both `local.agent-memory` AND `local.agent-memory-workflow` are already in `ALREADY_INSTALLED`. Do not silently skip the Agent Memory question.
+If I say I'm happy, proceed to Step 5 (User Profile AGENTS.md) — continue through all remaining steps for anything not yet configured. **The Beads question in Step 8 MUST always be asked** unless both `local.beads` AND `local.beads-workflow` are already in `ALREADY_INSTALLED`. Do not silently skip the Beads question.
 
 **If nothing is installed yet (fresh project)**, present all compatible skills:
 
@@ -480,87 +481,81 @@ When taste setup is enabled (opted in during this session), explain:
 
 ---
 
-## Step 8: Agent Memory (Required Checkpoint)
+## Step 8: Beads — Issue Tracking & Memory (Required Checkpoint)
 
 **This step is mandatory on every setup run.** You MUST always execute Step 8 logic, even if the user skipped installs in Step 3 or skipped project AGENTS.md work in Step 6.
 
+Beads (`bd`) is a system-wide CLI that gives the AI a dependency-aware issue graph **and** persistent memory (`bd remember` / `bd prime`) so it learns from past mistakes. It replaces the older file-based `.ai/memory/` system.
+
 Use this deterministic state model:
 
-- `MEMORY_ITEMS = ["local.agent-memory", "local.agent-memory-workflow"]`
-- `HAS_MEMORY_INSTRUCTION = "local.agent-memory" in ALREADY_INSTALLED`
-- `HAS_MEMORY_WORKFLOW = "local.agent-memory-workflow" in ALREADY_INSTALLED`
-- `MEMORY_FULLY_INSTALLED = HAS_MEMORY_INSTRUCTION && HAS_MEMORY_WORKFLOW`
+- `BEADS_ITEMS = ["local.beads", "local.beads-workflow"]`
+- `HAS_BEADS_INSTRUCTION = "local.beads" in ALREADY_INSTALLED`
+- `HAS_BEADS_WORKFLOW = "local.beads-workflow" in ALREADY_INSTALLED`
+- `BEADS_FULLY_INSTALLED = HAS_BEADS_INSTRUCTION && HAS_BEADS_WORKFLOW`
 
 ### 8a) Decide enablement
 
-If `MEMORY_FULLY_INSTALLED` is `false`, ask exactly once:
+If `BEADS_FULLY_INSTALLED` is `false`, ask exactly once:
 
-> Would you like to enable **Agent Memory** for this project? It helps agents avoid repeat failures by checking prior lessons before tasks and proposing new memory entries after non-obvious issues are solved.
+> Would you like to set up **Beads** for this project? It gives your AI a dependency-aware issue tracker (features/bugs as a graph instead of TODO lists) plus persistent memory — it recalls prior lessons with `bd prime` before tasks and records non-obvious lessons with `bd remember` after them, so it avoids repeat failures.
 
-- If user says **NO**: set `MEMORY_ENABLED = false` and go to Step 9.
-- If user says **YES**: set `MEMORY_ENABLED = true` and continue.
+- If user says **NO**: set `BEADS_ENABLED = false` and go to Step 9.
+- If user says **YES**: set `BEADS_ENABLED = true` and continue.
 
-If `MEMORY_FULLY_INSTALLED` is `true`, do not ask; set `MEMORY_ENABLED = true` and continue.
+If `BEADS_FULLY_INSTALLED` is `true`, do not ask; set `BEADS_ENABLED = true` and continue.
 
-### 8b) Full memory setup (install, scaffold, managed block)
+### 8b) Full beads setup (install items, install bd, init, managed block)
 
-When `MEMORY_ENABLED = true`, **delegate all memory work to a single sub-agent:**
+When `BEADS_ENABLED = true`, **delegate all beads work to a single sub-agent:**
 
-> Set up agent memory for `<PROJECT_PATH>`. Do everything below and return what was done:
+> Set up beads for `<PROJECT_PATH>`. Do everything below and return what was done:
 >
-> 1. **Install memory items** (skip if already in `.skills-lock.json`):
+> 1. **Install the registry items** (skip if already in `.skills-lock.json`):
 > ```bash
-> <CLI> install local.agent-memory --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
-> <CLI> install local.agent-memory-workflow --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
+> <CLI> install local.beads --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
+> <CLI> install local.beads-workflow --target "<PROJECT_PATH>" --agent <AGENT_1> --agent <AGENT_2> --yes
 > ```
 > Verify both appear in `.skills-lock.json`. If either is missing after install, return failure.
 >
-> 2. **Scaffold vault** (idempotent — only create if missing):
+> 2. **Ensure the `bd` CLI is installed.** Check `command -v bd`. If missing, ask the user before installing system-wide, then run whichever fits their environment:
 > ```bash
-> mkdir -p "<PROJECT_PATH>/.ai/memory"
+> brew install beads                 # macOS / Linuxbrew (recommended)
+> npm install -g @beads/bd           # any environment with npm
+> curl -fsSL https://raw.githubusercontent.com/gastownhall/beads/main/scripts/install.sh | bash
 > ```
-> If `<PROJECT_PATH>/.ai/memory/index.md` does not exist, create it with:
-> ```markdown
-> # Memory Index
-> 
-> > Auto-maintained by the agent. Do not edit manually.
-> 
-> | File | Category | Tags | Summary |
-> |------|----------|------|---------|
+> If the user declines a system install or none of these are available, print the commands, skip to reporting, and note that `bd` install is deferred (the registry items are still installed).
+>
+> 3. **Initialize beads** (idempotent — skip if `<PROJECT_PATH>/.beads/` already exists):
+> ```bash
+> cd "<PROJECT_PATH>" && bd init
 > ```
-> Verify the directory and index.md exist with the table header.
+> `bd init` creates `.beads/`, writes the beads workflow into `AGENTS.md`, and wires a Dolt `origin` remote when the git repo has one.
 >
-> 3. **Managed block — lightweight check.** Check if the root instruction file already contains `<!-- BEGIN: local.agent-memory -->` and `<!-- END: local.agent-memory -->` markers. If both markers exist, report "managed block already present" and skip. Only create the block if it does not exist:
->
-> First, resolve the root instruction file (see Sub-Agent Discipline).
->
-> Then read the installed memory text from the first existing path:
-> - `<PROJECT_PATH>/.claude/skills/local.agent-memory/AGENTS.md`
-> - `<PROJECT_PATH>/.github/skills/local.agent-memory/AGENTS.md`
-> - `<PROJECT_PATH>/.agents/skills/local.agent-memory/AGENTS.md`
-> - `<PROJECT_PATH>/.windsurf/skills/local.agent-memory/AGENTS.md`
-> - `<PROJECT_PATH>/.roo/skills/local.agent-memory/AGENTS.md`
->
-> Append the managed block to the resolved root instruction file:
-> ```markdown
-> <!-- BEGIN: local.agent-memory -->
-> [memory instruction content copied from the installed local.agent-memory/AGENTS.md]
-> <!-- END: local.agent-memory -->
+> 4. **Wire agent-specific hooks** for each installed agent:
+> ```bash
+> bd setup claude    # for claude-code
+> bd setup codex     # for codex
+> # other agents: bd init already updated AGENTS.md; no extra step
 > ```
+> Run `bd setup --help` first to confirm which agents have dedicated setup in the installed `bd` version.
 >
-> Return a summary of what was installed, scaffolded, and whether the managed block was created or already present.
+> 5. **Verify**: `bd ready` runs without error (an empty list on a fresh project is fine) and `bd prime` prints workflow context.
+>
+> Return a summary: which registry items were installed, whether `bd` was already present or newly installed (or deferred), whether `bd init` created `.beads/` or it already existed, and which agent hooks were wired.
 
 If the sub-agent reports failure, stop and tell me.
 
 ### 8c) Explain runtime behavior clearly
 
-When memory is enabled, explain:
-- Agents must check `.ai/memory/index.md` before task work and read relevant entries.
-- Agents must propose memory writeback only after task completion when a non-obvious lesson was learned.
-- `.ai/memory/` and `.ai/memory/index.md` were scaffolded during setup.
-- Memory files are Markdown and should be committed so the team shares lessons.
+When beads is enabled, explain:
+- Agents run `bd prime` and `bd ready` before task work to recall lessons and see available issues.
+- Agents track features/bugs as beads (`bd create` / `bd close`) instead of markdown TODO lists.
+- Agents propose `bd remember` only after task completion, when a non-obvious lesson was learned.
+- The beads database lives under `.beads/`; do not create `.ai/memory/` or `MEMORY.md` files.
+- Share issues and memories with teammates via `bd dolt push` / `bd dolt pull` when the repo has a remote.
 
-This ensures memory behavior is loaded from the root instruction surface and cannot be silently skipped.
+This ensures beads behavior is loaded from the root instruction surface and cannot be silently skipped.
 
 ---
 
@@ -638,11 +633,11 @@ After completing all steps, provide a clear summary:
 **Taste Setup:** State whether it was enabled or skipped. If enabled, include:
 - whether both `local.taste-setup` and `local.taste-developer` are installed.
 
-**Agent Memory:** State whether it was enabled or skipped. If enabled, include:
-- whether both `local.agent-memory` and `local.agent-memory-workflow` are installed,
-- which root instruction file was updated,
-- whether the `local.agent-memory` managed block was appended or updated in place,
-- and that `.ai/memory/` plus `.ai/memory/index.md` were scaffolded.
+**Beads:** State whether it was enabled or skipped. If enabled, include:
+- whether both `local.beads` and `local.beads-workflow` are installed,
+- whether the `bd` CLI was already present, newly installed, or deferred,
+- whether `bd init` created `.beads/` or it already existed,
+- and which agent hooks were wired (e.g. `bd setup claude`).
 
 **OpenSrc Source Context:** State whether it was enabled or skipped. If enabled, include:
 - whether `local.opensrc-source-context` is installed,

@@ -1,0 +1,21 @@
+name: local.beads-workflow
+type: skill
+description: "Use when setting up beads (bd), recalling context with bd prime, tracking issues, or recording lessons with bd remember."
+tags:
+  - beads
+  - issue-tracking
+  - memory
+  - self-reflection
+  - workflow
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - SKILL.md
+version: "1.0.0"

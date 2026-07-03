@@ -1,0 +1,21 @@
+name: local.beads
+type: instruction
+description: "Procedural commands directing the agent to recall context with bd prime before tasks and record non-obvious lessons with bd remember after them, using the beads (bd) issue tracker."
+tags:
+  - beads
+  - issue-tracking
+  - memory
+  - self-reflection
+  - workflow
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo-code
+files:
+  - AGENTS.md
+version: "1.0.0"

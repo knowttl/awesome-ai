@@ -323,7 +323,7 @@ Then run `bin/skill sync` to register it.
 
 The registry includes two guided prompts for interactive, step-by-step workflows:
 
-- **`SETUP-PROMPT.md`** — Full onboarding: detects environment, discovers skills, installs selected items, sets up AGENTS.md, optionally enables agent memory and taste developer. Copy its contents into the AI assistant and let it walk the user through.
+- **`SETUP-PROMPT.md`** — Full onboarding: detects environment, discovers skills, installs selected items, sets up AGENTS.md, optionally sets up beads (`bd`) and taste developer. Copy its contents into the AI assistant and let it walk the user through.
 - **`UNINSTALL-PROMPT.md`** — Removal workflow: scans installed items, lets the user select what to remove, confirms before deleting.
 
 When a user says "set up skills for my project" or "guide me through installing skills", direct them to the setup prompt. When they say "help me remove skills" or "uninstall things", direct them to the uninstall prompt. You can either read and execute the prompt inline or tell the user to copy-paste it into a fresh session.
@@ -422,13 +422,13 @@ The lock file records which agents each item targets. If the user says a skill w
 $REGISTRY_PATH/bin/skill install <item-name> --target "$PROJECT" --agent <missing-agent> --yes
 ```
 
-### Agent Memory vault (.ai/memory/) exists but memory items aren't installed
+### Beads database (.beads/) exists but the beads items aren't installed
 
-The memory vault (`.ai/memory/`) is separate from the memory instruction items (`local.agent-memory` and `local.agent-memory-workflow`). If the vault exists but the items aren't in the lock file, the agent won't know to check memory. Install the memory items to connect them:
+The beads database (`.beads/`) is separate from the beads instruction items (`local.beads` and `local.beads-workflow`). If `.beads/` exists but the items aren't in the lock file, the agent won't know to run `bd prime`/`bd remember`. Install the beads items to connect them:
 
 ```bash
-$REGISTRY_PATH/bin/skill install local.agent-memory --target "$PROJECT" --agent <agent> --yes
-$REGISTRY_PATH/bin/skill install local.agent-memory-workflow --target "$PROJECT" --agent <agent> --yes
+$REGISTRY_PATH/bin/skill install local.beads --target "$PROJECT" --agent <agent> --yes
+$REGISTRY_PATH/bin/skill install local.beads-workflow --target "$PROJECT" --agent <agent> --yes
 ```
 
 ## Safety Rules

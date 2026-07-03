@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-01T17:17:22Z",
+  "generatedAt": "2026-07-03T02:32:52Z",
   "items": [
     {
       "name": "agents365-ai.drawio-skill.drawio-skill",
@@ -113,17 +113,6 @@
       "path": "skills/kunchenguid.lavish-axi.lavish"
     },
     {
-      "name": "local.agent-memory-workflow",
-      "type": "skill",
-      "description": "Use when writing, searching, or maintaining entries in the .ai/memory/ vault.",
-      "tags": ["memory","self-reflection","workflow","templates"],
-      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
-      "files": ["SKILL.md","templates/error-fix.md","templates/convention.md","templates/environment.md","templates/decision.md"],
-      "dependencies": [],
-      "version": "1.0.0",
-      "path": "skills/local.agent-memory-workflow"
-    },
-    {
       "name": "local.agentsmd-init",
       "type": "skill",
       "description": ">",
@@ -155,6 +144,17 @@
       "dependencies": [],
       "version": "1.0.0",
       "path": "skills/local.baseline-agents"
+    },
+    {
+      "name": "local.beads-workflow",
+      "type": "skill",
+      "description": "Use when setting up beads (bd), recalling context with bd prime, tracking issues, or recording lessons with bd remember.",
+      "tags": ["beads","issue-tracking","memory","self-reflection","workflow"],
+      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
+      "files": ["SKILL.md"],
+      "dependencies": [],
+      "version": "1.0.0",
+      "path": "skills/local.beads-workflow"
     },
     {
       "name": "local.context-sync",
@@ -399,15 +399,15 @@
       "path": "skills/shadcn.improve.improve"
     },
     {
-      "name": "local.agent-memory",
+      "name": "local.beads",
       "type": "instruction",
-      "description": "Procedural commands forcing the agent to search .ai/memory/ before tasks and propose entries after tasks.",
-      "tags": ["memory","self-reflection","workflow"],
+      "description": "Procedural commands directing the agent to recall context with bd prime before tasks and record non-obvious lessons with bd remember after them, using the beads (bd) issue tracker.",
+      "tags": ["beads","issue-tracking","memory","self-reflection","workflow"],
       "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo-code"],
       "files": ["AGENTS.md"],
       "dependencies": [],
       "version": "1.0.0",
-      "path": "instructions/local.agent-memory"
+      "path": "instructions/local.beads"
     },
     {
       "name": "local.opensrc-source-context",

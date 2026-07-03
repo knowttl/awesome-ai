@@ -61,7 +61,7 @@ Once you have my answers, scan what's currently installed:
    - Items in the lock file but NOT on disk (orphaned lock entries)
    - Items on disk but NOT in the lock file (manually installed or lock file was deleted)
 
-5. **Check for Agent Memory vault** — note if `.ai/memory/` exists and how many entries it contains (count `.md` files excluding `index.md`).
+5. **Check for a beads database** — note if `.beads/` exists (the beads issue graph + memories). Do not attempt to count entries; just note its presence.
 
 6. **Present the inventory** in a clear table:
 
@@ -70,10 +70,10 @@ Once you have my answers, scan what's currently installed:
    > | # | Item | Type | Agents | Status |
    > |---|------|------|--------|--------|
    > | 1 | obra.superpowers.brainstorming | skill | claude-code, cursor | ✓ installed |
-   > | 2 | local.agent-memory | instruction | claude-code, cursor | ✓ installed |
+   > | 2 | local.beads | instruction | claude-code, cursor | ✓ installed |
    > | ... | ... | ... | ... | ... |
    >
-   > **Agent Memory vault:** `.ai/memory/` exists with N entries.
+   > **Beads database:** `.beads/` exists (issue graph + `bd remember` memories).
 
    If nothing is installed, tell me: "No skills or instructions are currently installed in this project." and stop.
 
@@ -87,14 +87,14 @@ Ask me what I want to uninstall. Present these options:
 - **By name or keyword** — e.g., "brainstorming, tdd" (you will match to full names)
 - **By group** — e.g., "all obra.superpowers", "all mattpocock.skills", "all local"
 - **"all"** — remove everything
-- **"agent-memory"** — remove the agent memory system (both items + optionally the vault)
+- **"beads"** — remove the beads integration (both items + optionally the `.beads/` database)
 
 When I select by shorthand or keyword, map my input to the exact installed item names.
 
-**If I select agent-memory removal**, also ask:
-> "Do you also want to delete the `.ai/memory/` vault and its entries? This cannot be undone. (yes/no)"
+**If I select beads removal**, also ask:
+> "Do you also want to delete the `.beads/` database? This permanently destroys the issue graph and all `bd remember` memories and cannot be undone. (yes/no)"
 
-Only include vault deletion if I explicitly confirm.
+Only include database deletion if I explicitly confirm. Note: the system-wide `bd` CLI is left installed — removing it (e.g. `brew uninstall beads`) is left to me.
 
 ---
 
@@ -111,7 +111,7 @@ Before executing anything, show me exactly what will happen:
 >
 > **Lock file:** `.skills-lock.json` will be updated to remove these entries.
 >
-> *(Optional)* **Agent Memory vault:** `.ai/memory/` and all N entries will be permanently deleted.
+> *(Optional)* **Beads database:** `.beads/` and all issues + `bd remember` memories will be permanently deleted.
 >
 > **This action cannot be undone.** Proceed? (yes/no)
 
@@ -129,10 +129,10 @@ After I confirm, execute the uninstall commands:
 
 Run one command per item. The `--yes` flag auto-confirms the CLI's own prompts (the user already confirmed in Step 4).
 
-**If I also confirmed vault deletion:**
+**If I also confirmed database deletion:**
 
 ```bash
-rm -rf "<PROJECT_PATH>/.ai/memory"
+rm -rf "<PROJECT_PATH>/.beads"
 ```
 
 **After each command**, report success or failure. At the end, show a summary:
@@ -140,7 +140,7 @@ rm -rf "<PROJECT_PATH>/.ai/memory"
 > **Uninstall complete:**
 > - Removed: item1, item2, item3
 > - Lock file updated: `.skills-lock.json`
-> - *(if applicable)* Agent Memory vault deleted
+> - *(if applicable)* Beads database deleted
 
 ---
 
@@ -152,8 +152,8 @@ After uninstalling, check for and offer to clean up:
 
 2. **Orphaned lock file** — if all items were uninstalled and `.skills-lock.json` now has an empty `installed` object, offer to delete the lock file entirely.
 
-3. **AGENTS.md relevance** — if the `local.agent-memory` instruction was removed but `AGENTS.md` still references memory behavior, note this:
-   > "Your AGENTS.md may still contain references to `.ai/memory/`. Would you like me to review it and remove those sections?"
+3. **AGENTS.md relevance** — if the `local.beads` instruction was removed but `AGENTS.md` still references beads behavior, note this:
+   > "Your AGENTS.md may still contain a beads workflow section (added by `local.beads` or `bd init`). Would you like me to review it and remove those sections?"
 
 For each cleanup action, ask for confirmation before executing.
 

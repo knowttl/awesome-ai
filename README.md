@@ -64,7 +64,7 @@ If you'd prefer a guided, interactive experience, copy the contents of [`SETUP-P
 2. Discovering available skills compatible with your assistant
 3. Selecting and installing skills
 4. Optionally setting up an `AGENTS.md` with behavioral guidelines
-5. Optionally enabling Agent Memory (a file-based system that helps AI agents learn from past mistakes)
+5. Optionally setting up Beads (`bd`) — a dependency-aware issue tracker plus persistent memory that helps AI agents learn from past mistakes
 
 This works with any AI assistant that has terminal and file access (Claude Code, GitHub Copilot, Cursor, Cline, etc.).
 
@@ -117,9 +117,9 @@ Skills from [mattpocock/skills](https://github.com/mattpocock/skills) for produc
 
 | Item | Type | When to Use |
 |------|------|-------------|
-| `agent-memory` | instruction | Brain stem instructions that prompt agents to check `.ai/memory/` before tasks and propose memory entries after tasks |
+| `beads` | instruction | Brain stem instructions that prompt agents to recall context with `bd prime` before tasks and record non-obvious lessons with `bd remember` after them |
 | `opensrc-source-context` | instruction | Optional guidance for using `opensrc` to fetch and inspect dependency source code when deeper implementation context is needed |
-| `agent-memory-workflow` | skill | Detailed workflow for writing, searching, linting, and maintaining `.ai/memory/` entries |
+| `beads-workflow` | skill | Detailed workflow for setting up beads (`bd`), tracking issues, and recording lessons with `bd remember` |
 | `context-sync` | skill | When you need to update project context files (CLAUDE.md, copilot-instructions.md, etc.) to reflect the current codebase |
 | `example-skill` | skill | Reference template showing the manifest format |
 
