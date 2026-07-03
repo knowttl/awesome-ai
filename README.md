@@ -115,18 +115,6 @@ Skills from [mattpocock/skills](https://github.com/mattpocock/skills) for produc
 |-------|-------------|
 | `grill-with-docs` | Challenge your plan against the domain model, sharpen terminology, update `CONTEXT.md`/ADRs |
 
-### dietrichgebert/ponytail
-
-A minimal, YAGNI-first coding-style toolkit from [dietrichgebert/ponytail](https://github.com/dietrichgebert/ponytail) (prefix `dietrichgebert.ponytail.*`):
-
-| Skill | When to Use |
-|-------|-------------|
-| `ponytail` | Enforce a minimal, YAGNI-first coding style (lite/full/ultra intensity modes) |
-| `ponytail-audit` | Audit a whole repo for over-engineering and rank simplification opportunities |
-| `ponytail-debt` | Collect ponytail-marked shortcuts into a debt ledger with upgrade triggers |
-| `ponytail-help` | Quick-reference card for Ponytail modes, skills, and commands |
-| `ponytail-review` | Review a diff for over-engineering and report what to delete or simplify |
-
 ### Other upstreams
 
 | Skill | Source | When to Use |

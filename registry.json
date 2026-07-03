@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-03T15:33:44Z",
+  "generatedAt": "2026-07-03T19:21:23Z",
   "items": [
     {
       "name": "agents365-ai.drawio-skill.drawio-skill",
@@ -34,61 +34,6 @@
       "dependencies": [],
       "version": "1.0.0",
       "path": "skills/anthropics.skills.skill-creator"
-    },
-    {
-      "name": "dietrichgebert.ponytail.ponytail",
-      "type": "skill",
-      "description": "Enforces a minimal, YAGNI-first coding style with lite/full/ultra intensity modes.",
-      "tags": ["dietrichgebert","ponytail"],
-      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo"],
-      "files": ["SKILL.md"],
-      "dependencies": [],
-      "version": "1.0.0",
-      "path": "skills/dietrichgebert.ponytail.ponytail"
-    },
-    {
-      "name": "dietrichgebert.ponytail.ponytail-audit",
-      "type": "skill",
-      "description": "Audits an entire repository for over-engineering and ranks simplification opportunities.",
-      "tags": ["dietrichgebert","ponytail"],
-      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo"],
-      "files": ["SKILL.md"],
-      "dependencies": [],
-      "version": "1.0.0",
-      "path": "skills/dietrichgebert.ponytail.ponytail-audit"
-    },
-    {
-      "name": "dietrichgebert.ponytail.ponytail-debt",
-      "type": "skill",
-      "description": "Collects ponytail-marked shortcuts into a debt ledger with explicit upgrade triggers.",
-      "tags": ["dietrichgebert","ponytail"],
-      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo"],
-      "files": ["SKILL.md"],
-      "dependencies": [],
-      "version": "1.0.0",
-      "path": "skills/dietrichgebert.ponytail.ponytail-debt"
-    },
-    {
-      "name": "dietrichgebert.ponytail.ponytail-help",
-      "type": "skill",
-      "description": "Displays a quick-reference card for Ponytail modes, skills, and commands.",
-      "tags": ["dietrichgebert","ponytail"],
-      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo"],
-      "files": ["SKILL.md"],
-      "dependencies": [],
-      "version": "1.0.0",
-      "path": "skills/dietrichgebert.ponytail.ponytail-help"
-    },
-    {
-      "name": "dietrichgebert.ponytail.ponytail-review",
-      "type": "skill",
-      "description": "Reviews diffs for over-engineering and reports what to delete or simplify.",
-      "tags": ["dietrichgebert","ponytail"],
-      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo"],
-      "files": ["SKILL.md"],
-      "dependencies": [],
-      "version": "1.0.0",
-      "path": "skills/dietrichgebert.ponytail.ponytail-review"
     },
     {
       "name": "github.awesome-copilot.prompt-builder",

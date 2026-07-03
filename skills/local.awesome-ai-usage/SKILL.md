@@ -320,7 +320,7 @@ When the user asks "how do I share this with my team?", explain this workflow an
 Profiles are named bundles defined in `$REGISTRY_PATH/profiles/`. They install multiple items in one command:
 
 ```bash
-$REGISTRY_PATH/bin/skill install --profile ponytail --target "$PROJECT" --yes
+$REGISTRY_PATH/bin/skill install --profile example --target "$PROJECT" --yes
 ```
 
 To see available profiles, list the `profiles/` directory. To create a new profile, write a YAML file:
