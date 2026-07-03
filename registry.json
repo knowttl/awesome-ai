@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-03T04:52:10Z",
+  "generatedAt": "2026-07-03T05:01:27Z",
   "items": [
     {
       "name": "agents365-ai.drawio-skill.drawio-skill",
@@ -164,7 +164,7 @@
       "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo"],
       "files": ["SKILL.md"],
       "dependencies": [],
-      "version": "1.1.0",
+      "version": "1.2.0",
       "path": "skills/local.beads-workflow"
     },
     {
@@ -406,7 +406,7 @@
       "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo"],
       "files": ["AGENTS.md"],
       "dependencies": [],
-      "version": "1.0.0",
+      "version": "1.1.0",
       "path": "instructions/local.beads"
     },
     {

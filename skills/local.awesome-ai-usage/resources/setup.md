@@ -590,9 +590,10 @@ When `BEADS_ENABLED = true`, **delegate all beads work to a single sub-agent:**
 > The beads database (issues + memories) is shared over the git `origin` via a `refs/dolt/data` ref — **not** the `.beads/issues.jsonl` export, which is for viewers/interchange only.
 >
 > - **Before any task**, if a sync remote is configured (`bd dolt remote list` shows `origin`), run `bd dolt pull` to merge teammates' latest issues/memories. This updates the local Dolt database only — it does not touch the working tree — so it is safe to run unattended; surface any conflict/error instead of forcing it. Then run `bd prime` / `bd ready`.
-> - **To share your changes**, run `bd dolt push` after recording issues/memories.
+> - **After any task that changes the database** (created/claimed/updated/closed an issue, or recorded a memory), run `bd dolt push` before finishing — this is mandatory whenever a sync remote is configured, mirroring the mandatory pull above. If it reports a conflict or error, surface it instead of forcing it.
 > - **On a fresh clone or new machine**, run `bd bootstrap` — it auto-detects `refs/dolt/data` on origin, clones the Dolt database, and wires the remote so push/pull work.
 > - Only `.beads/config.yaml` (holding `sync.git-remote`) is tracked in git; the database lives in `refs/dolt/data` and the local Dolt engine dir is gitignored. Never hand-edit the database or export — change data only via `bd` commands.
+> - **Multiple agents may work on this repo at once from different git worktrees or clones.** Each worktree keeps its own local Dolt database — pull-before/push-after over `refs/dolt/data` is the only thing that keeps them from diverging or claiming the same issue twice.
 > <!-- END: local.beads-git-sync -->
 > ```
 >

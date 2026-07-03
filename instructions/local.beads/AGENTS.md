@@ -17,7 +17,9 @@ Before starting implementation or debugging on any task:
    sync remote is configured (`bd dolt remote list` shows `origin`), run `bd dolt pull` to merge
    their changes. This updates the local Dolt database only — it does **not** touch your working
    tree, so it is safe to run before any task. If `bd dolt pull` reports a conflict or error,
-   stop and surface it to the user instead of forcing it.
+   stop and surface it to the user instead of forcing it. This matters most when multiple agents
+   work on this repo at once from different git worktrees or clones — each has its own local Dolt
+   database, so pulling first is the only way to see claims/closes another agent already made.
 1. Run `bd prime` to load workflow context and prior lessons (persistent memories).
 2. Run `bd ready` to see unblocked, available work.
 3. Read the details of any issue you will work on: `bd show <id>`.
@@ -35,7 +37,7 @@ skip the parts that don't apply and continue normally, noting what is pending.
   `bd dep add <blocked-id> <blocker-id>`.
 - Inspect with `bd show <id>`; close finished work with `bd close <id>`.
 
-## Mandatory Post-Task Learning (bd remember)
+## Mandatory Post-Task Learning & Sync (bd remember / bd dolt push)
 
 After task completion, evaluate whether a memory should be recorded. **Default: do not record.**
 Only record when you encountered a high-signal lesson that would genuinely prevent a future
@@ -70,6 +72,21 @@ Rules:
   it with `bd memories <keyword>`. For the full phrasing/generalization procedure and the
   search/recall commands, follow the `local.beads-workflow` skill.
 - If declined, do not record anything.
+
+**Then, before ending the task, sync your changes.** If you created, claimed, updated, or closed
+an issue, or recorded a memory above, publish it so other agents pick it up — this mirrors the
+Mandatory Pre-Task Recall's `bd dolt pull` (step 0), pull before starting / push before finishing:
+
+1. Check whether a sync remote is configured: `bd dolt remote list` shows `origin`.
+2. If configured, run `bd dolt push`.
+3. If `bd dolt push` reports a conflict or error, stop and surface it to the user instead of
+   forcing it.
+4. If no sync remote is configured, or `bd` is unavailable, skip this and continue normally.
+
+This matters most when several agents work on this repo in parallel from different git
+worktrees: each worktree keeps its own local Dolt database, and pull-before/push-after over
+`refs/dolt/data` is the only thing that keeps them from diverging or claiming the same issue
+twice.
 
 ### Standard Memory Format (required for every `bd remember`)
 
@@ -125,8 +142,10 @@ of truth.**
 
 - **Receive teammates' changes:** `bd dolt pull` (this is the pre-task step 0 above). New issues and
   memories merge into the local Dolt database.
-- **Share your changes:** `bd dolt push` after recording issues/memories. This pushes Dolt commits to
-  `refs/dolt/data` on `origin`.
+- **Share your changes:** mandatory at the end of any task that changed the database — see
+  **Mandatory Post-Task Learning & Sync** above. `bd dolt push` pushes Dolt commits to
+  `refs/dolt/data` on `origin` so other agents, including agents in other git worktrees, pick
+  them up on their next pull.
 - **New clone / new machine:** `bd bootstrap` auto-detects `refs/dolt/data` on `origin`, clones the
   Dolt database, and wires the remote so `bd dolt push`/`pull` work. (`bd init` also bootstraps from
   origin automatically when the ref exists.)
