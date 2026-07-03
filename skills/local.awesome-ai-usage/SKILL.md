@@ -1,20 +1,36 @@
 ---
 name: awesome-ai-usage
 description: >
-  Use when the user wants to manage skills in any project where awesome-ai
-  (a zero-dependency skills-registry CLI) has been onboarded. Trigger this
-  skill whenever the user asks to install, uninstall, update, list, search,
-  or sync skills; browse available skills; restore teammate setups from the
-  lock file; install profile bundles; or run the guided setup/uninstall
-  prompts. Also use when the user says things like "what skills are
-  available?", "add the brainstorming skill", "remove context-sync", "update
-  my skills", "set up skills for this project", or "how do I share my skill
-  setup with my team?".
+  Orchestration skill for the awesome-ai skills-registry (a zero-dependency
+  CLI). Use when the user wants to install/set up, uninstall/remove, update,
+  list, search, or sync skills; browse available skills; restore teammate
+  setups from the lock file; install profile bundles; or run the guided
+  onboarding or removal workflows. Also use when the user says things like
+  "/awesome-ai-usage install", "/awesome-ai-usage uninstall", "set up skills
+  for this project", "onboard this project", "what skills are available?",
+  "add the brainstorming skill", "remove context-sync", "update my skills", or
+  "how do I share my skill setup with my team?".
 ---
 
-# Awesome-AI Skills-Registry Usage
+# Awesome-AI Skills-Registry Orchestration
 
-You are an AI assistant working in a project where the **awesome-ai** skills-registry has been onboarded. This skill teaches you how to manage that registry on behalf of the user — discovering what's available, installing/uninstalling items, updating from upstream, and sharing setups with teammates.
+You are an AI assistant working in a project where the **awesome-ai** skills-registry has been onboarded. This is the **main orchestration skill** for that registry: it teaches you how to onboard a project, install/uninstall items, update from upstream, and share setups with teammates.
+
+## Intent Dispatch (read this first)
+
+This skill handles two guided, multi-step workflows plus everyday management commands. **Decide which one the request is before doing anything else:**
+
+| The user's request | What to do |
+|---|---|
+| `/awesome-ai-usage install`, "set up skills", "onboard this project", "guide me through installing", first-time setup | Load and follow **`resources/setup.md`** — the full guided onboarding workflow. |
+| `/awesome-ai-usage uninstall`, "remove my skills", "uninstall everything", "guide me through removing" | Load and follow **`resources/uninstall.md`** — the guided removal workflow. |
+| A single concrete action ("add the brainstorming skill", "remove context-sync", "list skills", "search debugging", "update my skills") | Stay in this file — use the [CLI Command Reference](#cli-command-reference) below. Do **not** run the full guided workflow for a single-item action. |
+
+The two `resources/*.md` files live next to this `SKILL.md`. Read the relevant one in full and execute it step by step; it references the same `REGISTRY_PATH`/`PROJECT_PATH` variables established below, so run **Registry Discovery** first and pass those values in (the workflows will skip their own detection when you provide them).
+
+When the intent is ambiguous — e.g. the user just types `/awesome-ai-usage` with no argument — briefly ask whether they want to **install/set up**, **uninstall**, or do a specific management task, then dispatch accordingly.
+
+The rest of this skill covers registry discovery and the individual management commands used by both the workflows above and by one-off requests.
 
 ## Key Variables
 
@@ -319,14 +335,18 @@ items:
 
 Then run `bin/skill sync` to register it.
 
-## Guided Setup & Uninstall Prompts
+## Guided Setup & Uninstall Workflows
 
-The registry includes two guided prompts for interactive, step-by-step workflows:
+This skill bundles two guided, interactive workflows as resources next to this file:
 
-- **`SETUP-PROMPT.md`** — Full onboarding: detects environment, discovers skills, installs selected items, sets up AGENTS.md, optionally sets up beads (`bd`) and taste developer. Copy its contents into the AI assistant and let it walk the user through.
-- **`UNINSTALL-PROMPT.md`** — Removal workflow: scans installed items, lets the user select what to remove, confirms before deleting.
+- **`resources/setup.md`** — Full onboarding: detects environment, discovers skills, installs selected items, sets up AGENTS.md, optionally sets up beads (`bd`), taste developer, and OpenSrc.
+- **`resources/uninstall.md`** — Removal workflow: scans installed items, lets the user select what to remove, confirms before deleting.
 
-When a user says "set up skills for my project" or "guide me through installing skills", direct them to the setup prompt. When they say "help me remove skills" or "uninstall things", direct them to the uninstall prompt. You can either read and execute the prompt inline or tell the user to copy-paste it into a fresh session.
+When the request is a first-time setup ("set up skills for my project", "onboard this project", `/awesome-ai-usage install`), read `resources/setup.md` in full and execute it step by step. When it's a bulk removal ("help me remove skills", "uninstall everything", `/awesome-ai-usage uninstall`), do the same with `resources/uninstall.md`. Run **Registry Discovery** (above) first and pass the resulting `REGISTRY_PATH`/`PROJECT_PATH` into the workflow so it skips its own detection.
+
+For a single concrete action — adding or removing one named item, listing, searching, updating — do **not** launch these workflows; use the [CLI Command Reference](#cli-command-reference) directly.
+
+> **Bootstrap note:** A brand-new user who hasn't installed this skill yet starts from the top-level `SETUP-PROMPT.md` in the registry repo. That file is a thin bootstrap: it clones the registry, installs this `awesome-ai-usage` skill, then hands off to `resources/setup.md`. Once the skill is installed, everything runs through this skill instead.
 
 ## Common Workflows
 

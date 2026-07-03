@@ -60,9 +60,31 @@ Prompt the user first, using this exact wording:
 Rules:
 
 - Do not record mid-task — only after completion.
-- If approved, run `bd remember "[generalized lesson]"`. For the phrasing and generalization
-  procedure, follow the `local.beads-workflow` skill.
+- If approved, record it using the **standard memory format** (below) so future agents can find
+  it with `bd memories <keyword>`. For the full phrasing/generalization procedure and the
+  search/recall commands, follow the `local.beads-workflow` skill.
 - If declined, do not record anything.
+
+### Standard Memory Format (required for every `bd remember`)
+
+Always record in this shape so memories are consistently searchable:
+
+```bash
+bd remember "[<area>] <generalized lesson — root cause + rule/fix>. Keywords: <kw1>, <kw2>, <kw3>." --key <area>-<subject>
+```
+
+- **`[<area>]`** — one of: `build, test, config, deps, api, arch, tooling, env, data, perf, security, workflow` (use the closest; `workflow` as the catch-all). Enables coarse search like `bd memories build`.
+- **Lesson** — one or two self-contained sentences that read as a reusable rule (root cause + fix). Strip transient paths, ticket numbers, and debugging noise.
+- **`Keywords:`** — 3–6 concrete, lowercase search terms: tool/command names, file/component names, error tokens, domain nouns. These are what a future agent types into `bd memories <keyword>`, so include the words they'd actually search — even if already in the sentence.
+- **`--key <area>-<subject>`** — a stable kebab-case slug. Re-recording the same lesson with the same key **updates it in place** (avoids near-duplicates) and makes `bd recall <area>-<subject>` work.
+
+Example:
+
+```bash
+bd remember "[build] Bash scripts must stay zero-dependency — parse YAML/JSON with awk/sed helpers in common.sh, never jq/yq/node. Keywords: bash, yaml, zero-dependency, common.sh, parsing." --key build-zero-dependency
+```
+
+Before recording, search for an existing memory (`bd memories <keyword>`); if a close one exists, refine it (reuse its `--key`) instead of adding a near-duplicate.
 
 ## High-Signal Only + Generalization-First Rule
 

@@ -1,166 +1,43 @@
-# Skills Registry Uninstall Prompt
+# Skills Registry Uninstall — Bootstrap Prompt
 
-> **Copy and paste everything below the line into any AI coding assistant to get guided through uninstalling skills from your project.**
+> **Copy and paste everything below the line into any AI coding assistant.** It ensures the **awesome-ai** orchestration skill is available, then hands off to that skill's guided uninstall workflow. If the skill is already installed, you don't need this file — just say "uninstall my skills" or run `/awesome-ai-usage uninstall`.
 
 ## What This Does
 
-This prompt guides you through an interactive uninstall process with your AI coding assistant:
+This is a thin **bootstrap**. The full removal workflow (inventory scan, selection, confirmation, uninstall, cleanup) lives inside the `awesome-ai-usage` skill, in `resources/uninstall.md`. This prompt just locates the registry and defers to it.
 
-1. **Environment check** — identifies your AI assistant(s), project path, and registry location
-2. **Inventory scan** — reads the lock file and scans installed directories to show what's currently installed
-3. **Selection** — lets you choose what to remove (individual items, groups, or everything)
-4. **Confirmation** — shows exactly what will be deleted and asks for your approval before acting
-5. **Uninstall** — removes the selected items and updates the lock file
-6. **Cleanup** — optionally removes empty directories and orphaned configuration
-
-No manual CLI knowledge required — the AI handles everything based on your choices.
+**Prerequisite:** You must be able to run shell commands and read files. If you cannot, stop and tell me.
 
 ---
 
-You are helping me uninstall AI coding skills from my project. Guide me through this interactively, one step at a time. Do NOT proceed to the next step until I respond. Present each step clearly and wait for my input.
+You are running the **awesome-ai** guided uninstall for my project. Do this in order.
 
-## Context You Need
+## Step 1: Locate the registry
 
-The **skills-registry** (https://github.com/knowttl/awesome-ai) is a CLI tool + content monorepo for managing reusable AI coding skills. It has a zero-dependency CLI (pure Bash + PowerShell) that installs skill files into project-local directories for multiple AI coding assistants.
-
-The uninstall command removes installed skill/instruction directories and updates the `.skills-lock.json` file. You will need access to both the registry CLI and my project to perform the uninstall.
-
-**Prerequisite:** You must have the ability to run shell commands and read files to follow this prompt. If you cannot execute commands or access the filesystem, stop and tell me.
-
----
-
-## Step 1: Environment Check
-
-Ask me these questions (present them as a numbered list and wait for my answers):
-
-1. What is the absolute path to my project's root directory?
-2. Where is the skills-registry cloned? (The directory containing `bin/skill`)
-3. Which AI coding assistant(s) am I using? (Common options: Claude Code, GitHub Copilot, Cursor, Cline, OpenCode, Codex, Windsurf, Roo Code)
-
-Store my answers as variables for later steps:
-- `PROJECT_PATH` = my project root
-- `REGISTRY_PATH` = path to the skills-registry clone
-- `AGENT_NAMES` = one or more agent identifiers
-
----
-
-## Step 2: Inventory Scan
-
-Once you have my answers, scan what's currently installed:
-
-1. **Read the lock file** at `<PROJECT_PATH>/.skills-lock.json`. If it exists, parse it to get the list of installed items with their names, types, versions, and target agents.
-
-2. **Read the agent path registry** at `<REGISTRY_PATH>/bin/lib/agents.sh`. Parse the `AGENT_TABLE` to determine the install directories for my selected assistants. The format is: `name|project_path|global_suffix|detection_dirs|detection_bins`.
-
-   **Important name mapping:** If the user said "Roo Code", the `--agent` value is `roo` (not `roo-code`). For all other agents, user-facing names map directly to the `name` field.
-
-3. **Scan the agent skill directories** for each of my assistants. List existing subdirectories under `<PROJECT_PATH>/<project_path>/` (e.g., `.claude/skills/`, `.github/skills/`, `.agents/skills/`). Each subdirectory is an installed item.
-
-4. **Cross-reference** the lock file entries against the on-disk directories. Identify:
-   - Items in both the lock file AND on disk (normal state)
-   - Items in the lock file but NOT on disk (orphaned lock entries)
-   - Items on disk but NOT in the lock file (manually installed or lock file was deleted)
-
-5. **Check for a beads database** — note if `.beads/` exists (the beads issue graph + memories). Do not attempt to count entries; just note its presence.
-
-6. **Present the inventory** in a clear table:
-
-   > **Currently Installed:**
-   >
-   > | # | Item | Type | Agents | Status |
-   > |---|------|------|--------|--------|
-   > | 1 | obra.superpowers.brainstorming | skill | claude-code, cursor | ✓ installed |
-   > | 2 | local.beads | instruction | claude-code, cursor | ✓ installed |
-   > | ... | ... | ... | ... | ... |
-   >
-   > **Beads database:** `.beads/` exists (issue graph + `bd remember` memories).
-
-   If nothing is installed, tell me: "No skills or instructions are currently installed in this project." and stop.
-
----
-
-## Step 3: Selection
-
-Ask me what I want to uninstall. Present these options:
-
-- **By number** — e.g., "1, 3, 5" (from the table above)
-- **By name or keyword** — e.g., "brainstorming, tdd" (you will match to full names)
-- **By group** — e.g., "all obra.superpowers", "all mattpocock.skills", "all local"
-- **"all"** — remove everything
-- **"beads"** — remove the beads integration (both items + optionally the `.beads/` database)
-
-When I select by shorthand or keyword, map my input to the exact installed item names.
-
-**If I select beads removal**, also ask:
-> "Do you also want to delete the `.beads/` database? This permanently destroys the issue graph and all `bd remember` memories and cannot be undone. (yes/no)"
-
-Only include database deletion if I explicitly confirm. Note: the system-wide `bd` CLI is left installed — removing it (e.g. `brew uninstall beads`) is left to me.
-
----
-
-## Step 4: Confirmation
-
-Before executing anything, show me exactly what will happen:
-
-> **The following will be removed:**
->
-> | Item | Directories to delete |
-> |------|-----------------------|
-> | obra.superpowers.brainstorming | `.claude/skills/obra.superpowers.brainstorming/`, `.agents/skills/obra.superpowers.brainstorming/` |
-> | ... | ... |
->
-> **Lock file:** `.skills-lock.json` will be updated to remove these entries.
->
-> *(Optional)* **Beads database:** `.beads/` and all issues + `bd remember` memories will be permanently deleted.
->
-> **This action cannot be undone.** Proceed? (yes/no)
-
-**Do NOT execute any removal commands until I explicitly confirm.** If I say no, ask if I want to modify my selection or cancel entirely.
-
----
-
-## Step 5: Uninstall
-
-After I confirm, execute the uninstall commands:
+The uninstall workflow needs the registry CLI. Find an existing clone:
 
 ```bash
-"<REGISTRY_PATH>/bin/skill" uninstall <ITEM_NAME> --target "<PROJECT_PATH>" --yes
+REGISTRY_PATH=""
+for dir in ~/skills-registry ~/awesome-ai ~/Projects/awesome-ai ~/.local/share/awesome-ai "$PWD"; do
+  if [ -f "$dir/bin/skill" ] && [ -f "$dir/registry.json" ]; then
+    REGISTRY_PATH="$dir"; break
+  fi
+done
+echo "${REGISTRY_PATH:-NOT FOUND}"
 ```
 
-Run one command per item. The `--yes` flag auto-confirms the CLI's own prompts (the user already confirmed in Step 4).
+If NOT found, ask me where the registry is cloned (or clone it from https://github.com/knowttl/awesome-ai). Set `REGISTRY_PATH` to that path.
 
-**If I also confirmed database deletion:**
+## Step 2: Confirm the project
 
-```bash
-rm -rf "<PROJECT_PATH>/.beads"
+Run `pwd` to find my project root (`PROJECT_PATH`) and confirm it with me. Note which AI assistant(s) I use (Claude Code → `claude-code`, GitHub Copilot → `github-copilot`, Cursor → `cursor`, Cline → `cline`, OpenCode → `opencode`, Codex → `codex`, Windsurf → `windsurf`, Roo Code → `roo`).
+
+## Step 3: Hand off to the guided uninstall workflow
+
+Read the skill's full removal workflow and execute it step by step, reusing the `REGISTRY_PATH` and `PROJECT_PATH` you just established:
+
+```
+<REGISTRY_PATH>/skills/local.awesome-ai-usage/resources/uninstall.md
 ```
 
-**After each command**, report success or failure. At the end, show a summary:
-
-> **Uninstall complete:**
-> - Removed: item1, item2, item3
-> - Lock file updated: `.skills-lock.json`
-> - *(if applicable)* Beads database deleted
-
----
-
-## Step 6: Cleanup (Optional)
-
-After uninstalling, check for and offer to clean up:
-
-1. **Empty skill directories** — if all items for an agent were removed, the parent directory (e.g., `.claude/skills/`, `.agents/skills/`) may be empty. Offer to remove it.
-
-2. **Orphaned lock file** — if all items were uninstalled and `.skills-lock.json` now has an empty `installed` object, offer to delete the lock file entirely.
-
-3. **AGENTS.md relevance** — if the `local.beads` instruction was removed but `AGENTS.md` still references beads behavior, note this:
-   > "Your AGENTS.md may still contain a beads workflow section (added by `local.beads` or `bd init`). Would you like me to review it and remove those sections?"
-
-For each cleanup action, ask for confirmation before executing.
-
-**Final message:**
-
-> Uninstall complete. To reinstall any of these skills later, use:
-> ```bash
-> "<REGISTRY_PATH>/bin/skill" install <SKILL_NAME> --target "<PROJECT_PATH>"
-> ```
-> Or run the setup prompt again for a guided experience.
+Follow `resources/uninstall.md` to completion — it scans what's installed, lets me select what to remove, confirms before deleting, and cleans up.

@@ -67,7 +67,7 @@ Items install into agent-specific directories under the target project (or globa
 
 **Profiles**: named bundles under `profiles/` install multiple items at once via `bin/skill install --profile <name>`.
 
-**Guided setup**: copy [`SETUP-PROMPT.md`](SETUP-PROMPT.md) into any AI assistant for an interactive walkthrough (environment detection, skill selection, AGENTS.md setup). Use [`UNINSTALL-PROMPT.md`](UNINSTALL-PROMPT.md) for interactive removal.
+**Guided setup**: the `local.awesome-ai-usage` skill is the orchestration entry point — it detects install vs. uninstall intent (e.g. `/awesome-ai-usage install`, `/awesome-ai-usage uninstall`) and runs the matching workflow bundled at `skills/local.awesome-ai-usage/resources/setup.md` and `.../resources/uninstall.md`. The top-level [`SETUP-PROMPT.md`](SETUP-PROMPT.md) and [`UNINSTALL-PROMPT.md`](UNINSTALL-PROMPT.md) are thin bootstraps for first-time users who don't have the skill installed yet: they clone the registry, install the skill, then hand off to those resources.
 
 ## Skill Naming Convention
 

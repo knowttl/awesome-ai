@@ -1,6 +1,6 @@
 name: local.awesome-ai-usage
 type: skill
-description: "Use when managing the awesome-ai skills-registry in any onboarded project — installing, uninstalling, updating, listing, searching, or syncing skills and instructions. Covers the full CLI, agent paths, lock file, profiles, and team sharing."
+description: "Orchestration skill for the awesome-ai skills-registry: guided install/setup and uninstall workflows plus day-to-day management (updating, listing, searching, syncing skills and instructions). Detects install vs. uninstall intent from the invocation. Covers the full CLI, agent paths, lock file, profiles, and team sharing."
 tags:
   - local
   - skills-registry
@@ -18,4 +18,6 @@ targets:
   - roo
 files:
   - SKILL.md
+  - resources/setup.md
+  - resources/uninstall.md
 version: "1.0.0"

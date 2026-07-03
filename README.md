@@ -58,17 +58,18 @@ On **Windows PowerShell**, replace `bin/skill` with `bin/skill.ps1`:
 
 ## Guided Setup (AI-Assisted)
 
-If you'd prefer a guided, interactive experience, copy the contents of [`SETUP-PROMPT.md`](SETUP-PROMPT.md) into any AI coding assistant. It will walk you through:
+If you'd prefer a guided, interactive experience, copy the contents of [`SETUP-PROMPT.md`](SETUP-PROMPT.md) into any AI coding assistant. This is a thin **bootstrap**: it clones the registry, installs the `awesome-ai-usage` orchestration skill, then hands off to that skill's guided setup workflow, which walks you through:
 
-1. Cloning the registry
-2. Discovering available skills compatible with your assistant
-3. Selecting and installing skills
-4. Optionally setting up an `AGENTS.md` with behavioral guidelines
-5. Optionally setting up Beads (`bd`) — a dependency-aware issue tracker plus persistent memory that helps AI agents learn from past mistakes
+1. Discovering available skills compatible with your assistant
+2. Selecting and installing skills
+3. Optionally setting up an `AGENTS.md` with behavioral guidelines
+4. Optionally setting up Beads (`bd`) — a dependency-aware issue tracker plus persistent memory that helps AI agents learn from past mistakes
 
 This works with any AI assistant that has terminal and file access (Claude Code, GitHub Copilot, Cursor, Cline, etc.).
 
-To **uninstall** skills interactively, copy [`UNINSTALL-PROMPT.md`](UNINSTALL-PROMPT.md) into your AI assistant instead. It scans what's installed, lets you select items to remove, and confirms before deleting anything.
+**Once the `awesome-ai-usage` skill is installed**, you no longer need the bootstrap files — just tell your assistant "set up skills for this project" / "uninstall my skills", or invoke `/awesome-ai-usage install` and `/awesome-ai-usage uninstall`. The full setup and uninstall workflows live inside the skill (`resources/setup.md` and `resources/uninstall.md`).
+
+To **uninstall** skills interactively before the skill is installed, copy [`UNINSTALL-PROMPT.md`](UNINSTALL-PROMPT.md) into your AI assistant. It locates the registry and hands off to the skill's uninstall workflow, which scans what's installed, lets you select items to remove, and confirms before deleting anything.
 
 ---
 

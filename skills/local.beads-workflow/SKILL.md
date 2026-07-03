@@ -38,6 +38,8 @@ Do NOT use this skill for the routine pre-task recall — that is handled inline
 - **Default to generalized, pattern-level memories.** Capture the reusable lesson, not the
   one-off incident. Keep specifics only when justified (see the Generalization Rule).
 - Keep memory strings concise and actionable. Strip transient paths and one-time details.
+- **Always use the Standard Memory Format** (see Operation 4, Step 2) so every memory is
+  consistently searchable with `bd memories <keyword>` and dedup-able via a stable `--key`.
 
 ## Operations
 
@@ -96,7 +98,32 @@ Beads ships dedicated setup for some agents; map the registry's agent flags:
 Run the matching command for each installed agent. `bd setup claude` installs Claude Code
 hooks/settings; run `bd --help` / `bd setup --help` to confirm currently supported agents.
 
-### Step 4: Verify
+### Step 4: Write the Standard Memory Format into the root instruction file
+
+`bd init` writes a generic beads section into `AGENTS.md`, but it does **not** include our required
+memory format — so agents won't follow the design unless we add it. Resolve the root instruction
+file (first existing of `AGENTS.md`, `.github/copilot-instructions.md`, `CLAUDE.md`; otherwise create
+`AGENTS.md`). If it does not already contain the marker `<!-- BEGIN: local.beads-memory-format -->`,
+append this managed block verbatim (idempotent — never add a second copy):
+
+```markdown
+<!-- BEGIN: local.beads-memory-format -->
+## Beads Memory Format (bd remember)
+
+Record every lesson with `bd remember` in this exact shape so memories are searchable with `bd memories <keyword>` and dedup-able by key:
+
+    bd remember "[<area>] <generalized lesson — root cause + rule/fix>. Keywords: <kw1>, <kw2>, <kw3>." --key <area>-<subject>
+
+- `[<area>]` — one of: build, test, config, deps, api, arch, tooling, env, data, perf, security, workflow (workflow = catch-all).
+- Lesson — one or two self-contained sentences that read as a reusable rule (root cause + fix). Strip transient paths, ticket numbers, and debugging noise.
+- `Keywords:` — 3–6 lowercase search terms (tool/command names, file/component names, error tokens) a future agent would type into `bd memories`.
+- `--key <area>-<subject>` — stable kebab-case slug; re-recording the same key updates the memory in place instead of duplicating.
+
+Before recording, search with `bd memories <keyword>`; if a close memory exists, reuse its `--key` to refine it rather than adding a near-duplicate. Full procedure: the `local.beads-workflow` skill (Operation 4).
+<!-- END: local.beads-memory-format -->
+```
+
+### Step 5: Verify
 
 ```bash
 bd ready        # should run without error (empty list on a fresh project is fine)
@@ -174,25 +201,55 @@ reusable. You own this decision and must make it before recording.
 
 If the lesson cannot pass (2) or (6), generalize it further before recording — or skip it entirely.
 
-### Step 2: Phrase the insight
+### Step 2: Phrase the insight using the Standard Memory Format
 
-Write one self-contained sentence (or two) that reads as a reusable rule, not an incident log:
-
-- Good: `bd remember "This repo's Bash scripts must stay zero-dependency — no jq/yq/node; parse YAML/JSON with awk/sed helpers in common.sh."`
-- Bad:  `bd remember "Fixed the parse bug in list.sh on the auth ticket by removing jq."`
-
-Include the root cause and the fix or rule; strip transient paths, ticket numbers, and
-temporary debugging context unless a specific detail is essential to the lesson.
-
-### Step 3: Record it
+Every memory MUST follow this shape so future agents can find it by keyword and so re-recording
+updates in place instead of duplicating:
 
 ```bash
-bd remember "<generalized lesson>"
+bd remember "[<area>] <generalized lesson — root cause + rule/fix>. Keywords: <kw1>, <kw2>, <kw3>." --key <area>-<subject>
 ```
 
-The insight is stored in the beads database and surfaced to future agents via `bd prime`,
-so it does not need to be re-read from a file. On a closely related existing memory, refine
-that lesson rather than recording a near-duplicate.
+**Fields:**
+
+- **`[<area>]`** — a coarse category prefix from this controlled vocabulary (pick the closest;
+  `workflow` is the catch-all):
+  `build, test, config, deps, api, arch, tooling, env, data, perf, security, workflow`.
+  It doubles as a search facet: `bd memories build`.
+- **Lesson** — one or two self-contained sentences that read as a reusable rule (root cause +
+  the fix/rule). Not an incident log. Strip transient paths, ticket numbers, and debugging noise.
+- **`Keywords:`** — 3–6 concrete, lowercase search terms: tool/command names, file/component
+  names, error tokens, domain nouns. Include the words a future agent would actually type into
+  `bd memories <keyword>`, even if they already appear in the sentence. This is what makes
+  full-text search reliable regardless of how the prose is phrased.
+- **`--key <area>-<subject>`** — a stable, predictable kebab-case slug. Re-recording the same
+  lesson with the same key **updates it in place** (natural dedup), and enables exact retrieval
+  via `bd recall <area>-<subject>`.
+
+**Examples:**
+
+- Good: `bd remember "[build] This repo's Bash scripts must stay zero-dependency — parse YAML/JSON with awk/sed helpers in common.sh, never jq/yq/node. Keywords: bash, yaml, zero-dependency, common.sh, parsing." --key build-zero-dependency`
+- Bad:  `bd remember "Fixed the parse bug in list.sh on the auth ticket by removing jq."` (no area, no keywords, no key; reads as a one-off incident)
+
+### Step 3: Search first, then record
+
+Before recording, check for an existing memory on the same topic so you refine rather than
+duplicate:
+
+```bash
+bd memories <keyword>          # full-text search existing memories
+bd recall <area>-<subject>     # fetch a specific memory by its key, if you expect one
+```
+
+If a close memory exists, re-run `bd remember` with **the same `--key`** to update it in place.
+Otherwise record the new one:
+
+```bash
+bd remember "[<area>] <generalized lesson>. Keywords: <kw1>, <kw2>, <kw3>." --key <area>-<subject>
+```
+
+The insight is stored in the beads database and surfaced to future agents via `bd prime`, and is
+searchable anytime with `bd memories <keyword>`.
 
 ---
 
@@ -201,12 +258,20 @@ that lesson rather than recording a near-duplicate.
 User-invocable. Run when the user asks to review memories, prune stale lessons, or share the
 tracker with teammates.
 
-### Review stored memories
+### Review, search, and prune stored memories
 
-`bd prime` prints the accumulated memories that are injected into agent context. Use it to
-audit what has been recorded and spot stale or contradictory lessons. Beads also compacts old
-closed work via semantic summarization to conserve context — see `bd --help` for compaction
-and memory-management subcommands.
+```bash
+bd memories                    # list all persistent memories
+bd memories <keyword>          # full-text search (e.g. bd memories yaml)
+bd recall <area>-<subject>     # fetch one memory by its key
+bd forget <area>-<subject>     # remove a stale or superseded memory by key
+```
+
+`bd prime` prints the accumulated memories injected into agent context; `bd memories` is the
+searchable audit view. Use them to spot stale, contradictory, or off-format lessons — when you
+find a memory that doesn't follow the Standard Memory Format (Operation 4), re-record it with the
+same `--key` to fix it in place. Beads also compacts old closed work via semantic summarization to
+conserve context — see `bd --help` for compaction and memory-management subcommands.
 
 ### Team sync
 
