@@ -140,12 +140,17 @@ yes (the default when the repo has a git `origin`), configure it:
    ```bash
    bd dolt remote add origin "git+ssh://git@github.com/org/repo.git"   # or git+https://…
    ```
-3. Publish the database and verify the ref exists on the remote:
+3. Ensure `.beads/issues.jsonl` is gitignored so it can never be accidentally committed — the
+   database already syncs via `refs/dolt/data`, not this export file:
+   ```bash
+   grep -qxF '.beads/issues.jsonl' .gitignore 2>/dev/null || echo '.beads/issues.jsonl' >> .gitignore
+   ```
+4. Publish the database and verify the ref exists on the remote:
    ```bash
    bd dolt push
    git ls-remote origin 'refs/dolt/*'    # should list refs/dolt/data
    ```
-4. Commit the config so teammates inherit the remote:
+5. Commit the config so teammates inherit the remote:
    ```bash
    git add .beads/config.yaml && git commit -m "chore: configure beads dolt git sync"
    ```
@@ -163,7 +168,24 @@ If the user does **not** want team sync, skip this — beads stays local to thei
 **Do not use `.beads/issues.jsonl` for sync.** It is an export for viewers/interchange, not the
 source of truth; the database syncs via `refs/dolt/data`, not tracked files.
 
-### Step 6: Verify
+### Step 6: Review the root instruction file for duplicate entries
+
+`bd init` and each `bd setup <agent>` call (Step 3) can independently append content to the root
+instruction file. Running setup for more than one agent in the same project (e.g. `bd setup claude`
+and `bd setup codex` back to back) can leave overlapping or duplicate beads sections behind. After
+Steps 2–5 complete, re-read the resolved root instruction file (`AGENTS.md`,
+`.github/copilot-instructions.md`, or `CLAUDE.md`) in full and check for:
+
+- Multiple copies of the same bd-generated section (from `bd init` or repeated `bd setup <agent>`
+  calls).
+- Near-duplicate prose that describes the same recall/track/remember workflow in different words.
+
+Keep the `local.beads-memory-format` and `local.beads-git-sync` managed blocks intact by their
+HTML-comment markers — they are already idempotent. For everything else, consolidate duplicates
+into a single clean section and remove the redundant copies. If nothing is duplicated, no changes
+are needed.
+
+### Step 7: Verify
 
 ```bash
 bd ready        # should run without error (empty list on a fresh project is fine)

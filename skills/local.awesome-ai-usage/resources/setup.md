@@ -569,6 +569,11 @@ When `BEADS_ENABLED = true`, **delegate all beads work to a single sub-agent:**
 >      # https://github.com/org/repo.git  -> git+https://github.com/org/repo.git
 >      bd dolt remote add origin "git+ssh://git@github.com/org/repo.git"   # use the derived URL
 >      ```
+>    - Ensure `.beads/issues.jsonl` is gitignored so it can never be accidentally committed (the
+>      database already syncs via `refs/dolt/data`, not this export file):
+>      ```bash
+>      grep -qxF '.beads/issues.jsonl' .gitignore 2>/dev/null || echo '.beads/issues.jsonl' >> .gitignore
+>      ```
 >    - Publish the database, verify the ref exists, and commit the config so teammates inherit it:
 >      ```bash
 >      bd dolt push
@@ -591,9 +596,19 @@ When `BEADS_ENABLED = true`, **delegate all beads work to a single sub-agent:**
 > <!-- END: local.beads-git-sync -->
 > ```
 >
-> 7. **Verify**: `bd ready` runs without error (an empty list on a fresh project is fine) and `bd prime` prints workflow context.
+> 7. **Review the root instruction file for duplicate entries.** `bd init` and each `bd setup <agent>`
+>    call from Step 4 can independently append content to the root instruction file — running setup
+>    for more than one agent in the same project (e.g. both `bd setup claude` and `bd setup codex`)
+>    can leave overlapping or duplicate beads sections behind. Re-read the resolved root instruction
+>    file in full and check for repeated bd-generated sections or near-duplicate prose describing the
+>    same recall/track/remember workflow. Keep the `local.beads-memory-format` and
+>    `local.beads-git-sync` managed blocks intact by their markers (already idempotent) — consolidate
+>    everything else into a single clean section and remove redundant copies. Report what was
+>    deduplicated, or "no duplicates found."
 >
-> Return a summary: which registry items were installed, whether `bd` was already present or newly installed (or deferred), whether `bd init` created `.beads/` or it already existed, which agent hooks were wired, whether the `local.beads-memory-format` and `local.beads-git-sync` managed blocks were added or already present, and whether git-remote team sync was configured (`refs/dolt/data` pushed) or declined.
+> 8. **Verify**: `bd ready` runs without error (an empty list on a fresh project is fine) and `bd prime` prints workflow context.
+>
+> Return a summary: which registry items were installed, whether `bd` was already present or newly installed (or deferred), whether `bd init` created `.beads/` or it already existed, which agent hooks were wired, whether the `local.beads-memory-format` and `local.beads-git-sync` managed blocks were added or already present, whether `.beads/issues.jsonl` was added to `.gitignore`, whether git-remote team sync was configured (`refs/dolt/data` pushed) or declined, and whether the root instruction file had duplicate beads entries that were consolidated.
 
 If the sub-agent reports failure, stop and tell me.
 
@@ -605,7 +620,8 @@ When beads is enabled, explain:
 - Agents propose `bd remember` only after task completion, when a non-obvious lesson was learned.
 - Memories follow the **Standard Memory Format** (`[<area>] … Keywords: … --key <area>-<subject>`) written into the root instruction file, so they stay searchable via `bd memories <keyword>` and dedup in place by key.
 - The beads database lives under `.beads/`; do not create `.ai/memory/` or `MEMORY.md` files.
-- If team sync was enabled, the Dolt database (issues + memories) syncs over the git remote via `refs/dolt/data`: `bd dolt push` to share, `bd dolt pull` to receive, `bd bootstrap` on a fresh clone. `.beads/issues.jsonl` is an export only, never the sync source.
+- If team sync was enabled, the Dolt database (issues + memories) syncs over the git remote via `refs/dolt/data`: `bd dolt push` to share, `bd dolt pull` to receive, `bd bootstrap` on a fresh clone. `.beads/issues.jsonl` is an export only, never the sync source, and is gitignored so it can't be committed by accident.
+- Since `bd init`/`bd setup <agent>` can each append their own content to the root instruction file, setup ends with a pass that checks it for duplicate or overlapping beads sections and consolidates them.
 
 This ensures beads behavior is loaded from the root instruction surface and cannot be silently skipped.
 
@@ -691,7 +707,9 @@ After completing all steps, provide a clear summary:
 - whether `bd init` created `.beads/` or it already existed,
 - which agent hooks were wired (e.g. `bd setup claude`),
 - whether the `local.beads-memory-format` and `local.beads-git-sync` managed blocks were added to the root instruction file,
-- and whether git-remote team sync was configured (`refs/dolt/data` pushed to origin) or declined (beads stays local).
+- whether git-remote team sync was configured (`refs/dolt/data` pushed to origin) or declined (beads stays local),
+- whether `.beads/issues.jsonl` was added to `.gitignore`,
+- and whether the root instruction file had duplicate beads entries (from `bd init`/`bd setup <agent>`) that were consolidated, or none were found.
 
 **OpenSrc Source Context:** State whether it was enabled or skipped. If enabled, include:
 - whether `local.opensrc-source-context` is installed,
