@@ -16,7 +16,7 @@ targets:
   - opencode
   - codex
   - windsurf
-  - roo-code
+  - roo
 files:
   - SKILL.md
 version: "0.1.32"

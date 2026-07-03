@@ -44,6 +44,27 @@ assert_eq "yaml_read_field type" "skill" "$(echo "$MANIFEST" | yaml_read_field t
 assert_eq "yaml_read_field version" "1.0.0" "$(echo "$MANIFEST" | yaml_read_field version)"
 assert_eq "yaml_read_field missing returns empty" "" "$(echo "$MANIFEST" | yaml_read_field nonexistent)"
 
+# Regression: quoted value containing an apostrophe must not truncate at the quote
+APOS="$(printf 'name: t\ndescription: "Improve a skill'"'"'s description."\ntags:\n  - x\n')"
+assert_eq "yaml_read_field keeps apostrophe" "Improve a skill's description." "$(echo "$APOS" | yaml_read_field description)"
+
+# Regression: value with an internal colon is preserved
+COLON="$(printf 'description: "Use when X: do Y."\n')"
+assert_eq "yaml_read_field keeps internal colon" "Use when X: do Y." "$(echo "$COLON" | yaml_read_field description)"
+
+# Regression: folded block scalar (>) is joined into one space-separated line
+BLOCK="$(printf 'name: t\ndescription: >\n  First line here\n  second line here.\ntags:\n  - x\n')"
+assert_eq "yaml_read_field folds block scalar" "First line here second line here." "$(echo "$BLOCK" | yaml_read_field description)"
+
+# Regression: block scalar as the final field (no trailing key) still returns content
+BLOCK_END="$(printf 'name: t\ndescription: >\n  Only line.\n')"
+assert_eq "yaml_read_field block scalar at EOF" "Only line." "$(echo "$BLOCK_END" | yaml_read_field description)"
+
+# Regression: json_escape escapes quotes and backslashes for valid JSON strings
+assert_eq "json_escape double quote" 'say \"hi\"' "$(json_escape 'say "hi"')"
+assert_eq "json_escape backslash" 'a\\\\b' "$(json_escape 'a\\b')"
+assert_eq "json_escape plain passthrough" "no specials here" "$(json_escape 'no specials here')"
+
 # Test yaml_read_list
 TAGS="$(echo "$MANIFEST" | yaml_read_list tags)"
 assert_eq "yaml_read_list tags line 1" "testing" "$(echo "$TAGS" | sed -n '1p')"

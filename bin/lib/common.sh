@@ -34,13 +34,49 @@ prompt_yn() {
 # Handles: `key: value`, `key: "value"`, `key: 'value'`
 # Usage: cat manifest.yaml | yaml_read_field name
 yaml_read_field() {
+  # Reads a scalar field. Handles inline values (quoted or bare, including
+  # values containing apostrophes) and folded/literal block scalars
+  # (`key: >` / `key: |`), folding continuation lines into a single space-joined
+  # string. Pass sq/dq as vars so we never embed a literal quote in the program.
   local key="$1"
-  sed -n "s/^${key}:[[:space:]]*[\"']\{0,1\}\([^\"']*\)[\"']\{0,1\}[[:space:]]*$/\1/p" | head -1
+  awk -v key="$key" -v sq="'" -v dq='"' '
+    BEGIN { inblock=0; val=""; done=0 }
+    done { next }
+    inblock {
+      if ($0 ~ /^[[:space:]]*$/) { next }                 # blank line inside block: fold away
+      if ($0 ~ /^[[:space:]]+/) {                          # indented continuation line
+        line=$0; sub(/\r$/,"",line); sub(/^[[:space:]]+/,"",line); sub(/[[:space:]]+$/,"",line)
+        if (val=="") val=line; else val=val" "line
+        next
+      }
+      print val; done=1; next                             # dedented: block ended
+    }
+    index($0, key":")==1 {
+      rest=$0; sub(/\r$/,"",rest); sub("^"key":[[:space:]]*","",rest); sub(/[[:space:]]+$/,"",rest)
+      if (rest ~ /^[>|][+-]?$/) { inblock=1; val=""; next }
+      first=substr(rest,1,1); last=substr(rest,length(rest),1)
+      if ((first==dq && last==dq) || (first==sq && last==sq)) rest=substr(rest,2,length(rest)-2)
+      print rest; done=1; next
+    }
+    END { if (inblock && !done) print val }
+  '
 }
 
 # Reads a YAML list field from stdin. Outputs one item per line.
 # Handles: `  - item` lines under the given key.
 # Usage: cat manifest.yaml | yaml_read_list tags
+json_escape() {
+  # Escape a value for safe embedding inside a JSON double-quoted string
+  # (backslash and double-quote must come first; then control chars).
+  local s="$1"
+  s="${s//\\/\\\\}"
+  s="${s//\"/\\\"}"
+  s="${s//$'\t'/\\t}"
+  s="${s//$'\r'/\\r}"
+  s="${s//$'\n'/\\n}"
+  printf '%s' "$s"
+}
+
 yaml_read_list() {
   local key="$1"
   awk -v key="$key:" '

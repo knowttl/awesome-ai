@@ -14,13 +14,33 @@ function Confirm-Prompt {
 }
 
 function Read-YamlField {
+    # Reads a scalar field. Handles inline values (quoted or bare, including
+    # values containing apostrophes) and folded/literal block scalars
+    # (`Key: >` / `Key: |`), folding continuation lines into a space-joined string.
     param([string]$Content, [string]$Key)
-    $pattern = "^${Key}:\s*[`"']?([^`"']*)[`"']?\s*$"
-    foreach ($line in $Content -split "`n") {
-        if ($line -match $pattern) {
-            return $Matches[1].Trim()
+    $inBlock = $false
+    $val = ""
+    foreach ($rawLine in ($Content -split "`n")) {
+        $line = $rawLine -replace "`r$", ""
+        if ($inBlock) {
+            if ($line -match '^\s*$') { continue }            # blank line inside block: fold away
+            if ($line -match '^\s+\S') {                       # indented continuation
+                $t = $line.Trim()
+                if ($val -eq "") { $val = $t } else { $val = "$val $t" }
+                continue
+            }
+            return $val                                        # dedented: block ended
+        }
+        if ($line -match "^${Key}:\s*(.*?)\s*$") {
+            $rest = $Matches[1]
+            if ($rest -match '^[>|][+-]?$') { $inBlock = $true; $val = ""; continue }
+            if ( (($rest.StartsWith('"')) -and ($rest.EndsWith('"'))) -or (($rest.StartsWith("'")) -and ($rest.EndsWith("'"))) ) {
+                if ($rest.Length -ge 2) { $rest = $rest.Substring(1, $rest.Length - 2) }
+            }
+            return $rest
         }
     }
+    if ($inBlock) { return $val }
     return ""
 }
 

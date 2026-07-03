@@ -15,7 +15,7 @@ targets:
   - opencode
   - codex
   - windsurf
-  - roo-code
+  - roo
 files:
   - SKILL.md
   - LICENSE.txt

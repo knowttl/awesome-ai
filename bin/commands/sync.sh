@@ -23,12 +23,20 @@ scan_manifests() {
       local mc
       mc="$(cat "$manifest")"
 
-      local name type description version
+      local name type description version path
       name="$(echo "$mc" | yaml_read_field name)"
       type="$(echo "$mc" | yaml_read_field type)"
       description="$(echo "$mc" | yaml_read_field description)"
       version="$(echo "$mc" | yaml_read_field version)"
       [[ -z "$version" ]] && version="0.0.0"
+      path="$content_dir/$(basename "$item_dir")"
+
+      # Escape scalar string fields so values with quotes/backslashes stay valid JSON
+      name="$(json_escape "$name")"
+      type="$(json_escape "$type")"
+      description="$(json_escape "$description")"
+      version="$(json_escape "$version")"
+      path="$(json_escape "$path")"
 
       # Build JSON arrays for list fields
       local tags_json targets_json files_json deps_json
@@ -46,7 +54,7 @@ scan_manifests() {
       \"files\": $files_json,
       \"dependencies\": $deps_json,
       \"version\": \"$version\",
-      \"path\": \"$content_dir/$(basename "$item_dir")\"
+      \"path\": \"$path\"
     }")
       count=$((count + 1))
     done

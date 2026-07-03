@@ -14,7 +14,7 @@ targets:
   - opencode
   - codex
   - windsurf
-  - roo-code
+  - roo
 files:
   - SKILL.md
   - references/audit-playbook.md
