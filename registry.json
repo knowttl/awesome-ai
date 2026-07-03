@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-03T03:27:40Z",
+  "generatedAt": "2026-07-03T03:36:19Z",
   "items": [
     {
       "name": "agents365-ai.drawio-skill.drawio-skill",
@@ -129,7 +129,7 @@
       "description": "Orchestration skill for the awesome-ai skills-registry: guided install/setup and uninstall workflows plus day-to-day management (updating, listing, searching, syncing skills and instructions). Detects install vs. uninstall intent from the invocation. Covers the full CLI, agent paths, lock file, profiles, and team sharing.",
       "tags": ["local","skills-registry","cli","management","onboarding"],
       "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo"],
-      "files": ["SKILL.md","resources/setup.md","resources/uninstall.md"],
+      "files": ["SKILL.md","resources/setup.md","resources/uninstall.md","resources/update.md"],
       "dependencies": [],
       "version": "1.0.0",
       "path": "skills/local.awesome-ai-usage"

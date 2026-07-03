@@ -20,4 +20,5 @@ files:
   - SKILL.md
   - resources/setup.md
   - resources/uninstall.md
+  - resources/update.md
 version: "1.0.0"

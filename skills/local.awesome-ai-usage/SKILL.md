@@ -5,11 +5,12 @@ description: >
   CLI). Use when the user wants to install/set up, uninstall/remove, update,
   list, search, or sync skills; browse available skills; restore teammate
   setups from the lock file; install profile bundles; or run the guided
-  onboarding or removal workflows. Also use when the user says things like
-  "/awesome-ai-usage install", "/awesome-ai-usage uninstall", "set up skills
-  for this project", "onboard this project", "what skills are available?",
-  "add the brainstorming skill", "remove context-sync", "update my skills", or
-  "how do I share my skill setup with my team?".
+  onboarding, removal, or update/health-check workflows. Also use when the
+  user says things like "/awesome-ai-usage install", "/awesome-ai-usage
+  uninstall", "/awesome-ai-usage update", "set up skills for this project",
+  "onboard this project", "what skills are available?", "add the brainstorming
+  skill", "remove context-sync", "update my skills", "check my skills setup is
+  healthy", or "how do I share my skill setup with my team?".
 ---
 
 # Awesome-AI Skills-Registry Orchestration
@@ -18,17 +19,18 @@ You are an AI assistant working in a project where the **awesome-ai** skills-reg
 
 ## Intent Dispatch (read this first)
 
-This skill handles two guided, multi-step workflows plus everyday management commands. **Decide which one the request is before doing anything else:**
+This skill handles three guided, multi-step workflows plus everyday management commands. **Decide which one the request is before doing anything else:**
 
 | The user's request | What to do |
 |---|---|
 | `/awesome-ai-usage install`, "set up skills", "onboard this project", "guide me through installing", first-time setup | Load and follow **`resources/setup.md`** — the full guided onboarding workflow. |
 | `/awesome-ai-usage uninstall`, "remove my skills", "uninstall everything", "guide me through removing" | Load and follow **`resources/uninstall.md`** — the guided removal workflow. |
-| A single concrete action ("add the brainstorming skill", "remove context-sync", "list skills", "search debugging", "update my skills") | Stay in this file — use the [CLI Command Reference](#cli-command-reference) below. Do **not** run the full guided workflow for a single-item action. |
+| `/awesome-ai-usage update`, "update my skills", "update all my skills", "check for skill updates", "is my skills setup healthy?", "health check" | Load and follow **`resources/update.md`** — updates every item installed from this registry and runs a health check. |
+| A single concrete action ("add the brainstorming skill", "remove context-sync", "list skills", "search debugging", "re-install just X") | Stay in this file — use the [CLI Command Reference](#cli-command-reference) below. Do **not** run a full guided workflow for a single-item action. |
 
-The two `resources/*.md` files live next to this `SKILL.md`. Read the relevant one in full and execute it step by step; it references the same `REGISTRY_PATH`/`PROJECT_PATH` variables established below, so run **Registry Discovery** first and pass those values in (the workflows will skip their own detection when you provide them).
+The `resources/*.md` files live next to this `SKILL.md`. Read the relevant one in full and execute it step by step; each references the same `REGISTRY_PATH`/`PROJECT_PATH` variables established below, so run **Registry Discovery** first and pass those values in (the workflows will skip their own detection when you provide them).
 
-When the intent is ambiguous — e.g. the user just types `/awesome-ai-usage` with no argument — briefly ask whether they want to **install/set up**, **uninstall**, or do a specific management task, then dispatch accordingly.
+When the intent is ambiguous — e.g. the user just types `/awesome-ai-usage` with no argument — briefly ask whether they want to **install/set up**, **uninstall**, **update / health-check**, or do a specific management task, then dispatch accordingly.
 
 The rest of this skill covers registry discovery and the individual management commands used by both the workflows above and by one-off requests.
 
@@ -335,16 +337,17 @@ items:
 
 Then run `bin/skill sync` to register it.
 
-## Guided Setup & Uninstall Workflows
+## Guided Workflows (Setup / Uninstall / Update)
 
-This skill bundles two guided, interactive workflows as resources next to this file:
+This skill bundles three guided, interactive workflows as resources next to this file:
 
 - **`resources/setup.md`** — Full onboarding: detects environment, discovers skills, installs selected items, sets up AGENTS.md, optionally sets up beads (`bd`), taste developer, and OpenSrc.
 - **`resources/uninstall.md`** — Removal workflow: scans installed items, lets the user select what to remove, confirms before deleting.
+- **`resources/update.md`** — Update + health check: refreshes the registry clone, re-propagates every locked item at the current versions, then scans for missing files, broken symlinks, version drift, orphans, and incomplete beads wiring — fixing them on your confirmation.
 
-When the request is a first-time setup ("set up skills for my project", "onboard this project", `/awesome-ai-usage install`), read `resources/setup.md` in full and execute it step by step. When it's a bulk removal ("help me remove skills", "uninstall everything", `/awesome-ai-usage uninstall`), do the same with `resources/uninstall.md`. Run **Registry Discovery** (above) first and pass the resulting `REGISTRY_PATH`/`PROJECT_PATH` into the workflow so it skips its own detection.
+When the request is a first-time setup ("set up skills for my project", "onboard this project", `/awesome-ai-usage install`), read `resources/setup.md` in full and execute it step by step. For a bulk removal ("help me remove skills", "uninstall everything", `/awesome-ai-usage uninstall`), use `resources/uninstall.md`. For "update my skills" / "check my setup" / `/awesome-ai-usage update`, use `resources/update.md`. Run **Registry Discovery** (above) first and pass the resulting `REGISTRY_PATH`/`PROJECT_PATH` into the workflow so it skips its own detection.
 
-For a single concrete action — adding or removing one named item, listing, searching, updating — do **not** launch these workflows; use the [CLI Command Reference](#cli-command-reference) directly.
+For a single concrete action — adding or removing one named item, listing, searching, or re-installing just one skill — do **not** launch these workflows; use the [CLI Command Reference](#cli-command-reference) directly.
 
 > **Bootstrap note:** A brand-new user who hasn't installed this skill yet starts from the top-level `SETUP-PROMPT.md` in the registry repo. That file is a thin bootstrap: it clones the registry, installs this `awesome-ai-usage` skill, then hands off to `resources/setup.md`. Once the skill is installed, everything runs through this skill instead.
 
