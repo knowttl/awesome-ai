@@ -507,7 +507,7 @@ If `BEADS_FULLY_INSTALLED` is `false`, ask exactly once:
 
 If `BEADS_FULLY_INSTALLED` is `true`, do not ask; set `BEADS_ENABLED = true` and continue.
 
-### 8b) Full beads setup (install items, install bd, init, managed block)
+### 8b) Full beads setup (install items, install bd, init, memory format, git-remote sync)
 
 When `BEADS_ENABLED = true`, **delegate all beads work to a single sub-agent:**
 
@@ -560,21 +560,52 @@ When `BEADS_ENABLED = true`, **delegate all beads work to a single sub-agent:**
 > <!-- END: local.beads-memory-format -->
 > ```
 >
-> 6. **Verify**: `bd ready` runs without error (an empty list on a fresh project is fine) and `bd prime` prints workflow context.
+> 6. **Set up team sync over the git remote (ask the user first).** Beads can share the full Dolt database — issues *and* memories — over the project's existing git `origin` using a custom `refs/dolt/data` ref (no DoltHub or separate server). Ask: "Share beads issues & memories with your team over the git remote? (recommended)". Default to yes when `<PROJECT_PATH>` has a git `origin`. If yes:
+>    - Derive a Dolt-over-git URL from the origin and register it as the Dolt remote (this writes `sync.git-remote` into `.beads/config.yaml`):
+>      ```bash
+>      cd "<PROJECT_PATH>"
+>      ORIGIN_URL="$(git remote get-url origin)"
+>      # git@github.com:org/repo.git      -> git+ssh://git@github.com/org/repo.git
+>      # https://github.com/org/repo.git  -> git+https://github.com/org/repo.git
+>      bd dolt remote add origin "git+ssh://git@github.com/org/repo.git"   # use the derived URL
+>      ```
+>    - Publish the database, verify the ref exists, and commit the config so teammates inherit it:
+>      ```bash
+>      bd dolt push
+>      git ls-remote origin 'refs/dolt/*'    # should list refs/dolt/data
+>      git add .beads/config.yaml && git commit -m "chore: configure beads dolt git sync"
+>      ```
+>      (Leave the `git push` of the config commit to the user's normal flow.) Do NOT commit `.beads/issues.jsonl` as a sync mechanism — it is an export only; the database syncs via `refs/dolt/data`.
+>    - If the user declines team sync, skip this and note that beads stays local to their machine.
+>    - Append this managed block to the root instruction file if the marker `<!-- BEGIN: local.beads-git-sync -->` is not already present (idempotent — never add a second copy):
+> ```markdown
+> <!-- BEGIN: local.beads-git-sync -->
+> ## Beads Team Sync (Dolt over the git remote)
 >
-> Return a summary: which registry items were installed, whether `bd` was already present or newly installed (or deferred), whether `bd init` created `.beads/` or it already existed, which agent hooks were wired, and whether the `local.beads-memory-format` managed block was added or already present.
+> The beads database (issues + memories) is shared over the git `origin` via a `refs/dolt/data` ref — **not** the `.beads/issues.jsonl` export, which is for viewers/interchange only.
+>
+> - **Before any task**, if a sync remote is configured (`bd dolt remote list` shows `origin`), run `bd dolt pull` to merge teammates' latest issues/memories. This updates the local Dolt database only — it does not touch the working tree — so it is safe to run unattended; surface any conflict/error instead of forcing it. Then run `bd prime` / `bd ready`.
+> - **To share your changes**, run `bd dolt push` after recording issues/memories.
+> - **On a fresh clone or new machine**, run `bd bootstrap` — it auto-detects `refs/dolt/data` on origin, clones the Dolt database, and wires the remote so push/pull work.
+> - Only `.beads/config.yaml` (holding `sync.git-remote`) is tracked in git; the database lives in `refs/dolt/data` and the local Dolt engine dir is gitignored. Never hand-edit the database or export — change data only via `bd` commands.
+> <!-- END: local.beads-git-sync -->
+> ```
+>
+> 7. **Verify**: `bd ready` runs without error (an empty list on a fresh project is fine) and `bd prime` prints workflow context.
+>
+> Return a summary: which registry items were installed, whether `bd` was already present or newly installed (or deferred), whether `bd init` created `.beads/` or it already existed, which agent hooks were wired, whether the `local.beads-memory-format` and `local.beads-git-sync` managed blocks were added or already present, and whether git-remote team sync was configured (`refs/dolt/data` pushed) or declined.
 
 If the sub-agent reports failure, stop and tell me.
 
 ### 8c) Explain runtime behavior clearly
 
 When beads is enabled, explain:
-- Agents run `bd prime` and `bd ready` before task work to recall lessons and see available issues.
+- Before task work, agents run `bd dolt pull` (when a sync remote is configured) to fetch teammates' latest data, then `bd prime` and `bd ready` to recall lessons and see available issues.
 - Agents track features/bugs as beads (`bd create` / `bd close`) instead of markdown TODO lists.
 - Agents propose `bd remember` only after task completion, when a non-obvious lesson was learned.
 - Memories follow the **Standard Memory Format** (`[<area>] … Keywords: … --key <area>-<subject>`) written into the root instruction file, so they stay searchable via `bd memories <keyword>` and dedup in place by key.
 - The beads database lives under `.beads/`; do not create `.ai/memory/` or `MEMORY.md` files.
-- Share issues and memories with teammates via `bd dolt push` / `bd dolt pull` when the repo has a remote.
+- If team sync was enabled, the Dolt database (issues + memories) syncs over the git remote via `refs/dolt/data`: `bd dolt push` to share, `bd dolt pull` to receive, `bd bootstrap` on a fresh clone. `.beads/issues.jsonl` is an export only, never the sync source.
 
 This ensures beads behavior is loaded from the root instruction surface and cannot be silently skipped.
 
@@ -659,7 +690,8 @@ After completing all steps, provide a clear summary:
 - whether the `bd` CLI was already present, newly installed, or deferred,
 - whether `bd init` created `.beads/` or it already existed,
 - which agent hooks were wired (e.g. `bd setup claude`),
-- and whether the `local.beads-memory-format` managed block was added to the root instruction file.
+- whether the `local.beads-memory-format` and `local.beads-git-sync` managed blocks were added to the root instruction file,
+- and whether git-remote team sync was configured (`refs/dolt/data` pushed to origin) or declined (beads stays local).
 
 **OpenSrc Source Context:** State whether it was enabled or skipped. If enabled, include:
 - whether `local.opensrc-source-context` is installed,

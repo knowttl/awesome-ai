@@ -12,14 +12,20 @@ this project, invoke the `local.beads-workflow` skill to set it up.
 
 Before starting implementation or debugging on any task:
 
+0. **Pull teammates' beads updates first.** The beads database is shared over the git remote
+   (`refs/dolt/data`), so another teammate may have pushed new issues or memories. If a Dolt
+   sync remote is configured (`bd dolt remote list` shows `origin`), run `bd dolt pull` to merge
+   their changes. This updates the local Dolt database only — it does **not** touch your working
+   tree, so it is safe to run before any task. If `bd dolt pull` reports a conflict or error,
+   stop and surface it to the user instead of forcing it.
 1. Run `bd prime` to load workflow context and prior lessons (persistent memories).
 2. Run `bd ready` to see unblocked, available work.
 3. Read the details of any issue you will work on: `bd show <id>`.
 4. Claim it before starting so parallel agents don't collide: `bd update <id> --claim`.
 5. Apply the recalled lessons during the task.
 
-If `bd` is unavailable or the project has no beads database yet, continue normally
-and note that beads setup is pending.
+If `bd` is unavailable, no sync remote is configured, or the project has no beads database yet,
+skip the parts that don't apply and continue normally, noting what is pending.
 
 ## Track Work as Issues
 
@@ -109,3 +115,23 @@ before saving.**
 
 When a recalled memory (from `bd prime`) prevented a mistake or repeated failure in the current
 task, mention that briefly in the task summary.
+
+## Team Sync (Dolt database over the git remote)
+
+Beads shares the **full Dolt database** — issues *and* memories — over your existing git `origin`
+using a custom `refs/dolt/data` ref that does not interfere with normal branches. This is not the
+JSONL export: **`.beads/issues.jsonl` is an export for viewers/interchange, never the sync source
+of truth.**
+
+- **Receive teammates' changes:** `bd dolt pull` (this is the pre-task step 0 above). New issues and
+  memories merge into the local Dolt database.
+- **Share your changes:** `bd dolt push` after recording issues/memories. This pushes Dolt commits to
+  `refs/dolt/data` on `origin`.
+- **New clone / new machine:** `bd bootstrap` auto-detects `refs/dolt/data` on `origin`, clones the
+  Dolt database, and wires the remote so `bd dolt push`/`pull` work. (`bd init` also bootstraps from
+  origin automatically when the ref exists.)
+- **What is tracked in git:** only `.beads/config.yaml` (holds `sync.git-remote`). The Dolt data
+  lives in `refs/dolt/data`, not in tracked files; the local Dolt engine directory is gitignored by
+  `bd init`. Do not commit `.beads/issues.jsonl` as a sync mechanism.
+- Never hand-edit the database or the export — change data only through `bd` commands so the local
+  DB and `refs/dolt/data` stay consistent. bd's hash-based IDs prevent ID collisions across agents.

@@ -123,7 +123,47 @@ Before recording, search with `bd memories <keyword>`; if a close memory exists,
 <!-- END: local.beads-memory-format -->
 ```
 
-### Step 5: Verify
+### Step 5: Configure team sync over the git remote (ask the user first)
+
+Beads can share the **full Dolt database** — issues and memories — over the project's existing git
+`origin`, using a custom `refs/dolt/data` ref that does not touch normal branches. No DoltHub or
+separate server is required. Ask the user whether they want to share beads data with teammates; if
+yes (the default when the repo has a git `origin`), configure it:
+
+1. Derive a Dolt-over-git remote URL from the existing origin:
+   ```bash
+   ORIGIN_URL="$(git remote get-url origin)"
+   # git@github.com:org/repo.git      -> git+ssh://git@github.com/org/repo.git
+   # https://github.com/org/repo.git  -> git+https://github.com/org/repo.git
+   ```
+2. Register it as the Dolt remote (this also writes `sync.git-remote` into `.beads/config.yaml`):
+   ```bash
+   bd dolt remote add origin "git+ssh://git@github.com/org/repo.git"   # or git+https://…
+   ```
+3. Publish the database and verify the ref exists on the remote:
+   ```bash
+   bd dolt push
+   git ls-remote origin 'refs/dolt/*'    # should list refs/dolt/data
+   ```
+4. Commit the config so teammates inherit the remote:
+   ```bash
+   git add .beads/config.yaml && git commit -m "chore: configure beads dolt git sync"
+   ```
+
+`.beads/config.yaml` (the only beads file tracked in git) will contain:
+
+```yaml
+sync:
+  git-remote: git+ssh://git@github.com/org/repo.git
+```
+
+Teammates on a fresh clone then run `bd bootstrap` (see Operation 5) and push/pull just work.
+If the user does **not** want team sync, skip this — beads stays local to their machine.
+
+**Do not use `.beads/issues.jsonl` for sync.** It is an export for viewers/interchange, not the
+source of truth; the database syncs via `refs/dolt/data`, not tracked files.
+
+### Step 6: Verify
 
 ```bash
 bd ready        # should run without error (empty list on a fresh project is fine)
@@ -138,6 +178,10 @@ Confirm `.beads/` exists and is tracked appropriately (see Operation 5 for team 
 
 The `local.beads` instruction handles the common recall path. Documented here for reference:
 
+0. `bd dolt pull` — if a sync remote is configured (`bd dolt remote list` shows `origin`), pull
+   teammates' latest issues/memories first. This merges into the local Dolt database only and does
+   not touch the working tree, so it is safe to run before any task; surface any conflict/error to
+   the user instead of forcing it.
 1. `bd prime` — load workflow context and persistent memories.
 2. `bd ready` — list unblocked, available issues.
 3. `bd show <id>` — read the full detail of an issue before working it.
@@ -273,15 +317,32 @@ find a memory that doesn't follow the Standard Memory Format (Operation 4), re-r
 same `--key` to fix it in place. Beads also compacts old closed work via semantic summarization to
 conserve context — see `bd --help` for compaction and memory-management subcommands.
 
-### Team sync
+### Team sync (Dolt database over the git remote)
 
-The Dolt database under `.beads/` — not the exported `.beads/issues.jsonl` — is the source of
-truth. When the git repo has an `origin` remote, share issues and memories across machines with:
+The **Dolt database** is the source of truth, and it syncs over the project's existing git `origin`
+via a custom `refs/dolt/data` ref — not via the `.beads/issues.jsonl` export. Configuration is done
+once in Operation 1, Step 5; day-to-day it is just push/pull:
 
 ```bash
-bd dolt push        # publish local issues/memories
-bd dolt pull        # fetch teammates' issues/memories
+bd dolt push        # publish local issues + memories to refs/dolt/data on origin
+bd dolt pull        # fetch teammates' issues + memories (the pre-task step, Operation 2 step 0)
 ```
 
-`.beads/issues.jsonl` is a human-readable export for diffing/interchange, not a full backup.
-Follow the guidance `bd init` writes into `AGENTS.md` for what to commit vs. push.
+**Onboarding a new clone or machine:**
+
+```bash
+bd bootstrap        # auto-detects refs/dolt/data on origin, clones the Dolt DB, wires the remote
+```
+
+`bd init` also bootstraps from origin automatically when `refs/dolt/data` already exists. After
+bootstrap, `bd dolt push`/`pull` work with no extra setup because `.beads/config.yaml` (committed to
+git) carries `sync.git-remote`.
+
+- **Tracked in git:** only `.beads/config.yaml`. The database itself lives in `refs/dolt/data`; the
+  local Dolt engine directory is gitignored by `bd init`.
+- **`.beads/issues.jsonl` is an export only** — for viewers (`bv`) and interchange, never the sync
+  source of truth. Do not commit it as a sync mechanism, and never hand-edit it; change data through
+  `bd` commands.
+- **Advanced remotes:** the same `bd dolt remote add <name> <url>` accepts DoltHub/DoltLab, S3, GCS,
+  or a local path instead of a git remote — see the beads `docs/DOLT.md`. Prefer the git-remote
+  default (`git+ssh://…` / `git+https://…`) since it reuses the repo you already push to.
