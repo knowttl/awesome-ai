@@ -9,7 +9,7 @@ description: >
   user says things like "/awesome-ai-usage install", "/awesome-ai-usage
   uninstall", "/awesome-ai-usage update", "set up skills for this project",
   "onboard this project", "what skills are available?", "add the brainstorming
-  skill", "remove context-sync", "update my skills", "check my skills setup is
+  skill", "remove create-glossary", "update my skills", "check my skills setup is
   healthy", or "how do I share my skill setup with my team?".
 ---
 
@@ -26,7 +26,7 @@ This skill handles three guided, multi-step workflows plus everyday management c
 | `/awesome-ai-usage install`, "set up skills", "onboard this project", "guide me through installing", first-time setup | Load and follow **`resources/setup.md`** — the full guided onboarding workflow. |
 | `/awesome-ai-usage uninstall`, "remove my skills", "uninstall everything", "guide me through removing" | Load and follow **`resources/uninstall.md`** — the guided removal workflow. |
 | `/awesome-ai-usage update`, "update my skills", "update all my skills", "check for skill updates", "is my skills setup healthy?", "health check" | Load and follow **`resources/update.md`** — updates every item installed from this registry and runs a health check. |
-| A single concrete action ("add the brainstorming skill", "remove context-sync", "list skills", "search debugging", "re-install just X") | Stay in this file — use the [CLI Command Reference](#cli-command-reference) below. Do **not** run a full guided workflow for a single-item action. |
+| A single concrete action ("add the brainstorming skill", "remove create-glossary", "list skills", "search debugging", "re-install just X") | Stay in this file — use the [CLI Command Reference](#cli-command-reference) below. Do **not** run a full guided workflow for a single-item action. |
 
 The `resources/*.md` files live next to this `SKILL.md`. Read the relevant one in full and execute it step by step; each references the same `REGISTRY_PATH`/`PROJECT_PATH` variables established below, so run **Registry Discovery** first and pass those values in (the workflows will skip their own detection when you provide them).
 
@@ -367,9 +367,9 @@ $REGISTRY_PATH/bin/skill search brainstorming
 $REGISTRY_PATH/bin/skill install obra.superpowers.brainstorming --target "$PROJECT" --agent <agent> --yes
 ```
 
-### User asks "remove the context-sync skill"
+### User asks "remove the create-glossary skill"
 ```bash
-$REGISTRY_PATH/bin/skill uninstall local.context-sync --target "$PROJECT" --yes
+$REGISTRY_PATH/bin/skill uninstall local.create-glossary --target "$PROJECT" --yes
 ```
 
 ### User asks "what's installed in this project?"

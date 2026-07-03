@@ -75,11 +75,11 @@ To **uninstall** skills interactively before the skill is installed, copy [`UNIN
 
 ## What's Inside
 
-The registry ships with **26 skills** and **3 instructions** from multiple sources:
+The registry ships with **36 skills** and **3 instructions** from multiple sources. Item names below are shown short; install with the full dotted name (e.g. `obra.superpowers.brainstorming`) — find it via `bin/skill search <term>`.
 
 ### obra/superpowers
 
-The full [obra/superpowers](https://github.com/obra/superpowers) skill set for structured AI-assisted development:
+The full [obra/superpowers](https://github.com/obra/superpowers) skill set for structured AI-assisted development (prefix `obra.superpowers.*`):
 
 | Skill | When to Use |
 |-------|-------------|
@@ -98,31 +98,63 @@ The full [obra/superpowers](https://github.com/obra/superpowers) skill set for s
 | `writing-plans` | When you have a spec and need a multi-step implementation plan |
 | `writing-skills` | When creating or editing skills for the registry |
 
-### mattpocock/skills
+### anthropics/skills
 
-Skills from [mattpocock/skills](https://github.com/mattpocock/skills) for product development workflows:
+Skills from [anthropics/skills](https://github.com/anthropics/skills) (prefix `anthropics.skills.*`):
 
 | Skill | When to Use |
 |-------|-------------|
-| `diagnose` | Disciplined diagnosis loop for hard bugs and performance regressions |
-| `grill-with-docs` | Challenge your plan against the domain model, sharpen terminology, update docs |
-| `improve-codebase-architecture` | Find deepening opportunities informed by domain language and ADRs |
-| `prototype` | Build a throwaway prototype for state/logic questions or UI variations |
-| `tdd` | Test-driven development with red-green-refactor loop, one vertical slice at a time |
-| `to-issues` | Break any plan or PRD into independently-grabbable issues using vertical slices |
-| `to-prd` | Synthesize current conversation context into a PRD for the issue tracker |
-| `triage` | Triage issues through a state machine from intake to ready-for-agent |
-| `zoom-out` | Get broader context or a higher-level perspective on unfamiliar code |
+| `frontend-design` | Building web components, pages, artifacts, or apps that avoid generic AI aesthetics |
+| `skill-creator` | Creating, editing, or optimizing a skill, and running/benchmarking skill evals |
+
+### mattpocock/skills
+
+Skills from [mattpocock/skills](https://github.com/mattpocock/skills) for product development workflows (prefix `mattpocock.skills.*`):
+
+| Skill | When to Use |
+|-------|-------------|
+| `grill-with-docs` | Challenge your plan against the domain model, sharpen terminology, update `CONTEXT.md`/ADRs |
+
+### dietrichgebert/ponytail
+
+A minimal, YAGNI-first coding-style toolkit from [dietrichgebert/ponytail](https://github.com/dietrichgebert/ponytail) (prefix `dietrichgebert.ponytail.*`):
+
+| Skill | When to Use |
+|-------|-------------|
+| `ponytail` | Enforce a minimal, YAGNI-first coding style (lite/full/ultra intensity modes) |
+| `ponytail-audit` | Audit a whole repo for over-engineering and rank simplification opportunities |
+| `ponytail-debt` | Collect ponytail-marked shortcuts into a debt ledger with upgrade triggers |
+| `ponytail-help` | Quick-reference card for Ponytail modes, skills, and commands |
+| `ponytail-review` | Review a diff for over-engineering and report what to delete or simplify |
+
+### Other upstreams
+
+| Skill | Source | When to Use |
+|-------|--------|-------------|
+| `improve` | [shadcn/improve](https://github.com/shadcn) | Audit a codebase and write self-contained implementation plans for other agents |
+| `drawio-skill` | [agents365-ai/drawio-skill](https://github.com/agents365-ai) | Generate draw.io diagrams (architecture, UML, ERD, sequence, flow) with CLI export |
+| `prompt-builder` | [github/awesome-copilot](https://github.com/github/awesome-copilot) | Engineer and validate high-quality prompts |
+| `chrome-devtools-axi` | [kunchenguid/chrome-devtools-axi](https://github.com/kunchenguid) | Drive a real Chrome session — navigate, click, fill forms, inspect console/network, screenshot |
+| `lavish` | [kunchenguid/lavish-axi](https://github.com/kunchenguid) | Turn complex/visual responses into rich, reviewable HTML artifacts the user can annotate |
 
 ### Local
 
+Project-specific items maintained in this registry (prefix `local.*`):
+
 | Item | Type | When to Use |
 |------|------|-------------|
-| `beads` | instruction | Brain stem instructions that prompt agents to recall context with `bd prime` before tasks and record non-obvious lessons with `bd remember` after them |
-| `opensrc-source-context` | instruction | Optional guidance for using `opensrc` to fetch and inspect dependency source code when deeper implementation context is needed |
-| `beads-workflow` | skill | Detailed workflow for setting up beads (`bd`), tracking issues, and recording lessons with `bd remember` |
-| `context-sync` | skill | When you need to update project context files (CLAUDE.md, copilot-instructions.md, etc.) to reflect the current codebase |
-| `example-skill` | skill | Reference template showing the manifest format |
+| `agentsmd-init` | skill | Initialize, refresh, or audit a repo's `AGENTS.md`/`CLAUDE.md`/cursor rules |
+| `awesome-ai-usage` | skill | Orchestrate this registry — guided `install` / `uninstall` / `update` (health check) plus day-to-day management |
+| `baseline-agents` | skill | Drop in a baseline `AGENTS.md` of behavioral guidelines that reduce common LLM coding mistakes |
+| `beads-workflow` | skill | Set up beads (`bd`), track issues, and record lessons with `bd remember` |
+| `create-glossary` | skill | Create/update `GLOSSARY.md` for project jargon and wire `AGENTS.md` to point at it |
+| `design-system` | skill | Generate (or reverse-engineer) a design system and flag UI drift for remediation |
+| `example-skill` | skill | Reference template showing the manifest format and skill structure |
+| `mind-clear` | skill | Interview the user to uncover the real goal and produce a spec-generation prompt before implementation |
+| `taste-developer` | skill | Learn your preferences from accepted/rejected/edited outputs; self-repair repeated tool-call errors |
+| `beads` | instruction | Prompt agents to recall context with `bd prime` before tasks and record lessons with `bd remember` after |
+| `opensrc-source-context` | instruction | Optional guidance for using `opensrc` to fetch and inspect dependency source code |
+| `taste-setup` | instruction | One-time opt-in prompt for enabling the Taste Developer skill |
 
 ---
 

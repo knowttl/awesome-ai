@@ -77,7 +77,7 @@ Skill and instruction directories use dot-separated namespacing to indicate thei
 |--------|--------|---------|
 | `obra.superpowers.*` | [obra/superpowers](https://github.com/obra/superpowers) | `obra.superpowers.brainstorming` |
 | `mattpocock.skills.*` | [mattpocock/skills](https://github.com/mattpocock/skills) | `mattpocock.skills.diagnose` |
-| `local.*` | Custom/project-specific skills | `local.context-sync` |
+| `local.*` | Custom/project-specific skills | `local.create-glossary` |
 
 Format: `<owner>.<repo>.<skill-name>`. The `name` field in `manifest.yaml` MUST match the directory name.
 
