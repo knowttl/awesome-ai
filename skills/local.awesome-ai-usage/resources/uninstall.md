@@ -159,6 +159,14 @@ After uninstalling, check for and offer to clean up:
 
 For each cleanup action, ask for confirmation before executing.
 
+Before the final message, ask me explicitly:
+
+> "Would you like me to commit these removals to git?"
+
+If I say **yes**: run `git status` in `<PROJECT_PATH>`, stage only what this uninstall touched
+(the lock file and the removed directories, shown as deletions), and create a concise commit. If
+I say **no**: leave the working tree as-is. Never commit without my explicit yes.
+
 **Final message:**
 
 > Uninstall complete. To reinstall any of these skills later, use:

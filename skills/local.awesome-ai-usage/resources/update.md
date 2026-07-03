@@ -123,4 +123,12 @@ Report:
 - **Beads:** if applicable — whether beads items and managed blocks are now complete.
 - **Still needs attention:** anything unresolved, with the exact command to finish it.
 
-Remind me that `.skills-lock.json` reflects the current state and can be committed so teammates get the same versions with `<CLI> install`.
+Then ask me explicitly, every time this workflow completes:
+
+> "Would you like me to commit these changes to git?"
+
+If I say **yes**: run `git status` in `<PROJECT_PATH>`, stage only the files this run touched
+(e.g. `.skills-lock.json`, re-propagated skill files, newly added managed blocks), and create a
+concise commit. If I say **no**: leave everything as-is and remind me `.skills-lock.json` reflects
+the current state so teammates get the same versions with `<CLI> install` once I commit it myself.
+Never commit without my explicit yes.

@@ -150,10 +150,13 @@ yes (the default when the repo has a git `origin`), configure it:
    bd dolt push
    git ls-remote origin 'refs/dolt/*'    # should list refs/dolt/data
    ```
-5. Commit the config so teammates inherit the remote:
+5. Leave `.beads/config.yaml` uncommitted for now — do not run `git commit` here. If asked to
+   commit it (e.g. by the `awesome-ai-usage` setup workflow's end-of-run prompt, or the user
+   directly), the command is:
    ```bash
    git add .beads/config.yaml && git commit -m "chore: configure beads dolt git sync"
    ```
+   Never commit without the user's explicit go-ahead first.
 6. Append this managed block to the root instruction file if the marker
    `<!-- BEGIN: local.beads-git-sync -->` is not already present (idempotent — never add a second
    copy):

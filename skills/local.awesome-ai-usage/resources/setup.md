@@ -574,13 +574,14 @@ When `BEADS_ENABLED = true`, **delegate all beads work to a single sub-agent:**
 >      ```bash
 >      grep -qxF '.beads/issues.jsonl' .gitignore 2>/dev/null || echo '.beads/issues.jsonl' >> .gitignore
 >      ```
->    - Publish the database, verify the ref exists, and commit the config so teammates inherit it:
+>    - Publish the database and verify the ref exists on the remote:
 >      ```bash
 >      bd dolt push
 >      git ls-remote origin 'refs/dolt/*'    # should list refs/dolt/data
->      git add .beads/config.yaml && git commit -m "chore: configure beads dolt git sync"
 >      ```
->      (Leave the `git push` of the config commit to the user's normal flow.) Do NOT commit `.beads/issues.jsonl` as a sync mechanism — it is an export only; the database syncs via `refs/dolt/data`.
+>      Leave `.beads/config.yaml` uncommitted for now — Step 10 asks whether to commit everything
+>      this run touched in one go. Do NOT commit `.beads/issues.jsonl` as a sync mechanism — it is
+>      an export only; the database syncs via `refs/dolt/data`.
 >    - If the user declines team sync, skip this and note that beads stays local to their machine.
 >    - Append this managed block to the root instruction file if the marker `<!-- BEGIN: local.beads-git-sync -->` is not already present (idempotent — never add a second copy):
 > ```markdown
@@ -731,3 +732,19 @@ This reads the lock file and reinstalls everything listed in it.
 - Browse more skills: `<CLI> list` or `<CLI> search <KEYWORD>`
 
 If I used the temporary clone option, ask whether I want to keep `/tmp/skills-registry`, move it to a permanent location, or delete it. Explain that future restore/update/uninstall commands require access to a skills-registry clone, so deleting means re-cloning later.
+
+### Commit prompt (always ask, every run)
+
+After the summary above — whether this was a first-time setup or just a follow-up run to add or
+adjust a few items — ask me explicitly:
+
+> "Would you like me to commit these changes to git?"
+
+If I say **yes**: run `git status` in `<PROJECT_PATH>` to see what changed, stage only the files
+this run touched (e.g. `.skills-lock.json`, the root instruction file, `.gitignore`,
+`.beads/config.yaml`, newly installed skill directories), and create a commit with a concise
+message describing what was set up. Follow the target project's own commit conventions if its
+`AGENTS.md`/`CLAUDE.md` documents any.
+
+If I say **no**: leave everything as-is and remind me I can commit later. Never commit anything
+without my explicit yes, and never stage or commit files this run did not touch.
