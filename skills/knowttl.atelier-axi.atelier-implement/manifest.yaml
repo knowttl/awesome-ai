@@ -1,0 +1,24 @@
+name: knowttl.atelier-axi.atelier-implement
+type: skill
+description: "Execute an existing implementation plan (plan.md) task by task with a fresh subagent per task, TDD, review between tasks, and frequent commits. Use to run a written plan.md, implement a plan produced by atelier-plan, or resume a deferred plan in a fresh session. Give it the path to a plan.md."
+tags:
+  - knowttl
+  - atelier
+  - implementation
+  - tdd
+  - subagents
+  - planning
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo
+files:
+  - SKILL.md
+  - LICENSE
+version: "0.2.0"
+source: https://github.com/knowttl/atelier-axi

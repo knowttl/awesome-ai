@@ -1,0 +1,24 @@
+name: knowttl.atelier-axi.atelier
+type: skill
+description: "Turn complex or visual agent responses into rich, reviewable HTML artifacts the user can annotate and send feedback on, using the atelier-axi CLI. Use when about to give a plan, comparison, diagram, table, code diff, report, or anything easier to grasp visually than as prose."
+tags:
+  - knowttl
+  - atelier
+  - html
+  - artifacts
+  - visualization
+  - review
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo
+files:
+  - SKILL.md
+  - LICENSE
+version: "0.2.0"
+source: https://github.com/knowttl/atelier-axi
