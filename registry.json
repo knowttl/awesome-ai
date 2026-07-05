@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-05T01:51:09Z",
+  "generatedAt": "2026-07-05T18:57:48Z",
   "items": [
     {
       "name": "agents365-ai.drawio-skill.drawio-skill",
@@ -276,17 +276,6 @@
       "dependencies": [],
       "version": "1.0.0",
       "path": "skills/obra.superpowers.systematic-debugging"
-    },
-    {
-      "name": "obra.superpowers.test-driven-development",
-      "type": "skill",
-      "description": "Use when implementing any feature or bugfix, before writing implementation code",
-      "tags": ["superpowers","obra","testing"],
-      "targets": ["claude-code","github-copilot"],
-      "files": ["SKILL.md","testing-anti-patterns.md"],
-      "dependencies": [],
-      "version": "1.0.0",
-      "path": "skills/obra.superpowers.test-driven-development"
     },
     {
       "name": "obra.superpowers.using-git-worktrees",
