@@ -17,11 +17,12 @@ session history — you hand it exactly what it needs.
 
 Hold every task and every subagent to these:
 
-- **Test-driven — the Iron Law: no production code without a failing test first.** Each task
-  goes RED (one focused failing test) → watch it fail for the RIGHT reason (feature missing, not
-  a typo) → GREEN (the minimal code to pass) → verify → refactor only while green. If any
-  implementation was written before its test, delete it and restart from the test. Exceptions —
-  throwaway prototypes, generated code, pure config/docs — need the user's explicit OK.
+- **Verified end-to-end — the Iron Law: no task is done without observing the real behavior.**
+  Each task ends by exercising the actual user-facing behavior end-to-end (run the real CLI
+  command, hit the real API, drive the real UI flow — not just internal assertions) and
+  confirming it matches what's expected. If a task is reported done without this verification,
+  redo it before moving on. Exceptions — throwaway prototypes, generated code, pure config/docs —
+  need the user's explicit OK.
 - **Systematic over ad-hoc.** Follow the plan and this loop; when something breaks, form a
   hypothesis and test it — never guess-and-check or patch blindly.
 - **Complexity reduction.** Build only what the task needs (YAGNI); prefer the simplest design
@@ -75,12 +76,12 @@ model and silently defeats this.
 1. **Dispatch a FRESH implementer subagent** with only what it needs: the plan's Global
    Constraints block, Task N's full text (Files, Interfaces, every Step), and any interface or
    decision from earlier tasks it cannot know. Do NOT paste the whole plan or prior-task
-   summaries — a dispatch describes one task, not the session's history. Instruct it to follow
-   the Iron Law TDD cycle exactly — no production code before a failing test: write the failing
-   test → run it and confirm it fails for the right reason (feature missing, not a typo) → the
-   minimal implementation to pass → run it and confirm it passes — using the project's test
-   command, report the exact command and its output as evidence, self-review its diff for
-   simplicity (nothing beyond the task), and STOP before committing.
+   summaries — a dispatch describes one task, not the session's history. Instruct it to implement
+   the task, then verify the deliverable end-to-end exactly the way a user would exercise it (run
+   the real CLI command, hit the real API, drive the real UI flow — not just internal assertions)
+   and confirm the behavior matches what's expected — using the project's test
+   command where applicable, report the exact command and its output as evidence, self-review its
+   diff for simplicity (nothing beyond the task), and STOP before committing.
 2. **Handle the implementer's status:**
    - **DONE** — proceed to review.
    - **DONE_WITH_CONCERNS** — read the concerns first; if about correctness or scope, resolve
@@ -132,8 +133,8 @@ do NOT re-dispatch a task already committed/checked; resume at the first uncheck
 - Never start on `main`/`master` without consent; work in an isolated worktree/branch (treehouse
   when available, else `git worktree`, else a feature branch) and hand it back for review rather
   than self-merging. Commit frequently.
-- Iron Law: no production code without a failing test you watched fail first; if it happened
-  anyway, delete the code and restart from the test.
+- Iron Law: no task is done without end-to-end verification of the real behavior against what a
+  user expects; if a task was marked done without it, redo the verification before proceeding.
 - Evidence over claims: paste the real command and its output; never declare a test, task, or
   build green without it.
 - Never skip the task review, accept a report missing either verdict, or move on with open

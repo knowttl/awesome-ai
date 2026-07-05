@@ -91,7 +91,6 @@ The full [obra/superpowers](https://github.com/obra/superpowers) skill set for s
 | `requesting-code-review` | When completing tasks or before merging to verify quality |
 | `subagent-driven-development` | When executing plans with independent tasks in the current session |
 | `systematic-debugging` | When encountering any bug or unexpected behavior |
-| `test-driven-development` | When implementing any feature or bugfix |
 | `using-git-worktrees` | When starting feature work that needs workspace isolation |
 | `using-superpowers` | When starting any conversation — establishes skill discovery |
 | `verification-before-completion` | Before claiming work is complete — evidence before assertions |
@@ -419,8 +418,6 @@ name: my-workflow
 description: My standard development workflow skills.
 items:
   - name: brainstorming
-    source: local
-  - name: test-driven-development
     source: local
   - name: systematic-debugging
     source: local

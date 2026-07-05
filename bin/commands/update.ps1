@@ -14,6 +14,10 @@ $Force = $false
 $Items = @()
 $Prefix = ""
 
+# Items intentionally removed from this registry — update skips them so they
+# don't come back as "new items available upstream" suggestions.
+$RetiredItems = @("test-driven-development")
+
 $i = 0
 while ($i -lt $args.Count) {
     switch ($args[$i]) {
@@ -111,6 +115,9 @@ try {
             }
             if (-not $match) { continue }
         }
+
+        # Skip retired items entirely — don't update them, don't suggest installing them
+        if ($RetiredItems -contains $remoteName) { continue }
 
         # Determine local type directory
         $localTypeDir = switch ($remoteType) {

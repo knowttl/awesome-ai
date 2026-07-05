@@ -171,12 +171,10 @@ You MUST complete each phase before proceeding to the next.
 
 **Fix the root cause, not the symptom:**
 
-1. **Create Failing Test Case**
-   - Simplest possible reproduction
-   - Automated test if possible
-   - One-off test script if no framework
-   - MUST have before fixing
-   - Use the `superpowers:test-driven-development` skill for writing proper failing tests
+1. **Reproduce the Bug End-to-End**
+   - Simplest possible reproduction of the actual user-facing behavior
+   - Drive the real flow (CLI command, API call, UI interaction) — don't just assert against internals
+   - MUST reproduce it and confirm it fails for the expected reason before fixing
 
 2. **Implement Single Fix**
    - Address the root cause identified
@@ -185,9 +183,9 @@ You MUST complete each phase before proceeding to the next.
    - No bundled refactoring
 
 3. **Verify Fix**
-   - Test passes now?
-   - No other tests broken?
-   - Issue actually resolved?
+   - Re-run the same end-to-end reproduction — does the real behavior now match what a user expects?
+   - No other behavior broken?
+   - Issue actually resolved, not just symptom-suppressed?
 
 4. **If Fix Doesn't Work**
    - STOP
@@ -284,7 +282,6 @@ These techniques are part of systematic debugging and available in this director
 - **`condition-based-waiting.md`** - Replace arbitrary timeouts with condition polling
 
 **Related skills:**
-- **superpowers:test-driven-development** - For creating failing test case (Phase 4, Step 1)
 - **superpowers:verification-before-completion** - Verify fix worked before claiming success
 
 ## Real-World Impact

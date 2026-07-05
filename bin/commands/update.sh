@@ -15,6 +15,10 @@ FORCE=false
 ITEMS=()
 PREFIX=""
 
+# Items intentionally removed from this registry — update skips them so they
+# don't come back as "new items available upstream" suggestions.
+RETIRED_ITEMS=("test-driven-development")
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --ref)      REF="$2"; shift 2 ;;
@@ -104,6 +108,13 @@ while IFS= read -r remote_dir; do
     done
     [[ "$match" == "false" ]] && continue
   fi
+
+  # Skip retired items entirely — don't update them, don't suggest installing them
+  retired=false
+  for r in "${RETIRED_ITEMS[@]}"; do
+    [[ "$r" == "$remote_name" ]] && retired=true
+  done
+  [[ "$retired" == "true" ]] && continue
 
   # Determine local type directory
   case "$remote_type" in

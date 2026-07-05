@@ -45,11 +45,10 @@ boundaries below.>
 - Consumes: <exact signatures this task uses from earlier tasks>
 - Produces: <exact names/types later tasks rely on>
 
-- [ ] **Step 1: Write the failing test** — show the complete test code.
-- [ ] **Step 2: Run it and confirm it fails** — exact command + expected failure message.
-- [ ] **Step 3: Write the minimal implementation** — show the complete code.
-- [ ] **Step 4: Run it and confirm it passes** — exact command + expected pass.
-- [ ] **Step 5: Commit** — `git add <paths> && git commit -m "<message>"`.
+- [ ] **Step 1: Implement** — show the complete code.
+- [ ] **Step 2: Verify end-to-end** — drive the real behavior the way a user would (CLI command,
+  API call, UI flow), exact command + expected output showing it matches what's expected.
+- [ ] **Step 3: Commit** — `git add <paths> && git commit -m "<message>"`.
 
 ## Rules
 
@@ -61,8 +60,8 @@ boundaries below.>
   fresh reviewer's gate. Fold setup/config/scaffolding/docs into the task whose deliverable
   needs them; split only where a reviewer could reject one task while approving its neighbor.
 - Write for an engineer with zero context for the codebase and questionable test taste.
-- **Four non-negotiables:** _test-driven_ (a failing test first, always — RED, watch it fail,
-  then the minimal code to pass); _systematic over ad-hoc_ (follow the plan, don't guess);
-  _complexity reduction_ (DRY, YAGNI — the simplest thing that passes); _evidence over claims_
-  (every step shows the real command and its output). Commit frequently; each task ends with an
-  independently testable deliverable.
+- **Four non-negotiables:** _verified end-to-end_ (drive the real behavior the way a user would
+  and confirm it matches what's expected, always); _systematic over ad-hoc_ (follow the plan,
+  don't guess); _complexity reduction_ (DRY, YAGNI — the simplest thing that passes); _evidence
+  over claims_ (every step shows the real command and its output). Commit frequently; each task
+  ends with an independently testable deliverable.
