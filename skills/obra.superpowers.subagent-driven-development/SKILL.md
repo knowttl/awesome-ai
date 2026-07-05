@@ -335,7 +335,7 @@ Done!
 ## Advantages
 
 **vs. Manual execution:**
-- Subagents follow TDD naturally
+- Subagents verify end-to-end naturally
 - Fresh context per task (no confusion)
 - Parallel-safe (subagents don't interfere)
 - Subagent can ask questions (before AND during work)

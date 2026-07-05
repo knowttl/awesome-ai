@@ -10,7 +10,7 @@ tags:
   - review
   - planning
   - implementation
-  - tdd
+  - end-to-end-verification
   - subagents
 targets:
   - claude-code

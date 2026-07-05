@@ -81,9 +81,9 @@ Created 4 validation tests following skills/meta/testing-skills-with-subagents:
 - Anti-patterns section
 - Flowchart for "fix failed" decision
 
-### Enhancement 1: TDD Reference
-- Added link to skills/testing/test-driven-development
-- Note explaining TDD's "simplest code" ≠ debugging's "root cause"
+### Enhancement 1: Debugging vs. Fast-Path Coding Distinction
+- Added a note distinguishing debugging from fast, incremental coding practices
+- Clarified that "simplest code that passes" is not the same goal as "find the bug's root cause"
 - Prevents confusion between methodologies
 
 ## Final Outcome
@@ -94,7 +94,7 @@ Bulletproof skill that:
 - ✅ Provides concrete steps for each phase
 - ✅ Shows anti-patterns explicitly
 - ✅ Tested under multiple pressure scenarios
-- ✅ Clarifies relationship to TDD
+- ✅ Clarifies debugging is distinct from fast, incremental coding practices
 - ✅ Ready for use
 
 ## Key Insight
