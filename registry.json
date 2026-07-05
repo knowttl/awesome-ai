@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-04T03:40:52Z",
+  "generatedAt": "2026-07-05T01:51:09Z",
   "items": [
     {
       "name": "agents365-ai.drawio-skill.drawio-skill",
@@ -49,35 +49,13 @@
     {
       "name": "knowttl.atelier-axi.atelier",
       "type": "skill",
-      "description": "Turn complex or visual agent responses into rich, reviewable HTML artifacts the user can annotate and send feedback on, using the atelier-axi CLI. Use when about to give a plan, comparison, diagram, table, code diff, report, or anything easier to grasp visually than as prose.",
-      "tags": ["knowttl","atelier","html","artifacts","visualization","review"],
+      "description": "Turn complex or visual agent responses into rich, reviewable HTML artifacts the user can annotate and send feedback on, and drive the feature-planning pipeline end to end, using the atelier-axi CLI. Use when about to give a plan, comparison, diagram, table, code diff, or report; when the user wants to plan or design something, or write a spec or plan; when asked to implement a plan.md or execute a finished plan; or for anything easier to grasp visually than as prose.",
+      "tags": ["knowttl","atelier","html","artifacts","visualization","review","planning","implementation","tdd","subagents"],
       "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo"],
-      "files": ["SKILL.md","LICENSE"],
+      "files": ["SKILL.md","planning.md","implementing.md","plan-template.md","review-rubrics.md","LICENSE"],
       "dependencies": [],
-      "version": "0.2.0",
+      "version": "0.3.0",
       "path": "skills/knowttl.atelier-axi.atelier"
-    },
-    {
-      "name": "knowttl.atelier-axi.atelier-implement",
-      "type": "skill",
-      "description": "Execute an existing implementation plan (plan.md) task by task with a fresh subagent per task, TDD, review between tasks, and frequent commits. Use to run a written plan.md, implement a plan produced by atelier-plan, or resume a deferred plan in a fresh session. Give it the path to a plan.md.",
-      "tags": ["knowttl","atelier","implementation","tdd","subagents","planning"],
-      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo"],
-      "files": ["SKILL.md","LICENSE"],
-      "dependencies": [],
-      "version": "0.2.0",
-      "path": "skills/knowttl.atelier-axi.atelier-implement"
-    },
-    {
-      "name": "knowttl.atelier-axi.atelier-plan",
-      "type": "skill",
-      "description": "Plan a feature, fix, or change before building it — surfaces clarifying questions, 2-3 candidate approaches with a recommendation, and open questions as an annotatable visual review surface in the browser (via atelier-axi), converges on an approved direction, then writes a durable spec.md + plan.md. Use when the user wants to plan or design something, write a spec or plan, or is about to jump into implementation without a validated plan.",
-      "tags": ["knowttl","atelier","planning","spec","review","visualization"],
-      "targets": ["claude-code","github-copilot","cursor","cline","opencode","codex","windsurf","roo"],
-      "files": ["SKILL.md","plan-template.md","review-rubrics.md","LICENSE"],
-      "dependencies": [],
-      "version": "0.2.0",
-      "path": "skills/knowttl.atelier-axi.atelier-plan"
     },
     {
       "name": "kunchenguid.chrome-devtools-axi.chrome-devtools-axi",
