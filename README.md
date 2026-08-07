@@ -1,8 +1,13 @@
 # skills-registry
 
-A personal monorepo of reusable **skills**, **agents**, and **instructions** for AI-assisted coding, with a zero-dependency CLI to install them into any project for any AI coding assistant.
+A curated catalog of reusable **skills** for AI-assisted coding, installed with
+[`npx skills`](https://github.com/vercel-labs/skills). Local skills live in this
+repo; third-party skills are referenced in [`catalog.json`](catalog.json) and
+fetched live from their upstreams - never vendored here.
 
-> **Zero dependencies.** Pure Bash + PowerShell. No Node, Python, or package manager required.
+> **How it works.** `npx skills` (the `skills` CLI, 75+ agents) does the actual
+> installing. This repo curates *which* skills, groups them into bundles, and
+> ships a thin Node wrapper (`bin/skill`) to install them in one command.
 
 ---
 
@@ -12,452 +17,223 @@ A personal monorepo of reusable **skills**, **agents**, and **instructions** for
 - [Guided Setup (AI-Assisted)](#guided-setup-ai-assisted)
 - [What's Inside](#whats-inside)
 - [CLI Reference](#cli-reference)
-- [Updating Skills From Upstream](#updating-skills-from-upstream)
-- [Installing Skills Into a Project](#installing-skills-into-a-project)
-- [Adding Your Own Content](#adding-your-own-content)
-- [Profiles](#profiles)
-- [Lock File & Team Sharing](#lock-file--team-sharing)
+- [Installing With `skills` Directly](#installing-with-skills-directly)
+- [Adding Your Own Skill](#adding-your-own-skill)
+- [Bundles](#bundles)
+- [Reproducibility & Team Sharing](#reproducibility--team-sharing)
 - [Project Structure](#project-structure)
-- [Cross-Platform Usage](#cross-platform-usage)
 - [Running Tests](#running-tests)
 
 ---
 
 ## Quick Start
 
+Requires Node (for `npx`). From a clone of this repo:
+
 ```bash
-# 1. Browse what's available
-bin/skill list                       # show all items
-bin/skill search debugging           # find by keyword
-bin/skill info systematic-debugging  # full details for one item
+# Browse what's available
+bin/skill list
 
-# 2. Install a skill into your project
-bin/skill install brainstorming
+# Install one skill into the current project (runs its setup command, if any)
+bin/skill install dox-framework
 
-# 3. Install from a remote GitHub repo
-bin/skill install owner/repo --skill skill-name
+# Install a bundle
+bin/skill install recommended
 
-# 4. Install a bundle of skills at once
-bin/skill install --profile example
-
-# 5. Pull latest skills from upstream (defaults to obra/superpowers)
-bin/skill update
-
-# 6. Restore everything from a lock file (for teammates)
+# Install the entire catalog
 bin/skill install
+
+# Preview the underlying `skills` commands without running them
+bin/skill install recommended --dry-run
 ```
 
-On **Windows PowerShell**, replace `bin/skill` with `bin/skill.ps1`:
-
-```powershell
-.\bin\skill.ps1 list
-.\bin\skill.ps1 install brainstorming
-```
+You don't strictly need a clone - any skill can be installed directly with
+`npx skills` (see [below](#installing-with-skills-directly)). The wrapper's value
+is installing bundles / the whole catalog and running companion-package setup
+commands in one step.
 
 ---
 
 ## Guided Setup (AI-Assisted)
 
-If you'd prefer a guided, interactive experience, copy the contents of [`SETUP-PROMPT.md`](SETUP-PROMPT.md) into any AI coding assistant. This is a thin **bootstrap**: it clones the registry, installs the `awesome-ai-usage` orchestration skill, then hands off to that skill's guided setup workflow, which walks you through:
+For a guided, interactive experience, copy [`SETUP-PROMPT.md`](SETUP-PROMPT.md)
+into any AI coding assistant with terminal access. It installs the
+`awesome-ai-usage` orchestration skill, then hands off to that skill's setup
+workflow, which walks you through selecting and installing skills, optionally
+seeding an `AGENTS.md`, and optionally setting up Beads (`bd`).
 
-1. Discovering available skills compatible with your assistant
-2. Selecting and installing skills
-3. Optionally setting up an `AGENTS.md` with behavioral guidelines
-4. Optionally setting up Beads (`bd`) — a dependency-aware issue tracker plus persistent memory that helps AI agents learn from past mistakes
-
-This works with any AI assistant that has terminal and file access (Claude Code, GitHub Copilot, Cursor, Cline, etc.).
-
-**Once the `awesome-ai-usage` skill is installed**, you no longer need the bootstrap files — just tell your assistant "set up skills for this project" / "uninstall my skills", or invoke `/awesome-ai-usage install` and `/awesome-ai-usage uninstall`. The full setup and uninstall workflows live inside the skill (`resources/setup.md` and `resources/uninstall.md`).
-
-To **uninstall** skills interactively before the skill is installed, copy [`UNINSTALL-PROMPT.md`](UNINSTALL-PROMPT.md) into your AI assistant. It locates the registry and hands off to the skill's uninstall workflow, which scans what's installed, lets you select items to remove, and confirms before deleting anything.
+Once `awesome-ai-usage` is installed you don't need the bootstrap file again -
+just tell your assistant "set up skills for this project" or run
+`/awesome-ai-usage install`. To remove skills, use
+[`UNINSTALL-PROMPT.md`](UNINSTALL-PROMPT.md) or `/awesome-ai-usage uninstall`.
 
 ---
 
 ## What's Inside
 
-The registry ships with **36 skills** and **3 instructions** from multiple sources. Item names below are shown short; install with the full dotted name (e.g. `obra.superpowers.brainstorming`) — find it via `bin/skill search <term>`.
+Run `bin/skill list` for the live list. Skills are grouped into **bundles**:
 
-### obra/superpowers
+| Bundle | Contents |
+|--------|----------|
+| `local` | All skills maintained in this repo (below) |
+| `superpowers` | The full [obra/superpowers](https://github.com/obra/superpowers) set |
+| `anthropic` | `frontend-design`, `skill-creator` from [anthropics/skills](https://github.com/anthropics/skills) |
+| `axi` | `atelier`, `chrome-devtools-axi`, `lavish` |
+| `agents-md` | Skills that add instruction blocks to a project's `AGENTS.md` |
+| `recommended` | A small opinionated starter set |
 
-The full [obra/superpowers](https://github.com/obra/superpowers) skill set for structured AI-assisted development (prefix `obra.superpowers.*`):
-
-| Skill | When to Use |
-|-------|-------------|
-| `brainstorming` | Before any creative work — explores intent and design before implementation |
-| `dispatching-parallel-agents` | When facing 2+ independent tasks with no shared state |
-| `executing-plans` | When you have a written plan to execute with review checkpoints |
-| `finishing-a-development-branch` | When implementation is done and you need to decide merge/PR/cleanup |
-| `receiving-code-review` | When receiving feedback — requires rigor, not blind agreement |
-| `requesting-code-review` | When completing tasks or before merging to verify quality |
-| `subagent-driven-development` | When executing plans with independent tasks in the current session |
-| `systematic-debugging` | When encountering any bug or unexpected behavior |
-| `test-driven-development` | When implementing any feature or bugfix |
-| `using-git-worktrees` | When starting feature work that needs workspace isolation |
-| `using-superpowers` | When starting any conversation — establishes skill discovery |
-| `verification-before-completion` | Before claiming work is complete — evidence before assertions |
-| `writing-plans` | When you have a spec and need a multi-step implementation plan |
-| `writing-skills` | When creating or editing skills for the registry |
-
-### anthropics/skills
-
-Skills from [anthropics/skills](https://github.com/anthropics/skills) (prefix `anthropics.skills.*`):
+### Local skills (this repo)
 
 | Skill | When to Use |
 |-------|-------------|
-| `frontend-design` | Building web components, pages, artifacts, or apps that avoid generic AI aesthetics |
-| `skill-creator` | Creating, editing, or optimizing a skill, and running/benchmarking skill evals |
+| `agentsmd-init` | Initialize, refresh, or audit a repo's `AGENTS.md`/`CLAUDE.md`/cursor rules |
+| `awesome-ai-usage` | Orchestrate this registry - guided install / uninstall / update |
+| `baseline-agents` | Drop in a baseline `AGENTS.md` of behavioral guidelines |
+| `beads-agents` | Add beads (`bd`) recall/remember instructions to `AGENTS.md` |
+| `beads-workflow` | Set up beads (`bd`), track issues, record lessons with `bd remember` |
+| `create-glossary` | Create/update `GLOSSARY.md` and wire `AGENTS.md` to it |
+| `design-system` | Generate (or reverse-engineer) a design system and flag UI drift |
+| `dox-framework` | Install the [DOX](https://github.com/agent0ai/dox) hierarchical `AGENTS.md` contract |
+| `example-skill` | Reference template showing the skill structure |
+| `mind-clear` | Interview to uncover the real goal and produce a spec-generation prompt |
+| `opensrc-agents` | Add `opensrc` dependency-source guidance to `AGENTS.md` |
+| `taste-developer` | Learn your preferences from accepted/rejected/edited outputs |
+| `taste-setup` | Add the Taste Developer opt-in prompt to `AGENTS.md` |
 
-### mattpocock/skills
+### Remote skills (referenced, fetched live)
 
-Skills from [mattpocock/skills](https://github.com/mattpocock/skills) for product development workflows (prefix `mattpocock.skills.*`):
-
-| Skill | When to Use |
-|-------|-------------|
-| `grill-with-docs` | Challenge your plan against the domain model, sharpen terminology, update `CONTEXT.md`/ADRs |
-
-### Other upstreams
-
-| Skill | Source | When to Use |
-|-------|--------|-------------|
-| `improve` | [shadcn/improve](https://github.com/shadcn) | Audit a codebase and write self-contained implementation plans for other agents |
-| `drawio-skill` | [agents365-ai/drawio-skill](https://github.com/agents365-ai) | Generate draw.io diagrams (architecture, UML, ERD, sequence, flow) with CLI export |
-| `prompt-builder` | [github/awesome-copilot](https://github.com/github/awesome-copilot) | Engineer and validate high-quality prompts |
-| `chrome-devtools-axi` | [kunchenguid/chrome-devtools-axi](https://github.com/kunchenguid) | Drive a real Chrome session — navigate, click, fill forms, inspect console/network, screenshot |
-| `lavish` | [kunchenguid/lavish-axi](https://github.com/kunchenguid) | Turn complex/visual responses into rich, reviewable HTML artifacts the user can annotate |
-
-### Local
-
-Project-specific items maintained in this registry (prefix `local.*`):
-
-| Item | Type | When to Use |
-|------|------|-------------|
-| `agentsmd-init` | skill | Initialize, refresh, or audit a repo's `AGENTS.md`/`CLAUDE.md`/cursor rules |
-| `awesome-ai-usage` | skill | Orchestrate this registry — guided `install` / `uninstall` / `update` (health check) plus day-to-day management |
-| `baseline-agents` | skill | Drop in a baseline `AGENTS.md` of behavioral guidelines that reduce common LLM coding mistakes |
-| `beads-workflow` | skill | Set up beads (`bd`), track issues, and record lessons with `bd remember` |
-| `create-glossary` | skill | Create/update `GLOSSARY.md` for project jargon and wire `AGENTS.md` to point at it |
-| `design-system` | skill | Generate (or reverse-engineer) a design system and flag UI drift for remediation |
-| `example-skill` | skill | Reference template showing the manifest format and skill structure |
-| `mind-clear` | skill | Interview the user to uncover the real goal and produce a spec-generation prompt before implementation |
-| `taste-developer` | skill | Learn your preferences from accepted/rejected/edited outputs; self-repair repeated tool-call errors |
-| `beads` | instruction | Prompt agents to recall context with `bd prime` before tasks and record lessons with `bd remember` after |
-| `opensrc-source-context` | instruction | Optional guidance for using `opensrc` to fetch and inspect dependency source code |
-| `taste-setup` | instruction | One-time opt-in prompt for enabling the Taste Developer skill |
+The `superpowers`, `anthropic`, and `axi` bundles plus `grill-with-docs`,
+`drawio-skill`, `prompt-builder`, and `improve` are all defined in
+[`catalog.json`](catalog.json) as references to their upstream repos.
 
 ---
 
 ## CLI Reference
 
-### `skill list`
+`bin/skill` is a thin Node wrapper over `npx skills`.
 
-List all items in the registry with optional filters.
-
-```bash
-bin/skill list                    # all items
-bin/skill list --type skill       # only skills (also: agent, instruction)
-bin/skill list --tag debugging    # filter by tag
-bin/skill list --for claude-code  # items targeting a specific agent
 ```
-
-### `skill search <query>`
-
-Case-insensitive full-text search across names, descriptions, and tags.
-
-```bash
-bin/skill search debugging
-bin/skill search review --type skill
+bin/skill install                 Install every skill in the catalog
+bin/skill install <bundle>        Install a named bundle
+bin/skill install <name>          Install a single skill (+ its setup command)
+bin/skill list                    List bundles and skills
+bin/skill help                    Show help
 ```
-
-### `skill info <name>`
-
-Show full details for a single item (description, path, tags, targets, files).
-
-```bash
-bin/skill info systematic-debugging
-```
-
-### `skill install`
-
-The most powerful command — installs content into your project with multiple modes:
-
-```bash
-# Install from the local registry
-bin/skill install brainstorming
-
-# Install from a GitHub repo (owner/repo shorthand)
-bin/skill install obra/superpowers --skill brainstorming
-
-# Install from any Git URL
-bin/skill install https://github.com/owner/repo.git --skill my-skill
-
-# Install a profile (named bundle of skills)
-bin/skill install --profile example
-
-# Restore from lock file (no arguments)
-bin/skill install
-```
-
-**Options:**
 
 | Flag | Description |
 |------|-------------|
-| `--target <path>` | Target project directory (default: current directory) |
-| `--global`, `-g` | Install to the agent's global/user directory |
-| `--agent`, `-a <name>` | Target specific agent(s) — repeatable |
-| `--skill`, `-s <name>` | Select specific item(s) from a remote repo |
-| `--profile <name>` | Install a named profile bundle |
-| `--ref <commit>` | Pin to a specific Git commit, tag, or branch |
-| `--symlink` | Symlink files instead of copying |
-| `--yes`, `-y` | Skip confirmation prompts |
+| `-a, --agent <agents>` | Target agents passed to `skills -a` (e.g. `'*'`, `claude-code`). Default: `skills` auto-detects |
+| `-g, --global` | Install globally (user-level) instead of project-level |
+| `-y, --yes` | Auto-confirm setup commands (or set `SKILL_YES=1`) |
+| `--dry-run` | Print the `skills` commands without running them |
 
-**Examples:**
+**Companion packages.** Some skills need a runtime tool. Their catalog entry
+carries a `setup` command that `bin/skill` offers to run after install. For
+example, `atelier` installs the skill, then (on confirmation) runs
+`npm install -g atelier-axi && atelier-axi setup hooks`.
+
+---
+
+## Installing With `skills` Directly
+
+Every catalog entry maps to a plain `skills` command:
 
 ```bash
-# Install to specific agents only
-bin/skill install brainstorming -a claude-code -a github-copilot
+# A local skill from this repo
+npx skills add knowttl/awesome-ai --skill dox-framework
 
-# Install globally (applies to all projects)
-bin/skill install brainstorming --global
+# A remote skill from its upstream
+npx skills add obra/superpowers --skill brainstorming
 
-# Pin to a specific version
-bin/skill install obra/superpowers --skill brainstorming --ref v1.2.0
-
-# Symlink instead of copy (changes update automatically)
-bin/skill install brainstorming --symlink
+# What's installed here / update / remove
+npx skills list
+npx skills update
+npx skills remove brainstorming
 ```
 
-When both `claude-code` and `github-copilot` are selected for the same item, the CLI installs it only under `.claude/skills/` because GitHub Copilot also reads skills from that directory. If `github-copilot` is selected by itself, the CLI installs to `.github/skills/` as usual.
+`skills` auto-detects the agents in your project and installs to each
+(symlinking into `.claude/skills/` for Claude Code, universal copies for others).
 
-### `skill uninstall <name>`
+---
 
-Remove an installed item from all target agent directories and update the lock file.
+## Adding Your Own Skill
 
-```bash
-bin/skill uninstall brainstorming
-bin/skill uninstall brainstorming --agent claude-code  # remove from one agent only
+1. Create the skill directory and `SKILL.md`:
+
+   ```bash
+   mkdir -p skills/local.my-skill
+   ```
+
+   ```markdown
+   ---
+   name: my-skill
+   description: What it does and when to use it.
+   ---
+
+   # My Skill
+
+   Instructions for the AI agent go here.
+   ```
+
+2. Add a `manifest.yaml` (metadata + the files `skills` should carry):
+
+   ```yaml
+   name: local.my-skill
+   type: skill
+   description: One-line summary.
+   tags: [local]
+   targets: [claude-code, github-copilot]
+   files: [SKILL.md]
+   version: "1.0.0"
+   ```
+
+3. Register it in [`catalog.json`](catalog.json) and add it to any bundles:
+
+   ```json
+   "my-skill": { "repo": "knowttl/awesome-ai" }
+   ```
+
+4. Verify:
+
+   ```bash
+   bash tests/run-tests.sh
+   ```
+
+The `SKILL.md` frontmatter `name`, the `catalog.json` key, and the bundle
+references must all use the same selector (`my-skill`). The `local.` prefix is
+only on the directory name.
+
+---
+
+## Bundles
+
+Bundles are named lists of catalog entries - they replace the old profiles.
+Define them under `"bundles"` in `catalog.json`:
+
+```json
+"bundles": {
+  "my-workflow": ["brainstorming", "systematic-debugging", "verification-before-completion"]
+}
 ```
 
-### `skill update`
-
-Pull the latest skills from an upstream repository and update local copies. Defaults to [obra/superpowers](https://github.com/obra/superpowers).
-
 ```bash
-# Update all skills from the default upstream (obra/superpowers)
-bin/skill update
-
-# Update from a specific repo
-bin/skill update owner/repo
-
-# Update a single skill only
-bin/skill update --item brainstorming
-
-# Preview what would change without modifying files
-bin/skill update --dry-run
-
-# Auto-accept all updates
-bin/skill update --force
-```
-
-**Options:**
-
-| Flag | Description |
-|------|-------------|
-| `--item`, `-i <name>` | Update only the named item(s) — repeatable |
-| `--ref <commit>` | Fetch a specific commit, tag, or branch |
-| `--dry-run` | Show what would change without modifying files |
-| `--force`, `-f` | Overwrite without prompting |
-| `--yes`, `-y` | Skip confirmation prompts |
-
-After updating, run `bin/skill sync` to regenerate the registry index.
-
-### `skill sync`
-
-Regenerate `registry.json` by scanning all `skills/`, `agents/`, and `instructions/` directories. Run this after adding or modifying content.
-
-```bash
-bin/skill sync
+bin/skill install my-workflow
 ```
 
 ---
 
-## Updating Skills From Upstream
+## Reproducibility & Team Sharing
 
-Keep your local skills in sync with [obra/superpowers](https://github.com/obra/superpowers) (or any other upstream repo):
+Two layers:
 
-```bash
-# See what's changed upstream (without modifying anything)
-bin/skill update --dry-run
+- **`catalog.json`** (this repo) is the curated source of truth for *what the
+  team installs*. Commit it; teammates run `bin/skill install <bundle>` to get
+  the same set.
+- **`skills-lock.json`** (created by `skills` in each target project) pins what
+  was actually installed there. Restore it with `npx skills experimental_install`.
 
-# Pull all updates (prompts before each change)
-bin/skill update
-
-# Pull updates and auto-accept all changes
-bin/skill update --yes
-
-# Update a single skill
-bin/skill update --item brainstorming
-
-# Update from a different upstream
-bin/skill update some-org/some-repo
-
-# Regenerate the registry index after updating
-bin/skill sync
-```
-
-The update command compares each upstream item against your local copy file-by-file. It shows which files changed, prompts before overwriting, and lists any new skills available upstream that you haven't added yet.
-
----
-
-## Installing Skills Into a Project
-
-When you run `bin/skill install`, the CLI:
-
-1. Looks up the item in `registry.json` (or clones a remote repo)
-2. Reads its `manifest.yaml` to find which files to install and which agents it supports
-3. Prompts you to select target agents (or auto-selects if you pass `--agent`)
-4. Copies files to the correct agent-specific directory in your project
-5. Records the installation in `.skills-lock.json`
-
-### Supported Agents & Install Paths
-
-| Agent | Project Path | Global Path |
-|-------|-------------|-------------|
-| Claude Code | `.claude/skills/<name>/` | `~/.claude/skills/<name>/` |
-| GitHub Copilot | `.github/skills/<name>/` | `~/.copilot/skills/<name>/` |
-| Cursor | `.agents/skills/<name>/` | `~/.cursor/skills/<name>/` |
-| Cline | `.agents/skills/<name>/` | `~/.agents/skills/<name>/` |
-| OpenCode | `.agents/skills/<name>/` | `~/.config/opencode/skills/<name>/` |
-| Codex | `.agents/skills/<name>/` | `~/.codex/skills/<name>/` |
-| Windsurf | `.windsurf/skills/<name>/` | `~/.codeium/windsurf/skills/<name>/` |
-| Roo Code | `.roo/skills/<name>/` | `~/.roo/skills/<name>/` |
-
-Note: selecting both Claude Code and GitHub Copilot is deduplicated to the Claude Code project path, which serves both agents.
-
----
-
-## Adding Your Own Content
-
-### Create a Skill
-
-```bash
-mkdir -p skills/my-new-skill
-```
-
-Create `skills/my-new-skill/manifest.yaml`:
-
-```yaml
-name: my-new-skill
-type: skill
-description: A brief description of what this skill does.
-tags:
-  - my-tag
-targets:
-  - claude-code
-  - github-copilot
-files:
-  - SKILL.md
-version: "1.0.0"
-```
-
-Create `skills/my-new-skill/SKILL.md`:
-
-```markdown
----
-name: my-new-skill
-description: A brief description of what this skill does.
----
-
-# My New Skill
-
-Instructions for the AI agent go here.
-```
-
-Then regenerate the index:
-
-```bash
-bin/skill sync
-```
-
-### Create an Instruction
-
-Same structure, but under `instructions/` with type `instruction`:
-
-```yaml
-name: my-instruction
-type: instruction
-description: Persistent guidelines injected into every session.
-tags:
-  - conventions
-targets:
-  - claude-code
-files:
-  - my-instruction.instructions.md
-version: "1.0.0"
-```
-
-### Manifest Reference
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| `name` | Yes | Unique identifier (lowercase, hyphens) |
-| `type` | Yes | `skill`, `agent`, or `instruction` |
-| `description` | Yes | One-line summary |
-| `tags` | No | List of searchable tags |
-| `targets` | Yes | Which AI agents this item supports |
-| `files` | Yes | List of files to install (relative to item dir) |
-| `version` | No | Semver string (defaults to `0.0.0`) |
-
----
-
-## Profiles
-
-Profiles are named bundles that install multiple items at once. Define them in `profiles/`:
-
-```yaml
-# profiles/my-workflow.yaml
-name: my-workflow
-description: My standard development workflow skills.
-items:
-  - name: brainstorming
-    source: local
-  - name: test-driven-development
-    source: local
-  - name: systematic-debugging
-    source: local
-  - name: verification-before-completion
-    source: local
-```
-
-Items can come from the local registry (`source: local`) or remote repos (`source: owner/repo`).
-
-Install a profile:
-
-```bash
-bin/skill install --profile my-workflow
-bin/skill install --profile my-workflow -a claude-code  # target specific agent
-```
-
----
-
-## Lock File & Team Sharing
-
-Every `skill install` creates or updates `.skills-lock.json` in the target project, recording:
-
-- What was installed (name, type, version)
-- Where it came from (local registry or remote URL + commit hash)
-- Which agents it was installed for
-- When it was installed
-
-**To share your skill setup with a team:**
-
-1. Commit `.skills-lock.json` to your project repo
-2. Teammates clone the project and run:
-
-```bash
-bin/skill install
-```
-
-This restores all skills from the lock file, pinned to the exact same versions.
+Remote skills track their upstream's latest by default, so the set is
+reproducible even though individual skills stay current.
 
 ---
 
@@ -465,62 +241,25 @@ This restores all skills from the lock file, pinned to the exact same versions.
 
 ```
 skills-registry/
-├── bin/
-│   ├── skill              # Bash CLI entry point
-│   ├── skill.ps1          # PowerShell CLI entry point
-│   ├── commands/           # Command implementations (.sh + .ps1)
-│   │   ├── info.sh / .ps1
-│   │   ├── install.sh / .ps1
-│   │   ├── list.sh / .ps1
-│   │   ├── search.sh / .ps1
-│   │   ├── sync.sh / .ps1
-│   │   ├── uninstall.sh / .ps1
-│   │   └── update.sh / .ps1
-│   └── lib/                # Shared libraries (.sh + .ps1)
-│       ├── agents.sh / .ps1     # Agent path registry & detection
-│       ├── common.sh / .ps1     # Colors, YAML parsing, utilities
-│       ├── git.sh / .ps1        # Shallow clone, repo scanning
-│       ├── lock.sh / .ps1       # Lock file CRUD
-│       └── profile.sh / .ps1    # Profile parsing & install
-├── skills/                 # Skill definitions (each with manifest.yaml + SKILL.md)
-├── instructions/           # Instruction definitions
-├── profiles/               # Named bundles (YAML)
-├── tests/                  # Test suites
-│   ├── run-tests.sh        # Test runner
-│   ├── test-common.sh      # Tests for lib/common.sh
-│   ├── test-agents.sh      # Tests for lib/agents.sh
-│   ├── test-lock.sh        # Tests for lib/lock.sh
-│   ├── test-sync.sh        # Tests for sync command
-│   ├── test-install.sh     # Tests for install command
-│   ├── test-uninstall.sh   # Tests for uninstall command
-│   └── fixtures/           # Test data
-└── registry.json           # Generated index (created by `skill sync`)
+├── catalog.json            # Source of truth: items (local + remote) + bundles
+├── bin/skill               # Node CLI wrapper over `npx skills`
+├── skills/local.<name>/    # Local skill dirs (SKILL.md + manifest.yaml + resources/)
+├── tests/
+│   ├── run-tests.sh        # Test entry point
+│   └── test-catalog.js     # Validates catalog against skills/ + exercises bin/skill
+├── AGENTS.md               # Project instructions (CLAUDE.md symlinks to it)
+├── SETUP-PROMPT.md         # Guided-setup bootstrap
+└── UNINSTALL-PROMPT.md     # Guided-uninstall bootstrap
 ```
-
----
-
-## Cross-Platform Usage
-
-Every script has dual implementations:
-
-| Platform | CLI | Libraries |
-|----------|-----|-----------|
-| macOS / Linux | `bin/skill` | `bin/lib/*.sh` |
-| Windows (PowerShell) | `bin/skill.ps1` | `bin/lib/*.ps1` |
-
-Both produce identical behavior. Use whichever matches your shell.
 
 ---
 
 ## Running Tests
 
 ```bash
-# Run all tests
 bash tests/run-tests.sh
-
-# Run a single test suite
-bash tests/test-common.sh
-bash tests/test-install.sh
 ```
 
-The test suite covers 51 tests across 6 suites: common utilities, agent paths, lock file management, sync, install, and uninstall.
+The suite validates `catalog.json` against the `skills/` tree (every entry
+resolves, no orphans, manifest files exist) and exercises the `bin/skill`
+wrapper (list, dry-run, unknown-target handling).

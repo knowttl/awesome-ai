@@ -1,0 +1,28 @@
+name: local.taste-setup
+type: skill
+description: >
+  Install the Taste Developer opt-in setup prompt into this project's AGENTS.md.
+  Use when the user wants agents to offer, on first interaction, to enable the
+  Taste Developer skill that learns coding preferences over time, or asks to add
+  the taste opt-in prompt to AGENTS.md. Appends a self-contained instruction
+  block; the `local.taste-developer` skill provides the actual behavior.
+tags:
+  - local
+  - taste
+  - setup
+  - agents-md
+  - learning
+  - adaptation
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo
+files:
+  - SKILL.md
+  - resources/taste-setup-block.md
+version: "1.0.0"

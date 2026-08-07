@@ -1,0 +1,66 @@
+{
+  "about": "Curated catalog of agent skills installed via `npx skills` (vercel-labs/skills). `bin/skill` reads this file and shells out to `skills add` per item. Local skills live in this repo (repo: knowttl/awesome-ai); remote skills are fetched from their upstream. Add an item under `items`, then reference it from a bundle. Keys are the `skills` selector (the SKILL.md frontmatter `name`).",
+  "defaults": {
+    "agents": null
+  },
+  "items": {
+    "agentsmd-init":            { "repo": "knowttl/awesome-ai" },
+    "awesome-ai-usage":         { "repo": "knowttl/awesome-ai" },
+    "baseline-agents":          { "repo": "knowttl/awesome-ai" },
+    "beads-agents":             { "repo": "knowttl/awesome-ai" },
+    "beads-workflow":           { "repo": "knowttl/awesome-ai" },
+    "create-glossary":          { "repo": "knowttl/awesome-ai" },
+    "design-system":            { "repo": "knowttl/awesome-ai" },
+    "dox-framework":            { "repo": "knowttl/awesome-ai" },
+    "example-skill":            { "repo": "knowttl/awesome-ai" },
+    "mind-clear":               { "repo": "knowttl/awesome-ai" },
+    "opensrc-agents":           { "repo": "knowttl/awesome-ai" },
+    "taste-developer":          { "repo": "knowttl/awesome-ai" },
+    "taste-setup":              { "repo": "knowttl/awesome-ai" },
+
+    "atelier":                  { "repo": "knowttl/atelier-axi", "setup": "npm install -g atelier-axi && atelier-axi setup hooks" },
+    "chrome-devtools-axi":      { "repo": "kunchenguid/chrome-devtools-axi" },
+    "lavish":                   { "repo": "kunchenguid/lavish-axi" },
+
+    "brainstorming":            { "repo": "obra/superpowers" },
+    "dispatching-parallel-agents": { "repo": "obra/superpowers" },
+    "executing-plans":          { "repo": "obra/superpowers" },
+    "finishing-a-development-branch": { "repo": "obra/superpowers" },
+    "receiving-code-review":    { "repo": "obra/superpowers" },
+    "requesting-code-review":   { "repo": "obra/superpowers" },
+    "subagent-driven-development": { "repo": "obra/superpowers" },
+    "systematic-debugging":     { "repo": "obra/superpowers" },
+    "using-git-worktrees":      { "repo": "obra/superpowers" },
+    "using-superpowers":        { "repo": "obra/superpowers" },
+    "verification-before-completion": { "repo": "obra/superpowers" },
+    "writing-plans":            { "repo": "obra/superpowers" },
+    "writing-skills":           { "repo": "obra/superpowers" },
+
+    "frontend-design":          { "repo": "anthropics/skills" },
+    "skill-creator":            { "repo": "anthropics/skills" },
+    "grill-with-docs":          { "repo": "mattpocock/skills" },
+    "drawio-skill":             { "repo": "Agents365-ai/drawio-skill" },
+    "prompt-builder":           { "repo": "github/awesome-copilot" },
+    "improve":                  { "repo": "shadcn/improve" }
+  },
+  "bundles": {
+    "local": [
+      "agentsmd-init", "awesome-ai-usage", "baseline-agents", "beads-agents",
+      "beads-workflow", "create-glossary", "design-system", "dox-framework",
+      "example-skill", "mind-clear", "opensrc-agents", "taste-developer",
+      "taste-setup"
+    ],
+    "superpowers": [
+      "brainstorming", "dispatching-parallel-agents", "executing-plans",
+      "finishing-a-development-branch", "receiving-code-review",
+      "requesting-code-review", "subagent-driven-development",
+      "systematic-debugging", "using-git-worktrees",
+      "using-superpowers", "verification-before-completion", "writing-plans",
+      "writing-skills"
+    ],
+    "anthropic": ["frontend-design", "skill-creator"],
+    "axi": ["atelier", "chrome-devtools-axi", "lavish"],
+    "agents-md": ["dox-framework", "agentsmd-init", "baseline-agents", "beads-agents", "opensrc-agents", "taste-setup"],
+    "recommended": ["dox-framework", "atelier", "baseline-agents", "brainstorming", "systematic-debugging", "verification-before-completion"]
+  }
+}

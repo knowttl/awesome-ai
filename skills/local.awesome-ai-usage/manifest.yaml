@@ -1,6 +1,6 @@
 name: local.awesome-ai-usage
 type: skill
-description: "Orchestration skill for the awesome-ai skills-registry: guided install/setup and uninstall workflows plus day-to-day management (updating, listing, searching, syncing skills and instructions). Detects install vs. uninstall intent from the invocation. Covers the full CLI, agent paths, lock file, profiles, and team sharing."
+description: "Orchestration skill for the awesome-ai skills-registry: guided install/setup, uninstall, and update/health-check workflows plus day-to-day management. Detects intent from the invocation. Installs skills via `npx skills` (local skills from knowttl/awesome-ai, remote skills from their upstreams), bundles via the `bin/skill` wrapper, companion npm packages via per-skill setup commands, and team sharing via catalog.json + skills-lock.json."
 tags:
   - local
   - skills-registry
@@ -21,4 +21,4 @@ files:
   - resources/setup.md
   - resources/uninstall.md
   - resources/update.md
-version: "1.1.0"
+version: "2.0.0"

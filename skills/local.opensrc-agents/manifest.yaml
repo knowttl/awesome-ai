@@ -1,0 +1,29 @@
+name: local.opensrc-agents
+type: skill
+description: >
+  Install optional guidance for using `opensrc` to fetch dependency source code
+  into this project's AGENTS.md. Use when the user wants agents to read npm,
+  PyPI, crates.io, or GitHub source for deeper implementation context, or asks
+  to add opensrc usage rules to AGENTS.md. Appends a self-contained instruction
+  block.
+tags:
+  - local
+  - opensrc
+  - source-code
+  - dependencies
+  - agents-md
+  - debugging
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo
+files:
+  - SKILL.md
+  - resources/opensrc-agents-block.md
+version: "1.0.0"
+source: https://github.com/vercel-labs/opensrc

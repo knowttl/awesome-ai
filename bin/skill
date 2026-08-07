@@ -1,50 +1,180 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/usr/bin/env node
+'use strict';
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-COMMANDS_DIR="$SCRIPT_DIR/commands"
-source "$SCRIPT_DIR/lib/common.sh"
+// Thin wrapper over `npx skills` (vercel-labs/skills). Reads catalog.json and
+// installs curated skills (local + remote) individually, by bundle, or all at
+// once, running any per-item `setup` command afterward. The actual install work
+// is delegated to `skills`; this file only orchestrates the catalog.
 
-VERSION="0.1.0"
+const fs = require('fs');
+const path = require('path');
+const { spawnSync } = require('child_process');
 
-usage() {
-  cat <<EOF
-${BOLD}skill${RESET} — AI skills registry CLI (v${VERSION})
+const ROOT = path.resolve(__dirname, '..');
+const CATALOG_PATH = path.join(ROOT, 'catalog.json');
 
-${BOLD}Usage:${RESET}
-  skill <command> [options]
+const C = process.stdout.isTTY
+  ? { dim: '\x1b[2m', bold: '\x1b[1m', green: '\x1b[32m', yellow: '\x1b[33m', red: '\x1b[31m', reset: '\x1b[0m' }
+  : { dim: '', bold: '', green: '', yellow: '', red: '', reset: '' };
 
-${BOLD}Commands:${RESET}
-  list          List all items in the registry
-  search        Search items by keyword
-  info          Show details for a single item
-  install       Install items into a project
-  uninstall     Remove installed items
-  update        Pull latest from an upstream repo
-  sync          Regenerate the registry index
-
-${BOLD}Options:${RESET}
-  --help, -h    Show this help message
-  --version     Show version
-
-Run ${CYAN}skill <command> --help${RESET} for command-specific help.
-EOF
+function die(msg) {
+  process.stderr.write(`${C.red}error:${C.reset} ${msg}\n`);
+  process.exit(1);
 }
 
-if [[ $# -eq 0 ]]; then
-  usage
-  exit 0
-fi
+function loadCatalog() {
+  let raw;
+  try {
+    raw = fs.readFileSync(CATALOG_PATH, 'utf8');
+  } catch (e) {
+    die(`cannot read catalog at ${CATALOG_PATH}`);
+  }
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    die(`catalog.json is not valid JSON: ${e.message}`);
+  }
+}
 
-CMD="$1"; shift
+// --- arg parsing -----------------------------------------------------------
 
-case "$CMD" in
-  list|search|info|install|uninstall|update|sync)
-    CMD_SCRIPT="$COMMANDS_DIR/${CMD}.sh"
-    [[ -f "$CMD_SCRIPT" ]] || die "Command script not found: $CMD_SCRIPT"
-    source "$CMD_SCRIPT" "$@"
-    ;;
-  --help|-h) usage; exit 0 ;;
-  --version) echo "skill v${VERSION}"; exit 0 ;;
-  *) die "Unknown command: $CMD\nRun 'skill --help' for usage." ;;
-esac
+function parseArgs(argv) {
+  const opts = { global: false, yes: false, dryRun: false, agent: null, help: false, positional: [] };
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '-g' || a === '--global') opts.global = true;
+    else if (a === '-y' || a === '--yes') opts.yes = true;
+    else if (a === '--dry-run') opts.dryRun = true;
+    else if (a === '-a' || a === '--agent') opts.agent = argv[++i];
+    else if (a === '-h' || a === '--help') opts.help = true;
+    else opts.positional.push(a);
+  }
+  return opts;
+}
+
+function confirm(question, autoYes) {
+  if (autoYes || process.env.SKILL_YES === '1') return true;
+  if (!process.stdin.isTTY) return false;
+  process.stdout.write(`${question} [y/N] `);
+  const buf = Buffer.alloc(256);
+  let n = 0;
+  try {
+    n = fs.readSync(0, buf, 0, 256, null);
+  } catch (e) {
+    return false;
+  }
+  const ans = buf.toString('utf8', 0, n).trim().toLowerCase();
+  return ans === 'y' || ans === 'yes';
+}
+
+// --- resolving targets -----------------------------------------------------
+
+// Returns an ordered list of item selectors for a target: all items when no
+// target, a bundle's items when it names a bundle, or a single item otherwise.
+function resolveTargets(catalog, target) {
+  if (!target) return Object.keys(catalog.items);
+  if (catalog.bundles && catalog.bundles[target]) return catalog.bundles[target];
+  if (catalog.items[target]) return [target];
+  die(`unknown skill or bundle: ${target}\nRun \`bin/skill list\` to see options.`);
+}
+
+// --- commands --------------------------------------------------------------
+
+function cmdList(catalog) {
+  const bundles = Object.keys(catalog.bundles || {});
+  process.stdout.write(`${C.bold}Bundles${C.reset} ${C.dim}(bin/skill install <bundle>)${C.reset}\n`);
+  for (const b of bundles) {
+    process.stdout.write(`  ${C.green}${b}${C.reset} ${C.dim}(${catalog.bundles[b].length} skills)${C.reset}\n`);
+  }
+  process.stdout.write(`\n${C.bold}Skills${C.reset} ${C.dim}(bin/skill install <name>)${C.reset}\n`);
+  for (const [name, item] of Object.entries(catalog.items)) {
+    const setup = item.setup ? ` ${C.yellow}+setup${C.reset}` : '';
+    process.stdout.write(`  ${name}  ${C.dim}${item.repo}${C.reset}${setup}\n`);
+  }
+}
+
+function installOne(catalog, name, opts) {
+  const item = catalog.items[name];
+  if (!item) die(`skill not in catalog: ${name}`);
+  const selector = item.skill || name;
+
+  const args = ['-y', 'skills', 'add', item.repo, '-s', selector, '-y'];
+  if (opts.global) args.push('-g');
+  const agents = opts.agent || item.agents || (catalog.defaults && catalog.defaults.agents);
+  if (agents) args.push('-a', agents);
+
+  process.stdout.write(`\n${C.bold}» ${name}${C.reset} ${C.dim}(${item.repo})${C.reset}\n`);
+  if (opts.dryRun) {
+    process.stdout.write(`  ${C.dim}npx ${args.join(' ')}${C.reset}\n`);
+  } else {
+    const r = spawnSync('npx', args, { stdio: 'inherit' });
+    if (r.status !== 0) {
+      process.stderr.write(`${C.red}  failed to install ${name}${C.reset}\n`);
+      return false;
+    }
+  }
+
+  if (item.setup) {
+    process.stdout.write(`  ${C.yellow}setup:${C.reset} ${item.setup}\n`);
+    if (opts.dryRun) return true;
+    if (confirm('  Run this setup command now?', opts.yes)) {
+      const r = spawnSync(item.setup, { shell: true, stdio: 'inherit' });
+      if (r.status !== 0) process.stderr.write(`${C.red}  setup command failed${C.reset}\n`);
+    } else {
+      process.stdout.write(`  ${C.dim}skipped - run it yourself later${C.reset}\n`);
+    }
+  }
+  return true;
+}
+
+function cmdInstall(catalog, opts) {
+  const target = opts.positional[0];
+  const names = resolveTargets(catalog, target);
+  const label = target ? `\`${target}\`` : 'entire catalog';
+  process.stdout.write(`Installing ${label} - ${names.length} skill(s) via \`npx skills\`.\n`);
+  let ok = 0;
+  for (const name of names) if (installOne(catalog, name, opts)) ok++;
+  process.stdout.write(`\n${C.green}Done.${C.reset} ${ok}/${names.length} installed.\n`);
+}
+
+function usage() {
+  process.stdout.write(`${C.bold}skill${C.reset} - install curated agent skills via \`npx skills\`
+
+${C.bold}Usage${C.reset}
+  bin/skill install                 Install every skill in the catalog
+  bin/skill install <bundle>        Install a named bundle (e.g. local, superpowers)
+  bin/skill install <name>          Install a single skill
+  bin/skill list                    List bundles and skills
+  bin/skill help                    Show this help
+
+${C.bold}Options${C.reset}
+  -a, --agent <agents>   Target agents passed to \`skills -a\` (e.g. '*', claude-code)
+  -g, --global           Install globally (user-level) instead of project-level
+  -y, --yes              Auto-confirm setup commands (or set SKILL_YES=1)
+  --dry-run              Print the \`skills\` commands without running them
+
+Skills are installed by \`npx skills\`; this wrapper only orchestrates catalog.json.
+`);
+}
+
+// --- main ------------------------------------------------------------------
+
+function main() {
+  const argv = process.argv.slice(2);
+  const cmd = argv[0];
+  const opts = parseArgs(argv.slice(1));
+
+  if (!cmd || cmd === 'help' || cmd === '-h' || cmd === '--help' || opts.help) {
+    usage();
+    return;
+  }
+
+  const catalog = loadCatalog();
+  switch (cmd) {
+    case 'install': cmdInstall(catalog, opts); break;
+    case 'list': case 'ls': cmdList(catalog); break;
+    default: die(`unknown command: ${cmd}\nRun \`bin/skill help\`.`);
+  }
+}
+
+main();

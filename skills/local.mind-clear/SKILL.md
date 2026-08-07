@@ -1,5 +1,5 @@
 ---
-name: local.mind-clear
+name: mind-clear
 description: >
   Reviews the current project context, then interviews the user to uncover the
   real goal behind a feature or project, and produces a copy-pasteable

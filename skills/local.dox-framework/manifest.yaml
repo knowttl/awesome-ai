@@ -1,0 +1,32 @@
+name: local.dox-framework
+type: skill
+description: >
+  Install the DOX framework into a repository and build its AGENTS.md hierarchy.
+  Use whenever the user wants to add, install, initialize, or set up DOX, adopt
+  the DOX AGENTS.md contract, "initialize the DOX tree," or establish a
+  hierarchical AGENTS.md structure where agents walk root-to-target docs before
+  editing. In a new repo it installs the DOX rail into the root AGENTS.md; in an
+  existing project it also reviews the full tree and scaffolds child AGENTS.md
+  files with Child DOX Index entries for each durable boundary (packages, apps,
+  modules, service directories).
+tags:
+  - local
+  - dox
+  - agents-md
+  - documentation
+  - onboarding
+  - context
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo
+files:
+  - SKILL.md
+  - resources/dox-rail.md
+version: "1.0.0"
+source: https://github.com/agent0ai/dox

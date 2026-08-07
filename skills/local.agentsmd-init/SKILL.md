@@ -201,9 +201,9 @@ than no heading. When included, it serves two purposes:
    accumulating context over time.
 
 Rules should be specific, actionable, and verifiable. Good examples:
-- "Always maintain both `.sh` and `.ps1` versions of any script you change."
-- "After modifying content under `skills/`, run `bin/skill sync`."
-- "Keep scripts zero-dependency — NEVER use `jq`, `yq`, or `node`."
+- "Run `bash tests/run-tests.sh` to verify changes before committing."
+- "After adding, removing, or renaming anything under `skills/`, update `catalog.json`."
+- "Never commit skill install output (`.agents/`, `.claude/skills/`) into this repo."
 
 Bad examples (vague, unverifiable, or obvious):
 - "Write good code." (vague)

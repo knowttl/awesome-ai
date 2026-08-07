@@ -12,7 +12,7 @@ issue tracker that doubles as persistent agent memory. Source:
 `bd` is a system-wide CLI (installed via Homebrew / npm / script), **not** file-copied
 content. This skill orchestrates installing it, initializing it in a project, and using
 its recall (`bd prime`) and memory (`bd remember`) features. The routine pre-task recall
-and post-task learning discipline lives in the `local.beads` instruction; this skill is
+and post-task learning discipline lives in the `beads-agents` skill; this skill is
 the on-demand reference and the setup path.
 
 Goal: track features/bugs/tasks as a graph instead of markdown TODO lists, and capture
@@ -22,12 +22,12 @@ repeating mistakes. Not every task produces a save-worthy lesson.
 ## When to Use
 
 - Setting up beads in a project for the first time (install `bd`, `bd init`, agent hooks).
-- The user approved recording a lesson (from the `local.beads` instruction).
+- The user approved recording a lesson (from the `beads-agents` skill).
 - The user asks to create, inspect, or close tracked issues.
 - The user asks to review or clean up stored memories.
 
 Do NOT use this skill for the routine pre-task recall — that is handled inline by the
-`local.beads` instruction (`bd prime` / `bd ready`).
+`beads-agents` skill (`bd prime` / `bd ready`).
 
 ## Deterministic Rules
 
@@ -218,7 +218,7 @@ Confirm `.beads/` exists and is tracked appropriately (see Operation 5 for team 
 
 ## Operation 2: Recall (Before a Task)
 
-The `local.beads` instruction handles the common recall path. Documented here for reference:
+The `beads-agents` skill handles the common recall path. Documented here for reference:
 
 0. `bd dolt pull` — if a sync remote is configured (`bd dolt remote list` shows `origin`), pull
    teammates' latest issues/memories first. This merges into the local Dolt database only and does
@@ -254,7 +254,7 @@ bd close <id>                                               # close when done
 
 ## Operation 4: Remember (After a Task)
 
-Triggered when the user approves recording a lesson (see the `local.beads` instruction for
+Triggered when the user approves recording a lesson (see the `beads-agents` skill for
 when to propose). Recording is `bd remember "<insight>"`; the work is in phrasing the insight.
 
 ### Step 0: Run the Decision Gate (and consider skipping)

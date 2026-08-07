@@ -1,0 +1,29 @@
+name: local.beads-agents
+type: skill
+description: >
+  Install the beads (bd) issue-tracking and agent-memory instructions into this
+  project's AGENTS.md. Use when the user wants agents to recall context with
+  `bd prime` before tasks and record lessons with `bd remember` after them, or
+  asks to add beads/bd workflow rules to AGENTS.md. Appends a self-contained
+  instruction block; run `local.beads-workflow` to actually set up bd.
+tags:
+  - local
+  - beads
+  - issue-tracking
+  - memory
+  - agents-md
+  - workflow
+targets:
+  - claude-code
+  - github-copilot
+  - cursor
+  - cline
+  - opencode
+  - codex
+  - windsurf
+  - roo
+files:
+  - SKILL.md
+  - resources/beads-agents-block.md
+version: "1.1.0"
+source: https://github.com/gastownhall/beads
