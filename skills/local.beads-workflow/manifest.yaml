@@ -1,6 +1,6 @@
 name: local.beads-workflow
 type: skill
-description: "Use when setting up beads (bd), recalling context with bd prime, tracking issues, or recording lessons with bd remember."
+description: "Use when setting up beads (bd), recalling context with scripts/bd prime, tracking issues, or recording lessons with scripts/bd remember."
 tags:
   - beads
   - issue-tracking
@@ -18,4 +18,4 @@ targets:
   - roo
 files:
   - SKILL.md
-version: "1.3.0"
+version: "1.4.0"
