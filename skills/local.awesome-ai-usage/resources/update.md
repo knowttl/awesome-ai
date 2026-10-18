@@ -24,7 +24,7 @@ Verify the setup is consistent:
 
 - **Installed vs. expected** - `npx skills list` against what the user expects. Re-add anything missing with `npx skills add knowttl/awesome-ai --skill <selector> -y` (or the remote repo).
 - **Lock file** - `skills-lock.json` should exist in `PROJECT`. If it drifted from what's installed, `npx skills experimental_install` restores from it.
-- **Companion packages** - for skills that need a CLI (e.g. `atelier` → `atelier-axi`), confirm the tool is on PATH; re-run its setup command if not (`npm install -g atelier-axi && atelier-axi setup hooks`).
+- **Companion packages** - for skills that need a CLI, confirm the tool is on PATH; re-run its setup command if not.
 - **AGENTS.md blocks** - for `dox-framework`/`baseline-agents`/`beads-agents`/`opensrc-agents`/`taste-setup`, confirm their section is still present in `AGENTS.md`; re-invoke the skill to re-append if it was lost.
 - **Beads** - if `.beads/` exists, `bd ready` should run and (if a sync remote is configured) `bd dolt pull` should succeed. Surface any conflict instead of forcing it.
 

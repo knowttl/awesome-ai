@@ -48,7 +48,7 @@ Show what's available. If you have a registry clone, `bin/skill list`; otherwise
 | `taste-setup`, `taste-developer` | Adaptive preference learning (see Step 6) |
 | `opensrc-agents` | Dependency-source inspection guidance |
 
-Remote bundles: `superpowers` (obra/superpowers), `anthropic`, `axi` (atelier, chrome-devtools, lavish).
+Remote bundles: `superpowers` (obra/superpowers), `anthropic`, `axi` (chrome-devtools, lavish).
 
 Ask which skills or bundles the user wants. Map their answer to selectors. If they say "recommend", suggest a balanced set (e.g. `dox-framework` or `baseline-agents`, `brainstorming`, `systematic-debugging`, `verification-before-completion`).
 
@@ -62,11 +62,7 @@ npx skills add knowttl/awesome-ai --skill <selector> -y     # local skills
 npx skills add obra/superpowers --skill <selector> -y       # e.g. superpowers skills
 ```
 
-For a skill with a companion package (e.g. `atelier`), after installing the skill run its setup command - confirm with the user first:
-
-```bash
-npm install -g atelier-axi && atelier-axi setup hooks
-```
+For a skill with a companion package, after installing the skill run its setup command - confirm with the user first.
 
 Verify with `npx skills list`. Report what was installed.
 

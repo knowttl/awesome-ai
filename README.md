@@ -78,7 +78,7 @@ Run `bin/skill list` for the live list. Skills are grouped into **bundles**:
 | `local` | All skills maintained in this repo (below) |
 | `superpowers` | The full [obra/superpowers](https://github.com/obra/superpowers) set |
 | `anthropic` | `frontend-design`, `skill-creator` from [anthropics/skills](https://github.com/anthropics/skills) |
-| `axi` | `atelier`, `chrome-devtools-axi`, `lavish` |
+| `axi` | `chrome-devtools-axi`, `lavish` |
 | `agents-md` | Skills that add instruction blocks to a project's `AGENTS.md` |
 | `recommended` | A small opinionated starter set |
 
@@ -128,9 +128,7 @@ bin/skill help                    Show help
 | `--dry-run` | Print the `skills` commands without running them |
 
 **Companion packages.** Some skills need a runtime tool. Their catalog entry
-carries a `setup` command that `bin/skill` offers to run after install. For
-example, `atelier` installs the skill, then (on confirmation) runs
-`npm install -g atelier-axi && atelier-axi setup hooks`.
+carries a `setup` command that `bin/skill` offers to run after install.
 
 ---
 
