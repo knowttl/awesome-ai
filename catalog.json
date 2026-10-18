@@ -18,7 +18,6 @@
     "taste-developer":          { "repo": "knowttl/awesome-ai" },
     "taste-setup":              { "repo": "knowttl/awesome-ai" },
 
-    "atelier":                  { "repo": "knowttl/atelier-axi", "setup": "npm install -g atelier-axi && atelier-axi setup hooks" },
     "chrome-devtools-axi":      { "repo": "kunchenguid/chrome-devtools-axi" },
     "lavish":                   { "repo": "kunchenguid/lavish-axi" },
 
@@ -59,8 +58,8 @@
       "writing-skills"
     ],
     "anthropic": ["frontend-design", "skill-creator"],
-    "axi": ["atelier", "chrome-devtools-axi", "lavish"],
+    "axi": ["chrome-devtools-axi", "lavish"],
     "agents-md": ["dox-framework", "agentsmd-init", "baseline-agents", "beads-agents", "opensrc-agents", "taste-setup"],
-    "recommended": ["dox-framework", "atelier", "baseline-agents", "brainstorming", "systematic-debugging", "verification-before-completion"]
+    "recommended": ["dox-framework", "baseline-agents", "brainstorming", "systematic-debugging", "verification-before-completion"]
   }
 }

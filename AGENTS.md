@@ -91,9 +91,7 @@ for Claude Code, universal copies for others). It maintains its own
 - **Remote skills** install from their upstream repo, fetched live (latest).
 - **Bundles** replace the old profiles: `bin/skill install <bundle>` loops
   `skills add` over the bundle's entries.
-- **Companion packages** install via an entry's `setup` command - e.g. `atelier`
-  runs `npm install -g atelier-axi && atelier-axi setup hooks` after the skill
-  lands.
+- **Companion packages** install via an entry's `setup` command after the skill lands.
 
 **Guided setup**: the `local.awesome-ai-usage` skill is the orchestration entry
 point - it detects install vs. uninstall intent and runs the matching workflow

@@ -85,7 +85,7 @@ npx skills add knowttl/awesome-ai --skill dox-framework -g -y
 ```
 
 Some skills need a companion package. Their catalog entry carries a `setup`
-command (e.g. `atelier` → `npm install -g atelier-axi && atelier-axi setup hooks`).
+command.
 `bin/skill install` offers to run it after install; if you installed the skill
 directly with `npx skills`, run the setup command yourself.
 
